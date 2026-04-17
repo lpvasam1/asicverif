@@ -1,0 +1,13 @@
+{
+  "name": "asicverif",
+  "version": "0.1.0",
+  "description": "UVM testbench generator — built by a DV engineer, for DV engineers",
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev",
+    "deploy": "netlify deploy --prod"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
