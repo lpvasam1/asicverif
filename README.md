@@ -5,88 +5,110 @@ UVM testbench generator for hardware verification engineers. Describe an interfa
 ## Stack
 
 - **Frontend:** vanilla HTML / CSS / JS (single file, no build step)
-- **Backend:** Netlify serverless function calling the Claude API
-- **Hosting:** Netlify
+- **Backend:** Cloudflare Pages Function (Worker) calling the Claude API
+- **Hosting:** Cloudflare Pages (free tier)
 - **Donations:** Buy Me a Coffee
 
 No database. No auth. No tracking.
-
-## Local setup
-
-1. Install the Netlify CLI if you don't have it:
-   ```bash
-   npm install -g netlify-cli
-   ```
-
-2. Create a `.env` file at the repo root:
-   ```
-   ANTHROPIC_API_KEY=sk-ant-...
-   ```
-
-3. Run the dev server:
-   ```bash
-   netlify dev
-   ```
-
-   Opens at `http://localhost:8888`. The function is proxied automatically.
-
-## Deploy to production
-
-1. Push this folder to a GitHub repo.
-2. In Netlify: **Add new site → Import from Git** → pick the repo.
-3. Under **Site settings → Environment variables**, add:
-   - `ANTHROPIC_API_KEY` = your production key
-4. Deploy. Netlify will build and host.
-5. Under **Domain management**, add `asicverif.ai` as a custom domain and follow the DNS instructions.
-
-## Updating the Buy Me a Coffee link
-
-Search `index.html` for `buymeacoffee.com/asicverif` and replace with your actual BMC slug once you've created the page at https://buymeacoffee.com.
 
 ## Project structure
 
 ```
 asicverif/
-├── index.html              # Landing page + generator UI (single file)
-├── netlify/
-│   └── functions/
-│       └── generate.js     # Serverless function, calls Claude API
-├── netlify.toml            # Netlify config (120s timeout for generation)
+├── index.html                  # Landing page + generator UI
+├── functions/
+│   └── api/
+│       └── generate.js         # Pages Function, exposed at /api/generate
+├── wrangler.toml               # Cloudflare config
 ├── package.json
+├── .dev.vars.example           # Template for local secrets
+├── .gitignore
 └── README.md
 ```
 
-## How the system prompt works
+Cloudflare Pages automatically routes anything in `functions/` to match the URL path. So `functions/api/generate.js` becomes `https://yoursite.com/api/generate`.
 
-The real moat is in `netlify/functions/generate.js` — the `SYSTEM_PROMPT` constant. That's where DV expertise gets compressed into instructions that shape Claude's output.
+## Local development
 
-As you get real users and feedback, iterate on that prompt:
-- Add protocol-specific rules
-- Add naming conventions that you've seen work
-- Add common mistakes to avoid
-- Add "always do X" and "never do Y" constraints
+1. Install Wrangler (Cloudflare's CLI):
+   ```bash
+   npm install
+   ```
 
-The more specific and opinionated the prompt, the more the output feels like production code rather than generic textbook UVM.
+2. Create `.dev.vars` at the project root (copy from `.dev.vars.example`):
+   ```
+   ANTHROPIC_API_KEY=sk-ant-your-actual-key
+   ```
+
+3. Run the dev server:
+   ```bash
+   npm run dev
+   ```
+
+   Opens at `http://localhost:8788`. The function runs locally through Wrangler's Miniflare runtime.
+
+## Deploy to Cloudflare — two paths
+
+### Option A: Git-based deployment (recommended)
+
+1. Push this repo to GitHub.
+2. Go to [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**.
+3. Pick your GitHub repo.
+4. Build settings:
+   - **Framework preset:** None
+   - **Build command:** *(leave empty)*
+   - **Build output directory:** `/`
+5. Under **Environment variables**, add:
+   - Variable name: `ANTHROPIC_API_KEY`
+   - Value: your production Anthropic API key
+   - **Important:** click the "Encrypt" toggle so it's stored as a secret, not plaintext.
+6. **Save and Deploy**.
+
+Cloudflare will give you a `*.pages.dev` URL. Test it. Then go to **Custom domains → Set up a custom domain** and add `asicverif.ai`. Cloudflare makes this trivial if your domain is already on their nameservers — otherwise they'll give you a CNAME to set.
+
+### Option B: Direct deploy from CLI
+
+```bash
+npx wrangler login            # one-time
+npx wrangler pages deploy .
+```
+
+Then add your API key as a secret:
+```bash
+npx wrangler pages secret put ANTHROPIC_API_KEY --project-name=asicverif
+```
+
+Paste the key when prompted.
+
+## Cloudflare vs Netlify — why this might be better
+
+- **Free tier:** 100,000 function requests/day (Cloudflare) vs. 125k/month (Netlify). For a portfolio tool that might go viral, Cloudflare is more forgiving.
+- **Global edge:** Cloudflare runs your function at 300+ locations worldwide. Lower latency for international users.
+- **No cold starts:** Workers boot in <5ms.
+- **Custom domain with SSL:** free and automatic, even for `.ai` domains.
+
+**One caveat:** Cloudflare Workers have a **30-second CPU limit** on the free plan, but **wall-clock time** (waiting for Claude's API) doesn't count against it. So 30-60s Claude responses work fine.
+
+## Updating the Buy Me a Coffee link
+
+Search `index.html` for `buymeacoffee.com/asicverif` and replace with your BMC slug.
+
+## Cost notes
+
+At `claude-opus-4-5` pricing, each full UVM generation runs roughly $0.30 – $0.80 of API usage depending on output size. Watch your Anthropic usage dashboard. If traffic grows, consider:
+- Rate limiting by IP using Cloudflare's built-in rate limiting rules (free)
+- Falling back to Sonnet for simpler protocols
+- Caching common generations using Cloudflare KV
 
 ## Roadmap
 
 - [x] AXI-Lite generation
 - [ ] AXI4 (full protocol with bursts)
-- [ ] APB
-- [ ] AHB
-- [ ] Wishbone
+- [ ] APB, AHB, Wishbone
 - [ ] Custom protocol (user provides spec)
-- [ ] Full validation plan generator (beyond testbench)
+- [ ] Full validation plan generator
 - [ ] Coverage plan generator
 - [ ] SVA-only generator for a given interface
-- [ ] Sample DUT library so users can try it without their own DUT
-
-## Cost notes
-
-At claude-opus-4-7 pricing, each full UVM generation will cost roughly $0.30 – $0.80 depending on output size (the files are sizable). Watch your Anthropic usage dashboard. If traffic grows:
-- Consider rate limiting by IP (Netlify Edge Functions)
-- Consider falling back to Sonnet for simpler protocols
-- Add a per-IP daily cap before burn is too painful
 
 ## License
 

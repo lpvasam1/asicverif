@@ -1,6 +1,6 @@
-// netlify/functions/generate.js
-// Serverless function that generates a complete UVM testbench using Claude.
-// Keeps ANTHROPIC_API_KEY on the server side so it's never exposed to the browser.
+// functions/api/generate.js
+// Cloudflare Pages Function — runs as a Worker at /api/generate
+// Uses the native fetch Request/Response API.
 
 const ALLOWED_PROTOCOLS = ['axi-lite'];
 const ALLOWED_WIDTHS = [8, 16, 32, 64, 128];
@@ -10,8 +10,7 @@ const ALLOWED_FEATURES = new Set([
 ]);
 
 // ---------------------------------------------------------------------------
-// System prompt — the actual moat. This is where 13 years of DV experience
-// gets compressed into instructions that shape Claude's output.
+// System prompt — the moat. 13 years of DV expertise compressed into rules.
 // ---------------------------------------------------------------------------
 const SYSTEM_PROMPT = `You are a Senior Design Verification engineer with 15+ years of production UVM experience on high-speed protocols (PCIe Gen4/5, NVMe, AXI, AHB, APB) at tier-1 silicon companies. You write UVM code the way it actually ships in production — not the way textbooks or online tutorials write it.
 
@@ -30,7 +29,7 @@ const SYSTEM_PROMPT = `You are a Senior Design Verification engineer with 15+ ye
 - snake_case for variables and functions, UpperCamelCase only for types where idiomatic
 - Every class has a proper constructor with \`super.new\` and name
 - Use \`uvm_info\`, \`uvm_warning\`, \`uvm_error\`, \`uvm_fatal\` with verbosity (UVM_LOW, UVM_MEDIUM, UVM_HIGH)
-- Message IDs are the class name in ALL_CAPS (e.g., \`\`"AXI_DRIVER"\`\`)
+- Message IDs are the class name in ALL_CAPS (e.g., "AXI_DRIVER")
 - Clocking blocks inside the interface for all synchronous signaling
 - \`default disable iff (!rst_n)\` on SVA properties
 - TLM ports/exports properly connected in connect_phase
@@ -39,7 +38,7 @@ const SYSTEM_PROMPT = `You are a Senior Design Verification engineer with 15+ ye
 
 **Sequences**
 - Separate base sequence for shared plumbing, then derived sequences for scenarios
-- Use \`\`\`uvm_do_with\`\`\` or \`start()\` with explicit sequencer
+- Use \`\`uvm_do_with\`\` or \`start()\` with explicit sequencer
 - Virtual sequences for multi-agent coordination (even if only one agent today — sets up the pattern)
 - Include at least: basic_seq, back_to_back_seq, random_seq, and if error_injection: error_seq
 
@@ -84,7 +83,7 @@ Required files:
 
 # Critical rules
 
-- ALWAYS \`\`\`include "uvm_macros.svh"\` and \`\`\`import uvm_pkg::*\`\` in the package
+- ALWAYS \`\`include "uvm_macros.svh"\` and \`\`import uvm_pkg::*\`\` in the package
 - Interface signals named per the protocol spec (for AXI: awvalid, awready, awaddr, wdata, wstrb, etc.)
 - Driver blocks on \`seq_item_port.get_next_item\` / calls \`item_done\`
 - Monitor samples on clock edges via clocking block — not @(posedge clk) directly on signals
@@ -144,7 +143,7 @@ Produce the complete file set per your system-prompt spec. Make it compile-clean
 }
 
 // ---------------------------------------------------------------------------
-// Input validation — keep it tight so users can't abuse the API key
+// Validation
 // ---------------------------------------------------------------------------
 function validateSpec(body) {
   const errors = [];
@@ -182,10 +181,7 @@ function validateSpec(body) {
 // ---------------------------------------------------------------------------
 // Call Claude API
 // ---------------------------------------------------------------------------
-async function callClaude(spec) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error('Server misconfiguration: ANTHROPIC_API_KEY not set');
-
+async function callClaude(spec, apiKey) {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -194,7 +190,7 @@ async function callClaude(spec) {
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
-      model: 'claude-opus-4-7',
+      model: 'claude-opus-4-5',
       max_tokens: 16000,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: buildUserPrompt(spec) }]
@@ -212,13 +208,12 @@ async function callClaude(spec) {
 }
 
 // ---------------------------------------------------------------------------
-// Parse Claude's JSON response (handles stray fences just in case)
+// Parse Claude's JSON response
 // ---------------------------------------------------------------------------
 function parseClaudeResponse(text) {
   let cleaned = text.trim();
   cleaned = cleaned.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
 
-  // Find first { and last } to handle any leading/trailing prose
   const start = cleaned.indexOf('{');
   const end = cleaned.lastIndexOf('}');
   if (start === -1 || end === -1) throw new Error('Claude did not return JSON');
@@ -227,7 +222,7 @@ function parseClaudeResponse(text) {
   let parsed;
   try {
     parsed = JSON.parse(cleaned);
-  } catch (e) {
+  } catch {
     throw new Error('Claude returned malformed JSON. Try again or simplify your request.');
   }
 
@@ -238,7 +233,6 @@ function parseClaudeResponse(text) {
   const files = {};
   for (const [name, content] of Object.entries(parsed.files)) {
     if (typeof content === 'string' && content.length > 0) {
-      // Sanitize filename — strip any path traversal
       const safeName = name.replace(/\.\./g, '').replace(/^\/+/, '');
       files[safeName] = content;
     }
@@ -249,49 +243,69 @@ function parseClaudeResponse(text) {
 }
 
 // ---------------------------------------------------------------------------
-// Main handler
+// Cloudflare Pages Functions handler — uses fetch Request/Response API
+// Bindings available via `context.env`
 // ---------------------------------------------------------------------------
-exports.handler = async (event) => {
-  const headers = {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
-  };
+const corsHeaders = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type'
+};
 
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: '' };
-  }
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+export async function onRequestOptions() {
+  return new Response(null, { status: 204, headers: corsHeaders });
+}
+
+export async function onRequestPost(context) {
+  const { request, env } = context;
+
+  if (!env.ANTHROPIC_API_KEY) {
+    return new Response(
+      JSON.stringify({ error: 'Server misconfiguration: ANTHROPIC_API_KEY not set' }),
+      { status: 500, headers: corsHeaders }
+    );
   }
 
   let body;
   try {
-    body = JSON.parse(event.body || '{}');
+    body = await request.json();
   } catch {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) };
+    return new Response(
+      JSON.stringify({ error: 'Invalid JSON' }),
+      { status: 400, headers: corsHeaders }
+    );
   }
 
   const { errors, clean } = validateSpec(body);
   if (errors.length) {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: errors.join('; ') }) };
+    return new Response(
+      JSON.stringify({ error: errors.join('; ') }),
+      { status: 400, headers: corsHeaders }
+    );
   }
 
   try {
-    const rawText = await callClaude(clean);
+    const rawText = await callClaude(clean, env.ANTHROPIC_API_KEY);
     const files = parseClaudeResponse(rawText);
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ files, spec: clean })
-    };
+    return new Response(
+      JSON.stringify({ files, spec: clean }),
+      { status: 200, headers: corsHeaders }
+    );
   } catch (err) {
     console.error('Generation failed:', err);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: err.message || 'Generation failed' })
-    };
+    return new Response(
+      JSON.stringify({ error: err.message || 'Generation failed' }),
+      { status: 500, headers: corsHeaders }
+    );
   }
-};
+}
+
+export async function onRequest(context) {
+  if (context.request.method === 'OPTIONS') return onRequestOptions();
+  if (context.request.method === 'POST') return onRequestPost(context);
+  return new Response(
+    JSON.stringify({ error: 'Method not allowed' }),
+    { status: 405, headers: corsHeaders }
+  );
+}

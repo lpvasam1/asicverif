@@ -1,0 +1,3 @@
+# Copy this to .dev.vars (never commit .dev.vars!)
+# Used by `wrangler pages dev` for local development
+ANTHROPIC_API_KEY=sk-ant-your-key-here

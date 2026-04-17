@@ -4,10 +4,10 @@
   "description": "UVM testbench generator — built by a DV engineer, for DV engineers",
   "private": true,
   "scripts": {
-    "dev": "netlify dev",
-    "deploy": "netlify deploy --prod"
+    "dev": "wrangler pages dev .",
+    "deploy": "wrangler pages deploy ."
   },
-  "engines": {
-    "node": ">=18"
+  "devDependencies": {
+    "wrangler": "^3.80.0"
   }
 }
