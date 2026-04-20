@@ -1,114 +1,96 @@
 # asicverif.ai
 
-UVM testbench generator for hardware verification engineers. Describe an interface, get a complete, production-ready UVM project.
+A small press for verification engineers. Describe an interface — receive a full, production-ready UVM testbench.
 
-## Stack
-
-- **Frontend:** vanilla HTML / CSS / JS (single file, no build step)
-- **Backend:** Cloudflare Pages Function (Worker) calling the Claude API
-- **Hosting:** Cloudflare Pages (free tier)
-- **Donations:** Buy Me a Coffee
-
-No database. No auth. No tracking.
-
-## Project structure
+## What's in here
 
 ```
 asicverif/
-├── index.html                  # Landing page + generator UI
+├── index.html                  # Homepage + generator (boutique book aesthetic)
+├── assets/
+│   └── site.css                # Unified stylesheet — drives the whole site's look
+├── learn/
+│   ├── index.html              # SystemVerilog for Verification — hub
+│   ├── basic.html              # Part I — Foundations & Form
+│   ├── intermediate.html       # Part II — Intermediate Matters
+│   ├── advanced.html           # Part III — Advanced Topics
+│   ├── test-basic.html         # Exam I
+│   ├── test-intermediate.html  # Exam II
+│   └── test-advanced.html      # Exam III
 ├── functions/
 │   └── api/
-│       └── generate.js         # Pages Function, exposed at /api/generate
-├── wrangler.toml               # Cloudflare config
-├── package.json
-├── .dev.vars.example           # Template for local secrets
+│       └── generate.js         # Cloudflare Pages Function — calls Claude API
 ├── .gitignore
 └── README.md
 ```
 
-Cloudflare Pages automatically routes anything in `functions/` to match the URL path. So `functions/api/generate.js` becomes `https://yoursite.com/api/generate`.
+## Design system
+
+The whole site is driven by `assets/site.css`. One stylesheet, one aesthetic — paper (`#faf6ed`) background, Fraunces serif display, Crimson Pro body, JetBrains Mono for code, ink/red/gold/sage accents. Think: a boutique letterpress manual, not a SaaS dashboard.
+
+To change the look across the entire site, edit `assets/site.css`. You'll never need to touch individual pages for style updates.
+
+## Nav structure
+
+One shared nav across every page:
+
+- **Generate** — `/` (home + generator)
+- **Learn** — `/learn/` (SystemVerilog hub + chapters + exams)
+- **About** — `/#about` (anchor on home)
+- **Donate** — Buy Me a Coffee link
+
+When on a learn page, "Learn" is shown as active; when on home, "Generate" is active.
+
+## Deployment (Cloudflare Pages)
+
+### First-time setup
+
+1. Push to GitHub
+2. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** tab → **Connect to Git**
+3. Pick the repo, project name `asicverif`
+4. Build settings:
+   - Framework preset: **None**
+   - Build command: *(empty)*
+   - Build output directory: `/`
+5. Environment variables → add `ANTHROPIC_API_KEY` (encrypted/secret)
+6. Deploy
+
+### Every subsequent change
+
+Just `git push` — Cloudflare auto-deploys in ~30s.
 
 ## Local development
 
-1. Install Wrangler (Cloudflare's CLI):
-   ```bash
-   npm install
-   ```
-
-2. Create `.dev.vars` at the project root (copy from `.dev.vars.example`):
-   ```
-   ANTHROPIC_API_KEY=sk-ant-your-actual-key
-   ```
-
-3. Run the dev server:
-   ```bash
-   npm run dev
-   ```
-
-   Opens at `http://localhost:8788`. The function runs locally through Wrangler's Miniflare runtime.
-
-## Deploy to Cloudflare — two paths
-
-### Option A: Git-based deployment (recommended)
-
-1. Push this repo to GitHub.
-2. Go to [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**.
-3. Pick your GitHub repo.
-4. Build settings:
-   - **Framework preset:** None
-   - **Build command:** *(leave empty)*
-   - **Build output directory:** `/`
-5. Under **Environment variables**, add:
-   - Variable name: `ANTHROPIC_API_KEY`
-   - Value: your production Anthropic API key
-   - **Important:** click the "Encrypt" toggle so it's stored as a secret, not plaintext.
-6. **Save and Deploy**.
-
-Cloudflare will give you a `*.pages.dev` URL. Test it. Then go to **Custom domains → Set up a custom domain** and add `asicverif.ai`. Cloudflare makes this trivial if your domain is already on their nameservers — otherwise they'll give you a CNAME to set.
-
-### Option B: Direct deploy from CLI
-
 ```bash
-npx wrangler login            # one-time
-npx wrangler pages deploy .
+# Serve locally — any static server works for the frontend
+python3 -m http.server 8000
+
+# For the generator function, use Wrangler
+npm install -g wrangler
+cp .dev.vars.example .dev.vars  # then paste your API key
+wrangler pages dev .
 ```
 
-Then add your API key as a secret:
-```bash
-npx wrangler pages secret put ANTHROPIC_API_KEY --project-name=asicverif
-```
+## Iterating on the system prompt
 
-Paste the key when prompted.
+The real moat is in `functions/api/generate.js` — the `SYSTEM_PROMPT` constant. That's where 13 years of DV expertise gets compressed into rules that shape the output.
 
-## Cloudflare vs Netlify — why this might be better
-
-- **Free tier:** 100,000 function requests/day (Cloudflare) vs. 125k/month (Netlify). For a portfolio tool that might go viral, Cloudflare is more forgiving.
-- **Global edge:** Cloudflare runs your function at 300+ locations worldwide. Lower latency for international users.
-- **No cold starts:** Workers boot in <5ms.
-- **Custom domain with SSL:** free and automatic, even for `.ai` domains.
-
-**One caveat:** Cloudflare Workers have a **30-second CPU limit** on the free plan, but **wall-clock time** (waiting for Claude's API) doesn't count against it. So 30-60s Claude responses work fine.
-
-## Updating the Buy Me a Coffee link
-
-Search `index.html` for `buymeacoffee.com/asicverif` and replace with your BMC slug.
-
-## Cost notes
-
-At `claude-opus-4-5` pricing, each full UVM generation runs roughly $0.30 – $0.80 of API usage depending on output size. Watch your Anthropic usage dashboard. If traffic grows, consider:
-- Rate limiting by IP using Cloudflare's built-in rate limiting rules (free)
-- Falling back to Sonnet for simpler protocols
-- Caching common generations using Cloudflare KV
+As you get real users and feedback, iterate on that prompt:
+- Add protocol-specific rules
+- Bake in naming conventions you've seen work
+- Call out common mistakes to avoid
+- Build "always do X" / "never do Y" constraints
 
 ## Roadmap
 
 - [x] AXI-Lite generation
-- [ ] AXI4 (full protocol with bursts)
+- [x] SystemVerilog learning pages (Parts I/II/III + exams)
+- [ ] AXI4 (bursts)
 - [ ] APB, AHB, Wishbone
-- [ ] Custom protocol (user provides spec)
-- [ ] Full validation plan generator
-- [ ] Coverage plan generator
-- [ ] SVA-only generator for a given interface
+- [ ] Custom protocol
+- [ ] VHDL track
+- [ ] UVM reference track
+- [ ] Formal verification track
 
 ## License
 

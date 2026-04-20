@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Examination II — The Construction Exam · SystemVerilog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  :root {
+    --paper: #faf6ed; --paper-2: #f3ede0; --paper-3: #ece4d0;
+    --ink: #1a1816; --ink-soft: #4a4540; --ink-faint: #8b8377;
+    --rule: #c8bfa8; --rule-soft: #ded5c1;
+    --red: #a8322a; --red-soft: #c45b51;
+    --blue: #2c4a6e; --blue-soft: #4a6a8c;
+    --gold: #b8893a; --sage: #6b8068;
+    --display: 'Fraunces', Georgia, serif;
+    --body: 'Crimson Pro', Georgia, serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 18px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.06 0 0 0 0.04 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: 0.4; pointer-events: none; z-index: 0; mix-blend-mode: multiply;
+  }
+
+  .masthead { border-bottom: 3px double var(--ink); padding: 16px 40px 12px; display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); position: relative; z-index: 1; background: var(--paper); }
+  .masthead .left { display: flex; gap: 20px; }
+  .masthead .folio::before { content: "№ "; color: var(--red); }
+  .masthead .right { font-style: italic; font-family: var(--body); letter-spacing: 0.05em; text-transform: none; font-size: 14px; color: var(--ink-faint); }
+
+  .nav { position: sticky; top: 0; z-index: 100; background: var(--paper); border-bottom: 1px solid var(--ink); backdrop-filter: blur(4px); }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 14px 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .brand { font-family: var(--display); font-weight: 600; font-size: 22px; font-style: italic; color: var(--ink); text-decoration: none; display: flex; align-items: baseline; gap: 8px; }
+  .brand::before { content: "❦"; color: var(--red); font-size: 20px; font-style: normal; }
+  .tabs { display: flex; gap: 0; list-style: none; }
+  .tabs a { font-family: var(--body); font-size: 16px; color: var(--ink-soft); text-decoration: none; padding: 8px 18px; border-right: 1px solid var(--rule); transition: color 0.15s; position: relative; }
+  .tabs li:last-child a { border-right: none; }
+  .tabs a:hover { color: var(--red); }
+  .tabs a.active { color: var(--red); font-weight: 500; font-style: italic; }
+  .tabs a.active::after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 2px; height: 1px; background: var(--red); }
+
+  /* ===== EXAM OPENER ===== */
+  .exam-opener {
+    max-width: 900px;
+    margin: 60px auto 40px;
+    padding: 50px 40px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .exam-marker {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .exam-marker::before, .exam-marker::after {
+    content: "·";
+    margin: 0 14px;
+    color: var(--gold);
+  }
+  .exam-opener h1 {
+    font-family: var(--display);
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 0.98;
+    margin-bottom: 18px;
+  }
+  .exam-opener h1 em {
+    font-style: italic;
+    color: var(--red);
+    font-weight: 300;
+  }
+  .exam-opener .sub {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 19px;
+    color: var(--ink-soft);
+    margin-bottom: 28px;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.4;
+  }
+  .exam-stats {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin: 28px 0 20px;
+    flex-wrap: wrap;
+  }
+  .exam-stat {
+    text-align: center;
+  }
+  .exam-stat .n {
+    font-family: var(--display);
+    font-size: 44px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--red);
+    line-height: 1;
+  }
+  .exam-stat .lbl {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .exam-opener .crumbs {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: 22px;
+  }
+  .exam-opener .crumbs a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+  }
+  .exam-opener .crumbs a:hover { color: var(--red); border-color: var(--red); }
+
+  /* ===== RULES CARD ===== */
+  .rules-card {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 28px 36px;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    position: relative;
+    z-index: 1;
+  }
+  .rules-card::before {
+    content: "";
+    position: absolute;
+    top: 6px; left: 6px; right: 6px; bottom: 6px;
+    border: 1px solid var(--rule-soft);
+    pointer-events: none;
+  }
+  .rules-card h4 {
+    font-family: var(--display);
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 14px;
+    color: var(--ink);
+  }
+  .rules-card h4::before, .rules-card h4::after {
+    content: "§"; color: var(--red); margin: 0 12px; font-weight: 300;
+  }
+  .rules-card p {
+    font-size: 16px;
+    color: var(--ink-soft);
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto;
+    line-height: 1.55;
+  }
+  .rules-card p strong { color: var(--ink); font-weight: 600; }
+
+  /* ===== STICKY PROGRESS ===== */
+  .progress {
+    position: sticky;
+    top: 60px;
+    z-index: 50;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 14px 24px;
+    display: none;
+    z-index: 1;
+  }
+  .progress.visible { display: block; }
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+  .progress-top .pct { color: var(--red); font-weight: 700; font-family: var(--display); font-size: 18px; font-style: italic; letter-spacing: 0; }
+  .progress-track {
+    height: 3px;
+    background: var(--rule);
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--red);
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  /* ===== QUESTION CARDS ===== */
+  .exam-body {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .question {
+    margin-bottom: 40px;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    position: relative;
+    transition: box-shadow 0.2s;
+  }
+  .question::before {
+    content: "";
+    position: absolute;
+    top: 6px; left: 6px; right: 6px; bottom: 6px;
+    border: 1px solid var(--rule);
+    pointer-events: none;
+  }
+  .question.answered {
+    border-color: var(--red);
+  }
+  .question.answered::before { border-color: var(--rule); }
+
+  .q-head {
+    padding: 20px 32px 16px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .q-num {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 26px;
+    color: var(--red);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .q-num .roman {
+    font-size: 32px;
+    font-weight: 500;
+    margin-right: 6px;
+  }
+  .q-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+  .q-meta .sep { color: var(--gold); margin: 0 8px; }
+
+  .q-body {
+    padding: 24px 32px 12px;
+  }
+  .q-prompt {
+    font-family: var(--body);
+    font-size: 19px;
+    line-height: 1.55;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+  .q-prompt code {
+    font-family: var(--mono);
+    background: var(--paper-2);
+    padding: 1px 7px;
+    color: var(--blue);
+    font-size: 0.85em;
+    border: 1px solid var(--rule-soft);
+    font-weight: 500;
+  }
+  .q-prompt em {
+    font-style: italic;
+    color: var(--red);
+  }
+  .q-code {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.75;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    padding: 14px 18px;
+    margin: 16px 0;
+    white-space: pre;
+    overflow-x: auto;
+    color: var(--ink);
+  }
+  .q-code .kw { color: var(--red); font-weight: 500; }
+  .q-code .ty { color: var(--blue); font-weight: 500; }
+  .q-code .fn { color: var(--gold); font-weight: 500; }
+  .q-code .str { color: var(--sage); }
+  .q-code .cm { color: var(--ink-faint); font-style: italic; }
+  .q-code .num { color: #8a5a00; }
+
+  /* Choice rows styled like a book's enumerated list */
+  .choices {
+    list-style: none;
+    margin: 12px 0 20px;
+  }
+  .choice {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    cursor: pointer;
+    transition: all 0.12s;
+    position: relative;
+  }
+  .choice:hover {
+    border-color: var(--red);
+    background: var(--paper-2);
+  }
+  .choice-letter {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--red);
+    min-width: 32px;
+    line-height: 1;
+    padding-top: 1px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+  .choice-text {
+    font-family: var(--body);
+    font-size: 16.5px;
+    line-height: 1.5;
+    color: var(--ink);
+    flex: 1;
+  }
+  .choice-text code {
+    font-family: var(--mono);
+    background: var(--paper-2);
+    padding: 1px 6px;
+    color: var(--blue);
+    font-size: 0.88em;
+    border: 1px solid var(--rule-soft);
+    font-weight: 500;
+  }
+  .choice-text em { color: var(--red); font-style: italic; }
+
+  .choice.selected {
+    border-color: var(--ink);
+    background: var(--paper-2);
+    box-shadow: 3px 3px 0 var(--rule);
+  }
+  .choice.selected .choice-letter {
+    background: var(--red);
+    color: var(--paper);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-style: normal;
+    font-size: 16px;
+    margin-top: -2px;
+  }
+
+  /* Graded states */
+  .question.graded .choice {
+    cursor: default;
+    pointer-events: none;
+  }
+  .choice.correct {
+    border-color: var(--sage);
+    background: rgba(107, 128, 104, 0.08);
+  }
+  .choice.correct .choice-letter {
+    background: var(--sage);
+    color: var(--paper);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-style: normal;
+    font-size: 16px;
+    margin-top: -2px;
+  }
+  .choice.incorrect {
+    border-color: var(--red);
+    background: rgba(168, 50, 42, 0.06);
+  }
+  .choice.incorrect .choice-letter {
+    background: var(--red);
+    color: var(--paper);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-style: normal;
+    font-size: 16px;
+    margin-top: -2px;
+  }
+
+  /* Explanation (visible only when graded) */
+  .explain {
+    display: none;
+    margin: 0 20px 20px;
+    padding: 16px 22px;
+    background: var(--paper-2);
+    border-left: 3px solid var(--red);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  .explain .lbl {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--red);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .explain code {
+    font-family: var(--mono);
+    background: var(--paper);
+    padding: 1px 5px;
+    color: var(--blue);
+    font-size: 0.86em;
+    border: 1px solid var(--rule-soft);
+  }
+  .explain em { color: var(--red); font-style: italic; }
+  .question.graded .explain { display: block; }
+
+  /* ===== SUBMIT / RESULTS ===== */
+  .submit-wrap {
+    max-width: 900px;
+    margin: 50px auto 40px;
+    padding: 40px;
+    text-align: center;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+    z-index: 1;
+  }
+  .submit-wrap .note {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-top: 16px;
+  }
+  .submit-wrap .note.ready { color: var(--sage); }
+
+  .btn {
+    font-family: var(--body);
+    font-size: 16px;
+    letter-spacing: 0.05em;
+    padding: 14px 36px;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .btn:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--red);
+  }
+  .btn.red { background: var(--red); color: var(--paper); border-color: var(--red); }
+  .btn.red:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); }
+  .btn:disabled {
+    background: var(--paper-3);
+    color: var(--ink-faint);
+    border-color: var(--rule);
+    cursor: not-allowed;
+  }
+  .btn.ghost { background: transparent; }
+
+  /* Results panel */
+  .results {
+    display: none;
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 50px 40px;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+  .results::before {
+    content: ""; position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px;
+    border: 1px solid var(--rule);
+    pointer-events: none;
+  }
+  .results.visible { display: block; }
+  .results .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .results .label::before, .results .label::after { content: "·"; margin: 0 14px; color: var(--gold);}
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    align-items: center;
+    margin-bottom: 24px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .results-cell {
+    padding: 24px 12px;
+    text-align: center;
+    border-right: 1px solid var(--rule);
+  }
+  .results-cell:last-child { border-right: none; }
+  .results-cell .n {
+    font-family: var(--display);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .results-cell.score .n {
+    font-size: 80px;
+    color: var(--red);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .results-cell.score .n sup { font-size: 30px; color: var(--ink-faint); font-weight: 400; vertical-align: top; margin-left: 4px; }
+  .results-cell.grade .n {
+    font-size: 96px;
+    font-weight: 600;
+    color: var(--red);
+    font-style: italic;
+  }
+  .results-cell.raw .n {
+    font-size: 56px;
+    font-weight: 400;
+  }
+  .results-cell.raw .n .denom { color: var(--ink-faint); font-size: 0.5em; }
+  .results-cell .cap {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: 10px;
+  }
+  .results .blurb {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ink-soft);
+    max-width: 580px;
+    margin: 20px auto 28px;
+    line-height: 1.4;
+  }
+  .results .btn-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  footer {
+    padding: 40px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    border-top: 1px solid var(--rule);
+    position: relative;
+    z-index: 1;
+  }
+  footer .flourish { color: var(--red); margin: 0 12px; }
+
+  @media (max-width: 768px) {
+    .masthead { padding: 14px 20px; flex-wrap: wrap; gap: 8px; }
+    .nav-inner { padding: 12px 16px; }
+    .tabs { flex-wrap: wrap; }
+    .tabs a { padding: 6px 12px; font-size: 14px; }
+    .exam-opener { padding: 30px 20px; margin: 30px auto; }
+    .exam-body { padding: 20px 16px; }
+    .rules-card { padding: 22px 20px; }
+    .q-head { padding: 16px 20px 12px; }
+    .q-body { padding: 18px 20px 6px; }
+    .choice { padding: 12px 14px; }
+    .explain { margin: 0 14px 14px; padding: 14px 16px; }
+    .submit-wrap { padding: 28px 20px; }
+    .results { padding: 32px 20px; }
+    .results-grid { grid-template-columns: 1fr; }
+    .results-cell { border-right: none; border-bottom: 1px solid var(--rule); }
+    .results-cell:last-child { border-bottom: none; }
+    .results-cell.score .n { font-size: 56px; }
+    .results-cell.grade .n { font-size: 64px; }
+    .exam-stats { gap: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <span class="folio">ed. 3</span>
+    <span>Examination II · Construction</span>
+  </div>
+  <div class="right">Twenty questions · auto-graded</div>
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand">asic <em>verif</em></a>
+    <ul class="tabs">
+      <li><a href="/">Generate</a></li>
+      <li><a href="/learn/" class="active">Learn</a></li>
+      <li><a href="/#about">About</a></li>
+      <li><a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Donate</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- EXAM OPENER -->
+<section class="exam-opener">
+  <div class="exam-marker">Part II · Examination</div>
+  <h1>The <em>Construction</em><br>Exam.</h1>
+  <p class="sub">
+    Twenty questions on interfaces, clocking, program blocks, basic OOP, and the
+    full span of constrained randomization.
+  </p>
+  <div class="exam-stats">
+    <div class="exam-stat"><div class="n">20</div><div class="lbl">Questions</div></div>
+    <div class="exam-stat"><div class="n">~20</div><div class="lbl">Minutes</div></div>
+    <div class="exam-stat"><div class="n">IV–VI</div><div class="lbl">Chapters</div></div>
+  </div>
+  <div class="crumbs">
+    <a href="intermediate.html">← Re-read Part II</a>
+    &nbsp; · &nbsp;
+    <a href="index.html">Contents</a>
+  </div>
+</section>
+
+<!-- RULES -->
+<div class="rules-card">
+  <h4>Instructions to the candidate</h4>
+  <p>
+    Select one answer per question. The <strong>Submit &amp; Grade</strong> button
+    enables once all twenty are answered. Grading is <strong>A</strong> ≥ 90%,
+    <strong>B</strong> ≥ 80%, <strong>C</strong> ≥ 70%, <strong>D</strong> ≥ 60%,
+    <strong>F</strong> below. Every question reveals an explanation on submit.
+    Retake as often as you like.
+  </p>
+</div>
+
+<!-- Progress bar (sticky, appears after first answer) -->
+<div class="progress" id="progress">
+  <div class="progress-top">
+    <span>Progress</span>
+    <span class="pct" id="progressPct">0 / 20</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- EXAM BODY -->
+<main class="exam-body">
+  <form id="examForm"><div id="questionList"></div></form>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="label">Graded</div>
+    <div class="results-grid">
+      <div class="results-cell score">
+        <div class="n"><span id="scorePct">0</span><sup>%</sup></div>
+        <div class="cap">Score</div>
+      </div>
+      <div class="results-cell grade">
+        <div class="n" id="gradeLetter">–</div>
+        <div class="cap">Letter</div>
+      </div>
+      <div class="results-cell raw">
+        <div class="n"><span id="rawCorrect">0</span><span class="denom"> / 20</span></div>
+        <div class="cap">Correct</div>
+      </div>
+    </div>
+    <p class="blurb" id="gradeBlurb">–</p>
+    <div class="btn-row">
+      <button class="btn red" onclick="retake()">Retake Examination II</button>
+      <a href="intermediate.html" class="btn">Re-read Part II</a>
+      <a href="test-advanced.html" class="btn ghost">Continue to Examination III →</a>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-wrap" id="submitWrap">
+    <button class="btn red" id="submitBtn" disabled onclick="gradeExam()">Submit &amp; grade</button>
+    <div class="note" id="submitNote">Answer all 20 questions to enable submission</div>
+  </div>
+</main>
+
+<footer>
+  Examination II of III <span class="flourish">·</span> Verif Academy <span class="flourish">·</span> After Spear &amp; Tumbush
+</footer>
+
+<script>
+// ============================================================
+// EXAMINATION II — 20 questions, Chapters 4-6
+// Answer distribution rebalanced across A/B/C/D
+// ============================================================
+const QUESTIONS = [
+  {
+    chapter: "Ch. iv · Connecting TB & Design",
+    q: "What is the primary purpose of a SystemVerilog <code>interface</code>?",
+    choices: [
+      "To bundle related signals together, reducing port-list boilerplate and allowing shared timing and verification logic.",
+      "To replace the Verilog <code>module</code> keyword.",
+      "To provide a C-like function pointer.",
+      "To declare coverage bins."
+    ],
+    answer: 0,
+    explain: "Interfaces group signals, modports, clocking blocks, tasks, and assertions into one reusable construct. Connecting a 40-wire bus then becomes a single identifier instead of 40 port names."
+  },
+  {
+    chapter: "Ch. iv · Connecting TB & Design",
+    q: "A <code>modport</code> inside an interface is used to…",
+    choices: [
+      "declare the clocking region.",
+      "connect two interfaces together.",
+      "define a direction/view of the interface signals from the perspective of a particular module (e.g., master vs slave).",
+      "instantiate a module inside the interface."
+    ],
+    answer: 2,
+    explain: "Modports let the same interface present different directional views to different attached modules — e.g., master sees signals as output where slave sees them as input, all from one declaration."
+  },
+  {
+    chapter: "Ch. iv · Connecting TB & Design",
+    q: "A <code>clocking</code> block primarily solves which problem?",
+    choices: [
+      "Generating the system clock.",
+      "Providing deterministic, race-free sampling and driving of DUT signals with explicit input/output skews.",
+      "Tracking simulation time.",
+      "Replacing the <code>initial</code> block."
+    ],
+    answer: 1,
+    explain: "Without a clocking block, a testbench reading an RTL signal on the same edge can race the RTL's write. Clocking blocks move TB sampling to the preponed region and driving to NBA, eliminating 0-time races."
+  },
+  {
+    chapter: "Ch. iv · Connecting TB & Design",
+    q: "Why does the book recommend putting testbench code in a <code>program</code> block rather than a <code>module</code>?",
+    choices: [
+      "<code>program</code> blocks can be synthesized to silicon.",
+      "<code>program</code> blocks execute in the Reactive region (after Active), avoiding race conditions with RTL, and cannot contain <code>always</code> blocks.",
+      "<code>program</code> blocks run 10× faster.",
+      "Only <code>program</code> blocks support classes."
+    ],
+    answer: 1,
+    explain: "Program blocks schedule their initial code in the Reactive region, after the RTL's Active region has settled. This is what makes the TB-DUT sampling race go away. always blocks are disallowed to reinforce this model."
+  },
+  {
+    chapter: "Ch. iv · Connecting TB & Design",
+    q: "What is the difference between an <em>immediate</em> assertion and a <em>concurrent</em> assertion?",
+    choices: [
+      "Immediate assertions require a cover statement; concurrent ones do not.",
+      "Concurrent assertions can only appear inside interfaces.",
+      "Immediate assertions execute procedurally like an <code>if</code> and evaluate once when reached; concurrent assertions are clocked, continuously monitored sequences over time.",
+      "There is no difference — the terms are synonyms."
+    ],
+    answer: 2,
+    explain: "assert #(0) a == b; (immediate) is a one-shot procedural check. assert property(@(posedge clk) a |=> b); (concurrent) is a temporal property evaluated on every clock edge."
+  },
+  {
+    chapter: "Ch. iv · Connecting TB & Design",
+    q: "What happens if you use a <code>logic</code> variable for a bidirectional bus signal driven by two modules?",
+    choices: [
+      "It works fine — <code>logic</code> automatically resolves multiple drivers.",
+      "The last-written value always wins.",
+      "It silently behaves like an XOR of the drivers.",
+      "The simulator will reject it because <code>logic</code> only tolerates a single structural driver."
+    ],
+    answer: 3,
+    explain: "logic's single-driver restriction is exactly what lets the simulator flag netlist mistakes. For real bidirectional buses, use wire (or tri/tri0/tri1) so multi-driver resolution kicks in."
+  },
+  {
+    chapter: "Ch. v · Basic OOP",
+    q: "In SystemVerilog, what type is a variable that stores a reference to a class object?",
+    choices: [
+      "A copy of the object's fields.",
+      "A <em>handle</em> — an opaque reference, null by default, set by calling <code>new()</code>.",
+      "A raw pointer — dereference with <code>*</code>.",
+      "A process ID."
+    ],
+    answer: 1,
+    explain: "SystemVerilog has no C-style pointers. Class variables are handles — opaque references. Declaring one allocates nothing; you must call new() (or assign from another handle) to point at an actual object."
+  },
+  {
+    chapter: "Ch. v · Basic OOP",
+    q: "What happens when you declare <code>Transaction t;</code> (no <code>new</code>) and then call <code>t.randomize();</code>?",
+    choices: [
+      "The randomize call creates the object automatically.",
+      "The simulator errors out at compile time.",
+      "<code>t</code> is default-constructed with all fields set to zero.",
+      "It is a runtime null-handle dereference — the common bug when programmers forget constructors are explicit."
+    ],
+    answer: 3,
+    explain: "Unlike C++ or Java, SystemVerilog never calls a constructor implicitly on declaration. A handle with no new() is null, and invoking any method/field on it is a runtime error."
+  },
+  {
+    chapter: "Ch. v · Basic OOP",
+    q: "What does the <code>static</code> keyword on a class member variable indicate?",
+    choices: [
+      "The variable is allocated on the simulator's heap.",
+      "The variable is packed.",
+      "There is exactly one copy shared by all objects of the class, accessible as <code>ClassName::var</code>.",
+      "The variable cannot be modified after construction."
+    ],
+    answer: 2,
+    explain: "static class members are per-class, not per-object. Good for counters, configuration pointers, or registries. Accessible via a handle or via ClassName::var."
+  },
+  {
+    chapter: "Ch. v · Basic OOP",
+    q: "Which keyword disambiguates a class member from a constructor argument of the same name?",
+    choices: [
+      "<code>super</code>",
+      "<code>local</code>",
+      "<code>this</code>",
+      "<code>root</code>"
+    ],
+    answer: 2,
+    explain: "this.name = name; is the canonical example — left side is the class field, right side is the argument. super refers to a parent class; local restricts visibility."
+  },
+  {
+    chapter: "Ch. v · Basic OOP",
+    q: "Inside a class, what does the <code>::</code> operator do?",
+    choices: [
+      "It is the scope-resolution operator — e.g., <code>Transaction::count</code> accesses a static member or a nested type.",
+      "It concatenates two strings.",
+      "It is not valid SystemVerilog.",
+      "It separates bits of a packed array."
+    ],
+    answer: 0,
+    explain: "The class scope-resolution operator lets you reach static members without a handle, reference nested typedefs/enums, or call a parent's method as super::m(). It also names package members: pkg::sym."
+  },
+  {
+    chapter: "Ch. vi · Randomization",
+    q: "What is the difference between <code>rand</code> and <code>randc</code>?",
+    choices: [
+      "<code>rand</code> is for integers only; <code>randc</code> is for reals.",
+      "<code>randc</code> is a Verilog-1995 keyword; <code>rand</code> is new.",
+      "They are identical; the 'c' stands for compatible.",
+      "<code>rand</code> produces uniformly random values on each randomize(); <code>randc</code> (random-cyclic) permutes through all legal values before repeating."
+    ],
+    answer: 3,
+    explain: "randc cycles through the value range in a random permutation — useful when you want full coverage of a small field (opcode, bank id) without accidental repeats."
+  },
+  {
+    chapter: "Ch. vi · Randomization",
+    q: "Given a constraint block inside a class with <code>rand int len</code>, which of the following is a legal constraint expression?",
+    choices: [
+      "<code>len = 42;</code>",
+      "<code>len == 42;</code>",
+      "<code>len &lt;= 100 &amp;&amp; len &gt;= 1;</code>",
+      "Both B and C are legal."
+    ],
+    answer: 3,
+    explain: "Constraint blocks contain <em>expressions</em>, not assignments, so `=` is illegal. Equivalence is `==`, and relational combinators like `&&` are fine. Option A uses an assignment."
+  },
+  {
+    chapter: "Ch. vi · Randomization",
+    q: "What does the <code>inside</code> operator do in a constraint?",
+    choices: [
+      "Checks whether a handle is non-null.",
+      "Declares a nested covergroup.",
+      "Tests set membership — <code>x inside {1,3,[5:10]}</code> means x is 1, 3, or between 5 and 10 inclusive.",
+      "Copies a value into an array."
+    ],
+    answer: 2,
+    explain: "inside is the compact set-membership operator and accepts discrete values and closed ranges. It also works in procedural if statements, not just constraints."
+  },
+  {
+    chapter: "Ch. vi · Randomization",
+    q: "What does the <code>dist</code> operator do in a constraint?",
+    choices: [
+      "Distributes the constraint across all class instances.",
+      "Assigns a weighted distribution to the values of a random variable — e.g., <code>x dist {0 := 5, 1 := 3, 2 := 1}</code>.",
+      "Specifies a timing distance between signals.",
+      "Marks the constraint as synthesizable."
+    ],
+    answer: 1,
+    explain: "dist biases the randomizer. := assigns a weight to each value/range; :/ spreads the weight across the range. Useful for stressing corner cases more often than middle values."
+  },
+  {
+    chapter: "Ch. vi · Randomization",
+    q: "When is a class's <code>pre_randomize()</code> callback executed?",
+    choices: [
+      "Once, at simulation start.",
+      "After randomization, to clean up.",
+      "Only if <code>randomize()</code> fails.",
+      "Automatically, before the constraint solver runs on each <code>.randomize()</code> call."
+    ],
+    answer: 3,
+    explain: "pre_randomize runs before the solver — useful to set up state or flip enable flags on constraints. post_randomize runs after to log or post-process. Neither is called automatically on constructor invocation."
+  },
+  {
+    chapter: "Ch. vi · Randomization",
+    q: "<code>solve a before b;</code> in a constraint tells the solver to…",
+    choices: [
+      "randomize <code>a</code> first and then <code>b</code>, changing the resulting probability distribution in <code>a</code>'s favor.",
+      "schedule <code>a</code> at an earlier simulation time than <code>b</code>.",
+      "declare that <code>a</code> is a prerequisite field of <code>b</code>.",
+      "force <code>a == b</code>."
+    ],
+    answer: 0,
+    explain: "solve-before influences ordering in the solver, which matters for distribution when two variables are related. Without it, the solver can pick a joint solution that is uniform over the <em>space</em>, not over one variable conditioned on the other."
+  },
+  {
+    chapter: "Ch. vi · Randomization",
+    q: "What does <code>.randomize() with { ... }</code> do?",
+    choices: [
+      "Renames the <code>randomize</code> method.",
+      "Disables all the class's constraints.",
+      "It is a syntax error.",
+      "Adds inline additional constraints for just that one call, on top of the class's own constraint blocks."
+    ],
+    answer: 3,
+    explain: "Inline with-blocks are extra constraints layered on for one randomize() call — perfect for 'just this test needs len == 0' without editing the generator class."
+  },
+  {
+    chapter: "Ch. vi · Randomization",
+    q: "What is the return type of <code>.randomize()</code>, and what does it indicate?",
+    choices: [
+      "<code>void</code> — it always succeeds silently.",
+      "<code>string</code> — a list of field names randomized.",
+      "<code>bit</code> — 1 on success, 0 on failure; should always be checked or asserted.",
+      "<code>int</code> — the seed used."
+    ],
+    answer: 2,
+    explain: "Failure to check randomize()'s return value is a common bug: a contradiction in constraints leaves random variables at their previous values. Wrap calls in `assert(x.randomize())` to catch this."
+  },
+  {
+    chapter: "Ch. vi · Randomization",
+    q: "Given <code>rand bit [7:0] len;</code> and <code>rand byte data[];</code>, which constraint best couples the array size to <code>len</code>?",
+    choices: [
+      "<code>constraint c { len &gt; 0; data.size == len; }</code>",
+      "<code>constraint c { data.size == 32; }</code>",
+      "<code>constraint c { len = $size(data); }</code>",
+      "<code>constraint c { data == new[len]; }</code>"
+    ],
+    answer: 0,
+    explain: "data.size is a read-only method call <em>used in a constraint</em> that couples the dynamic array's size to another random variable. Option C uses an assignment (illegal in constraints)."
+  }
+];
+
+// Roman numerals for question numbering
+const ROMAN = ['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii','xiii','xiv','xv','xvi','xvii','xviii','xix','xx'];
+const LETTERS = ['A','B','C','D'];
+
+const listEl = document.getElementById('questionList');
+const answers = new Array(QUESTIONS.length).fill(null);
+let graded = false;
+
+function renderExam() {
+  listEl.innerHTML = '';
+  QUESTIONS.forEach((q, idx) => {
+    const card = document.createElement('article');
+    card.className = 'question';
+    card.id = `q-${idx}`;
+    const choicesHtml = q.choices.map((c, i) => `
+      <li class="choice" data-idx="${i}" onclick="selectChoice(${idx}, ${i})">
+        <span class="choice-letter">${LETTERS[i]}</span>
+        <span class="choice-text">${c}</span>
+      </li>`).join('');
+    card.innerHTML = `
+      <div class="q-head">
+        <div class="q-num"><span class="roman">${ROMAN[idx]}.</span> Question ${idx+1}</div>
+        <div class="q-meta">${q.chapter}</div>
+      </div>
+      <div class="q-body">
+        <div class="q-prompt">${q.q}</div>
+        <ul class="choices">${choicesHtml}</ul>
+      </div>
+      <div class="explain"><span class="lbl">Explanation</span>${q.explain}</div>`;
+    listEl.appendChild(card);
+  });
+}
+
+function selectChoice(qIdx, cIdx) {
+  if (graded) return;
+  answers[qIdx] = cIdx;
+  const card = document.getElementById(`q-${qIdx}`);
+  card.querySelectorAll('.choice').forEach(ch => ch.classList.remove('selected'));
+  card.querySelectorAll('.choice')[cIdx].classList.add('selected');
+  card.classList.add('answered');
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = answers.filter(a => a !== null).length;
+  const total = QUESTIONS.length;
+  const bar = document.getElementById('progress');
+  if (answered > 0) bar.classList.add('visible');
+  document.getElementById('progressPct').textContent = `${answered} / ${total}`;
+  document.getElementById('progressFill').style.width = (answered / total * 100) + '%';
+
+  const btn = document.getElementById('submitBtn');
+  const note = document.getElementById('submitNote');
+  if (answered === total) {
+    btn.disabled = false;
+    note.textContent = 'All twenty answered — ready to grade';
+    note.classList.add('ready');
+  } else {
+    btn.disabled = true;
+    note.textContent = `Answer all ${total} questions to enable submission (${total - answered} remaining)`;
+    note.classList.remove('ready');
+  }
+}
+
+function gradeExam() {
+  if (answers.some(a => a === null)) return;
+  graded = true;
+  let correct = 0;
+  QUESTIONS.forEach((q, idx) => {
+    const card = document.getElementById(`q-${idx}`);
+    card.classList.add('graded');
+    const choiceEls = card.querySelectorAll('.choice');
+    const user = answers[idx];
+    choiceEls.forEach((el, i) => {
+      el.classList.remove('selected');
+      if (i === q.answer) el.classList.add('correct');
+      if (i === user && user !== q.answer) el.classList.add('incorrect');
+    });
+    if (user === q.answer) correct++;
+  });
+
+  const total = QUESTIONS.length;
+  const pct = Math.round(correct / total * 100);
+  let letter, blurb;
+  if (pct >= 90) { letter = 'A'; blurb = 'Outstanding. Interfaces and randomization hold no mystery. Proceed to Part III.'; }
+  else if (pct >= 80) { letter = 'B'; blurb = 'Solid grasp. Review the missed items on constraints and you are ready for Part III.'; }
+  else if (pct >= 70) { letter = 'C'; blurb = 'Working knowledge. Re-read Chapter vi on randomization once more.'; }
+  else if (pct >= 60) { letter = 'D'; blurb = 'Shaky middle. Reread Chapters iv and vi before retaking.'; }
+  else { letter = 'F'; blurb = 'Return to Part II. The solver, the interface, and the class need time.'; }
+
+  document.getElementById('scorePct').textContent = pct;
+  document.getElementById('gradeLetter').textContent = letter;
+  document.getElementById('rawCorrect').textContent = correct;
+  document.getElementById('gradeBlurb').textContent = blurb;
+
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('submitWrap').style.display = 'none';
+  document.getElementById('progress').style.display = 'none';
+
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function retake() {
+  graded = false;
+  for (let i = 0; i < answers.length; i++) answers[i] = null;
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('submitWrap').style.display = 'block';
+  renderExam();
+  updateProgress();
+  window.scrollTo({top: 0, behavior:'smooth'});
+}
+
+renderExam();
+updateProgress();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Part III — Mastery &amp; Measure · SystemVerilog for Verification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  :root {
+    --paper: #faf6ed; --paper-2: #f3ede0; --paper-3: #ece4d0;
+    --ink: #1a1816; --ink-soft: #4a4540; --ink-faint: #8b8377;
+    --rule: #c8bfa8; --rule-soft: #ded5c1;
+    --red: #a8322a; --red-soft: #c45b51;
+    --blue: #2c4a6e; --blue-soft: #4a6a8c;
+    --gold: #b8893a; --sage: #6b8068;
+    --display: 'Fraunces', Georgia, serif;
+    --body: 'Crimson Pro', Georgia, serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 19px; line-height: 1.65; overflow-x: hidden; }
+  body::after {
+    content: ""; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.06 0 0 0 0.04 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: 0.4; pointer-events: none; z-index: 0; mix-blend-mode: multiply;
+  }
+
+  .masthead { border-bottom: 3px double var(--ink); padding: 16px 40px 12px; display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); position: relative; z-index: 1; background: var(--paper); }
+  .masthead .left { display: flex; gap: 20px; }
+  .masthead .folio::before { content: "№ "; color: var(--red); }
+  .masthead .right { font-style: italic; font-family: var(--body); letter-spacing: 0.05em; text-transform: none; font-size: 14px; color: var(--ink-faint); }
+
+  .nav { position: sticky; top: 0; z-index: 100; background: var(--paper); border-bottom: 1px solid var(--ink); backdrop-filter: blur(4px); }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 14px 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .brand { font-family: var(--display); font-weight: 600; font-size: 22px; font-style: italic; color: var(--ink); text-decoration: none; display: flex; align-items: baseline; gap: 8px; }
+  .brand::before { content: "❦"; color: var(--red); font-size: 20px; font-style: normal; }
+  .tabs { display: flex; gap: 0; list-style: none; }
+  .tabs a { font-family: var(--body); font-size: 16px; color: var(--ink-soft); text-decoration: none; padding: 8px 18px; border-right: 1px solid var(--rule); transition: color 0.15s; position: relative; }
+  .tabs li:last-child a { border-right: none; }
+  .tabs a:hover { color: var(--red); }
+  .tabs a.active { color: var(--red); font-weight: 500; font-style: italic; }
+  .tabs a.active::after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 2px; height: 1px; background: var(--red); }
+
+  .part-opener { max-width: 900px; margin: 60px auto 40px; padding: 40px 40px; text-align: center; position: relative; z-index: 1; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .part-numeral { font-family: var(--display); font-size: 22px; font-style: italic; letter-spacing: 0.35em; color: var(--red); text-transform: uppercase; margin-bottom: 24px; }
+  .part-numeral::before, .part-numeral::after { content: "·"; margin: 0 16px; color: var(--gold); }
+  .part-opener h1 { font-family: var(--display); font-size: clamp(44px, 7vw, 96px); font-weight: 400; letter-spacing: -0.025em; line-height: 0.95; margin-bottom: 20px; }
+  .part-opener h1 em { font-style: italic; color: var(--red); font-weight: 300; }
+  .part-opener .sub { font-family: var(--display); font-style: italic; font-size: 20px; color: var(--ink-soft); margin-bottom: 20px; }
+  .part-opener .crumbs { font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); margin-top: 30px; }
+  .part-opener .crumbs a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--rule); }
+  .part-opener .crumbs a:hover { color: var(--red); border-color: var(--red); }
+  .ornament { width: 120px; height: 18px; margin: 20px auto; display: block; color: var(--red); }
+
+  .reading { max-width: 1200px; margin: 0 auto; padding: 20px 40px 60px; position: relative; z-index: 1; }
+  .chapter { position: relative; padding: 60px 0; border-top: 1px solid var(--rule); }
+  .chapter:first-of-type { border-top: none; }
+  .chapter-head { display: grid; grid-template-columns: 180px 1fr; gap: 40px; margin-bottom: 40px; align-items: end; }
+  .chapter-label { text-align: right; position: sticky; top: 80px; align-self: start; }
+  .chapter-label .roman { font-family: var(--display); font-style: italic; font-size: 80px; font-weight: 300; color: var(--red); line-height: 0.85; letter-spacing: -0.02em; }
+  .chapter-label .num { font-family: var(--mono); font-size: 10px; letter-spacing: 0.25em; color: var(--ink-faint); text-transform: uppercase; display: block; margin-top: 6px; }
+  .chapter-title { font-family: var(--display); font-size: clamp(34px, 5vw, 54px); font-weight: 400; letter-spacing: -0.02em; line-height: 1.05; }
+  .chapter-title em { font-style: italic; color: var(--red); font-weight: 300; }
+
+  .body-grid { display: grid; grid-template-columns: 180px 1fr; gap: 40px; }
+  .margin { font-family: var(--body); font-size: 14px; font-style: italic; color: var(--ink-faint); line-height: 1.5; text-align: right; padding-top: 6px; position: sticky; top: 80px; align-self: start; }
+  .margin::before { content: ""; display: block; width: 40px; height: 1px; background: var(--red); margin-left: auto; margin-bottom: 10px; }
+  .margin .term { font-style: normal; font-variant: small-caps; letter-spacing: 0.05em; color: var(--red); font-size: 13px; display: block; margin-bottom: 4px; font-weight: 500; }
+  .main { max-width: 700px; }
+  .main h3 { font-family: var(--display); font-size: 28px; font-weight: 500; font-style: italic; letter-spacing: -0.01em; margin: 36px 0 14px; color: var(--ink); }
+  .main h3::before { content: "§ "; color: var(--red); font-style: normal; font-weight: 300; }
+  .main h4 { font-family: var(--display); font-size: 19px; font-weight: 600; font-variant: small-caps; letter-spacing: 0.08em; margin: 26px 0 8px; color: var(--ink); }
+  .main p { margin-bottom: 16px; text-align: justify; hyphens: auto; }
+  .main p + p { text-indent: 1.5em; }
+  .main p.nodent + p, .main p:first-of-type { text-indent: 0; }
+  .main .lede { font-size: 21px; line-height: 1.55; color: var(--ink-soft); font-style: italic; margin-bottom: 28px; text-indent: 0 !important; }
+  .dropcap { font-family: var(--display); font-weight: 500; font-size: 78px; line-height: 0.78; float: left; padding: 8px 12px 0 0; color: var(--red); font-style: italic; }
+  .main code { font-family: var(--mono); background: var(--paper-2); padding: 1px 7px; color: var(--blue); font-size: 0.86em; border: 1px solid var(--rule-soft); font-weight: 500; }
+  .main em { color: var(--red); font-style: italic; }
+  .main ul, .main ol { margin: 14px 0 16px 24px; }
+  .main li { margin-bottom: 6px; }
+  .main strong { font-weight: 600; color: var(--ink); }
+
+  .plate { margin: 28px 0; background: var(--paper); border: 1px solid var(--ink); position: relative; }
+  .plate::before { content: ""; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border: 1px solid var(--rule); pointer-events: none; }
+  .plate-head { padding: 10px 18px; border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-faint); display: flex; justify-content: space-between; background: var(--paper-2); }
+  .plate-head .lbl { color: var(--red); font-weight: 700; }
+  .plate-body { padding: 18px 22px; font-family: var(--mono); font-size: 13px; line-height: 1.75; overflow-x: auto; color: var(--ink); }
+  .plate-body .kw { color: var(--red); font-weight: 500; }
+  .plate-body .ty { color: var(--blue); font-weight: 500; }
+  .plate-body .fn { color: var(--gold); font-weight: 500; }
+  .plate-body .str { color: var(--sage); }
+  .plate-body .cm { color: var(--ink-faint); font-style: italic; }
+  .plate-body .num { color: #8a5a00; }
+  .plate-caption { padding: 10px 18px 14px; border-top: 1px solid var(--rule-soft); font-family: var(--display); font-style: italic; font-size: 14px; color: var(--ink-soft); text-align: center; }
+  .plate-caption .fig { color: var(--red); font-weight: 500; }
+
+  .pullquote { margin: 30px 0; padding: 24px 32px; border-left: 4px solid var(--red); background: var(--paper-2); font-family: var(--display); font-style: italic; font-size: 22px; line-height: 1.4; color: var(--ink); }
+  .pullquote::before { content: "❝"; display: block; color: var(--red); font-size: 32px; line-height: 0.6; margin-bottom: 12px; font-style: normal; }
+  .pullquote cite { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; color: var(--ink-faint); margin-top: 12px; font-style: normal; text-transform: uppercase; }
+
+  .gotcha { margin: 26px 0; padding: 18px 24px; border: 1px dashed var(--red); background: rgba(168, 50, 42, 0.04); position: relative; padding-left: 70px; }
+  .gotcha::before { content: "!"; position: absolute; left: 20px; top: 18px; width: 32px; height: 32px; background: var(--red); color: var(--paper); border-radius: 50%; font-family: var(--display); font-style: italic; font-size: 22px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  .gotcha .label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--red); text-transform: uppercase; margin-bottom: 4px; font-weight: 700; }
+  .gotcha p { margin: 0; font-size: 16px; text-indent: 0 !important; }
+
+  .figure {
+    margin: 30px 0;
+    padding: 24px;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    text-align: center;
+  }
+  .figure svg { max-width: 100%; height: auto; }
+  .figure .cap { font-family: var(--display); font-style: italic; font-size: 14px; color: var(--ink-soft); margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--rule-soft); }
+  .figure .cap .fig { color: var(--red); font-weight: 500; }
+
+  .comparison { margin: 28px 0; border: 1px solid var(--ink); }
+  .comparison table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .comparison th { font-family: var(--display); font-style: italic; font-size: 18px; font-weight: 500; padding: 12px 18px; text-align: left; border-bottom: 2px solid var(--ink); background: var(--paper-2); }
+  .comparison td { padding: 12px 18px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .comparison tr:last-child td { border-bottom: none; }
+  .comparison td:first-child { font-variant: small-caps; letter-spacing: 0.05em; color: var(--red); font-weight: 500; width: 22%; }
+  .comparison code { font-family: var(--mono); font-size: 0.86em; color: var(--blue); background: var(--paper); padding: 1px 5px; border: 1px solid var(--rule-soft); }
+
+  .end-of-part { max-width: 800px; margin: 60px auto; padding: 60px 40px; text-align: center; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink); background: var(--paper-2); position: relative; z-index: 1; }
+  .end-of-part h3 { font-family: var(--display); font-size: 36px; font-weight: 400; font-style: italic; margin-bottom: 16px; letter-spacing: -0.01em; }
+  .end-of-part h3 em { color: var(--red); font-weight: 300; }
+  .end-of-part p { font-family: var(--display); font-style: italic; font-size: 19px; color: var(--ink-soft); max-width: 560px; margin: 0 auto 30px; line-height: 1.5; }
+  .end-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn { font-family: var(--body); font-size: 15px; letter-spacing: 0.04em; padding: 12px 26px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.15s; font-weight: 500; }
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--red); }
+  .btn.red { background: var(--red); color: var(--paper); border-color: var(--red); }
+  .btn.red:hover { background: var(--ink); border-color: var(--ink); }
+  .btn.ghost { background: transparent; }
+
+  footer { padding: 40px; text-align: center; font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; color: var(--ink-faint); text-transform: uppercase; border-top: 1px solid var(--rule); position: relative; z-index: 1; }
+  footer .flourish { color: var(--red); margin: 0 12px; }
+
+  @media (max-width: 900px) {
+    .masthead { padding: 14px 20px; flex-wrap: wrap; gap: 8px; }
+    .nav-inner { padding: 12px 16px; }
+    .tabs { flex-wrap: wrap; }
+    .tabs a { padding: 6px 12px; font-size: 14px; }
+    .part-opener { padding: 30px 24px; margin-top: 30px; }
+    .reading { padding: 20px 24px 40px; }
+    .chapter-head { grid-template-columns: 1fr; gap: 10px; }
+    .chapter-label { text-align: left; position: static; }
+    .chapter-label .roman { font-size: 56px; }
+    .body-grid { grid-template-columns: 1fr; gap: 12px; }
+    .margin { text-align: left; position: static; padding-bottom: 12px; border-bottom: 1px dashed var(--rule); margin-bottom: 8px; }
+    .margin::before { margin-left: 0; }
+    .plate-body { padding: 14px 14px; font-size: 12px; }
+    .end-of-part { padding: 40px 20px; }
+    .figure svg { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <span class="folio">ed. 3</span>
+    <span>Part III · Mastery &amp; Measure</span>
+  </div>
+  <div class="right">Chapters vii — xii</div>
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand">asic <em>verif</em></a>
+    <ul class="tabs">
+      <li><a href="/">Generate</a></li>
+      <li><a href="/learn/" class="active">Learn</a></li>
+      <li><a href="/#about">About</a></li>
+      <li><a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Donate</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="part-opener">
+  <div class="part-numeral">Part III of three</div>
+  <h1>Mastery <em>&amp; Measure</em></h1>
+  <svg class="ornament" viewBox="0 0 120 18" fill="none" stroke="currentColor" stroke-width="0.8" stroke-linecap="round">
+    <path d="M2,9 Q30,2 60,9 T118,9"/>
+    <circle cx="60" cy="9" r="2" fill="currentColor" stroke="none"/>
+  </svg>
+  <p class="sub">Threads that fork, classes that inherit, coverage that measures progress —<br>and a foreign-function interface for everything you can't write in SystemVerilog.</p>
+  <div class="crumbs">
+    <a href="intermediate.html">← Part II</a>
+    &nbsp; · &nbsp;
+    <a href="index.html">Contents</a>
+    &nbsp; · &nbsp;
+    <a href="test-advanced.html">Examination III →</a>
+  </div>
+</section>
+
+<main class="reading">
+
+  <!-- CHAPTER vii -->
+  <article class="chapter" id="ch-vii">
+    <div class="chapter-head">
+      <div class="chapter-label">
+        <div class="roman">vii.</div>
+        <span class="num">Chapter Seven</span>
+      </div>
+      <h2 class="chapter-title">Threads <em>&amp;</em> Interprocess Communication.</h2>
+    </div>
+
+    <div class="body-grid">
+      <aside class="margin">
+        <span class="term">Three joins</span>
+        <p><code style="font-family:var(--mono);color:var(--blue);background:var(--paper-2);padding:0 4px;border:1px solid var(--rule-soft);font-size:12px">join</code> waits for all.<br><code style="font-family:var(--mono);color:var(--blue);background:var(--paper-2);padding:0 4px;border:1px solid var(--rule-soft);font-size:12px">join_any</code> waits for one.<br><code style="font-family:var(--mono);color:var(--blue);background:var(--paper-2);padding:0 4px;border:1px solid var(--rule-soft);font-size:12px">join_none</code> waits for none.</p>
+      </aside>
+      <div class="main">
+
+        <p class="lede">
+          A real testbench has a generator, a driver, a monitor, a scoreboard, and a
+          coverage collector — all running at once. SystemVerilog spawns them with
+          <code>fork</code>, coordinates them with events, semaphores, and mailboxes.
+        </p>
+
+        <h3>The three joins</h3>
+        <p class="nodent">
+          <span class="dropcap">A</span> <code>fork…join</code> block spawns its contained statements as concurrent
+          threads and the parent blocks until <em>all</em> children complete.
+          <code>join_any</code> returns to the parent as soon as the <em>first</em>
+          child completes, leaving the others running. <code>join_none</code> returns
+          immediately, allowing the parent to proceed while all children run in the
+          background. The three variants map cleanly onto "barrier", "race", and
+          "spawn-and-go".
+        </p>
+
+        <div class="plate">
+          <div class="plate-head">
+            <span class="lbl">Plate VII.1</span>
+            <span>forks.sv</span>
+          </div>
+          <div class="plate-body"><span class="cm">// Run three transactors concurrently, block until all done</span>
+<span class="kw">fork</span>
+  driver.run();
+  monitor.run();
+  scoreboard.run();
+<span class="kw">join</span>
+
+<span class="cm">// Race: whichever finishes first wins; disable the rest</span>
+<span class="kw">fork</span>
+  <span class="kw">begin</span> <span class="fn">#</span><span class="num">1000</span>; <span class="fn">$display</span>(<span class="str">"timeout"</span>); <span class="kw">end</span>
+  <span class="kw">begin</span> <span class="kw">wait</span>(done); <span class="fn">$display</span>(<span class="str">"ok"</span>); <span class="kw">end</span>
+<span class="kw">join_any</span>
+<span class="kw">disable</span> <span class="kw">fork</span>;   <span class="cm">// kill the survivor</span>
+
+<span class="cm">// Background: return immediately, keep children running</span>
+<span class="kw">fork</span> logger.run(); <span class="kw">join_none</span></div>
+          <div class="plate-caption"><span class="fig">Figure VII.1</span> — three idioms: barrier, race-with-cleanup, background task.</div>
+        </div>
+
+        <h3>Mailboxes — FIFOs between threads</h3>
+        <p>
+          The canonical way to pass transactions from a generator to a driver is a
+          <em>mailbox</em>. Think of it as a thread-safe FIFO. <code>put</code>
+          blocks when full; <code>get</code> blocks when empty. Non-blocking
+          <code>try_put</code> and <code>try_get</code> return immediately with a
+          success indication. Unbounded by default; pass an integer to <code>new()</code>
+          to cap it.
+        </p>
+
+        <h3>Semaphores — mutual exclusion</h3>
+        <p>
+          When two testbench threads must share a resource — a bus, a register file,
+          a scoreboard pointer — a <em>semaphore</em> serializes access.
+          <code>get(1)</code> blocks if no keys are available; <code>put(1)</code>
+          returns the key. Blocking requests queue in FIFO order, though a smaller
+          request can jump ahead of a larger blocked one.
+        </p>
+
+        <h3>Events</h3>
+        <p>
+          An <code>event</code> is a zero-bit, fireable signal. <code>-&gt;</code>
+          triggers it; <code>@e</code> waits for the next trigger;
+          <code>wait(e.triggered)</code> lets a late-arriving thread catch up within
+          the same time step. Use events for one-shot handshakes; reach for mailboxes
+          when multiple notifications must queue.
+        </p>
+
+        <div class="gotcha">
+          <div class="label">Event loops</div>
+          <p>
+            <code>wait(e.triggered)</code> is level-sensitive. In a loop without a
+            delay, it will spin forever on a single event. Use <code>@e</code> for
+            edge-sensitive waiting inside loops.
+          </p>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- CHAPTER viii -->
+  <article class="chapter" id="ch-viii">
+    <div class="chapter-head">
+      <div class="chapter-label">
+        <div class="roman">viii.</div>
+        <span class="num">Chapter Eight</span>
+      </div>
+      <h2 class="chapter-title">Advanced <em>OOP.</em></h2>
+    </div>
+
+    <div class="body-grid">
+      <aside class="margin">
+        <span class="term">Virtual, or nothing</span>
+        <p>A method must be declared <code style="font-family:var(--mono);color:var(--blue);background:var(--paper-2);padding:0 4px;border:1px solid var(--rule-soft);font-size:12px">virtual</code> to dispatch polymorphically. Without it, the compiler binds the call at the declared-type of the handle.</p>
+      </aside>
+      <div class="main">
+
+        <p class="lede">
+          Inheritance, polymorphism, callbacks, and the factory pattern — the four
+          mechanisms that let you extend a testbench without editing the shared
+          environment that dozens of other engineers depend on.
+        </p>
+
+        <h3>Inheritance &amp; virtual methods</h3>
+        <p class="nodent">
+          <span class="dropcap">A</span> derived class <code>extends</code> a base class, inheriting its members and
+          adding or overriding as needed. For the override to take effect through a
+          base-class handle, the base method must be declared <em>virtual</em>.
+          Without it, a call through a base-class handle dispatches to the base
+          implementation — defeating the entire point of the type hierarchy.
+        </p>
+
+        <div class="plate">
+          <div class="plate-head">
+            <span class="lbl">Plate VIII.1</span>
+            <span>polymorphism.sv</span>
+          </div>
+          <div class="plate-body"><span class="kw">class</span> <span class="ty">BaseTr</span>;
+  <span class="kw">virtual</span> <span class="kw">function</span> <span class="ty">void</span> <span class="fn">display</span>();
+    <span class="fn">$display</span>(<span class="str">"Base transaction"</span>);
+  <span class="kw">endfunction</span>
+<span class="kw">endclass</span>
+
+<span class="kw">class</span> <span class="ty">BadTr</span> <span class="kw">extends</span> <span class="ty">BaseTr</span>;
+  <span class="kw">virtual</span> <span class="kw">function</span> <span class="ty">void</span> <span class="fn">display</span>();   <span class="cm">// override</span>
+    <span class="fn">$display</span>(<span class="str">"Bad (error-injecting) transaction"</span>);
+  <span class="kw">endfunction</span>
+<span class="kw">endclass</span>
+
+<span class="ty">BaseTr</span> t;
+t = <span class="kw">new</span> <span class="ty">BadTr</span>();   <span class="cm">// base handle, derived object</span>
+t.display();          <span class="cm">// → "Bad (error-injecting) transaction"</span></div>
+          <div class="plate-caption"><span class="fig">Figure VIII.1</span> — a base-class handle calling a derived method. <em>virtual</em> is what makes it work.</div>
+        </div>
+
+        <h3>Abstract classes &amp; pure virtual</h3>
+        <p>
+          Prefix a class with <code>virtual</code> to make it <em>abstract</em> —
+          no objects may be constructed directly. Inside, a <code>pure virtual</code>
+          method has no body and <em>must</em> be implemented by any concrete derived
+          class. This is how you enforce an interface: every scoreboard will have a
+          <code>check()</code>, every driver a <code>run()</code>.
+        </p>
+
+        <h3>Callbacks</h3>
+        <p>
+          A <em>callback</em> is an object whose method a component calls at a known
+          point in its lifecycle. The driver doesn't know what the test wants to do
+          before sending a transaction — it just calls back a registered object that
+          the test provided. The test can corrupt the packet, drop it, delay it,
+          log it, or feed it to a scoreboard, all without modifying the driver.
+        </p>
+
+        <div class="pullquote">
+          The driver just needs to "call back" a method that is defined in the top-level
+          test. The beauty of this technique is that the callback method can be defined
+          differently in every test.
+          <cite>— Chapter 8, §8.7</cite>
+        </div>
+
+        <h3>The factory pattern</h3>
+        <p>
+          A <em>factory</em> centralizes object construction. Rather than
+          <code>Transaction t = new();</code> scattered through the environment,
+          the environment calls <code>factory.create("tr")</code>. The test registers
+          a substitution — "when someone asks for a <code>Transaction</code>, actually
+          build a <code>BadTransaction</code>" — and the factory returns the derived
+          class everywhere the base is expected. This is how UVM lets a test swap
+          components without editing a single line of the shared environment.
+        </p>
+
+        <h3>Shallow vs deep copy</h3>
+        <p>
+          Assigning one handle to another just aliases the object — both handles refer
+          to the same storage. The built-in copy constructor (<code>new(other)</code>)
+          performs a <em>shallow</em> copy: scalar fields are duplicated, but contained
+          handles still point at the original sub-objects. For a <em>deep</em> copy,
+          write a <code>copy()</code> method that recursively copies each sub-object.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <!-- CHAPTER ix -->
+  <article class="chapter" id="ch-ix">
+    <div class="chapter-head">
+      <div class="chapter-label">
+        <div class="roman">ix.</div>
+        <span class="num">Chapter Nine</span>
+      </div>
+      <h2 class="chapter-title">Functional <em>Coverage.</em></h2>
+    </div>
+
+    <div class="body-grid">
+      <aside class="margin">
+        <span class="term">Coverage is the map</span>
+        <p>Random tests answer "what happened?" Coverage answers "was it interesting?"</p>
+      </aside>
+      <div class="main">
+
+        <p class="lede">
+          "We ran a million cycles" is not a verification deliverable. Functional coverage
+          converts cycles into a map — what interesting combinations the stimulus actually
+          exercised — and hands you the map with the blank spots circled.
+        </p>
+
+        <h3>covergroup &amp; coverpoint</h3>
+        <p class="nodent">
+          <span class="dropcap">A</span> <code>covergroup</code> is a sampling construct — a named collection of
+          coverpoints that fire either automatically on a clock event or explicitly
+          via <code>.sample()</code>. Each <code>coverpoint</code> is a variable or
+          expression whose observed values are to be tracked. Without explicit bins,
+          a coverpoint creates <em>automatic bins</em>: one per enum value for enum
+          types; otherwise up to <code>auto_bin_max</code> (default 64) ranges
+          spanning the type.
+        </p>
+
+        <div class="plate">
+          <div class="plate-head">
+            <span class="lbl">Plate IX.1</span>
+            <span>coverage.sv</span>
+          </div>
+          <div class="plate-body"><span class="kw">class</span> <span class="ty">TxnCov</span>;
+  <span class="ty">bit</span> [<span class="num">7</span>:<span class="num">0</span>]  len;
+  <span class="ty">bit</span> [<span class="num">1</span>:<span class="num">0</span>]  kind;
+  <span class="ty">bit</span>         err;
+
+  <span class="kw">covergroup</span> cg;
+    cp_len  : <span class="kw">coverpoint</span> len {
+      <span class="kw">bins</span> short  = {[<span class="num">1</span>:<span class="num">63</span>]};
+      <span class="kw">bins</span> medium = {[<span class="num">64</span>:<span class="num">511</span>]};
+      <span class="kw">bins</span> large  = {[<span class="num">512</span>:<span class="num">1518</span>]};
+      <span class="kw">illegal_bins</span> zero = {<span class="num">0</span>};
+    }
+    cp_kind : <span class="kw">coverpoint</span> kind;                 <span class="cm">// auto-bins</span>
+    cp_err  : <span class="kw">coverpoint</span> err;
+
+    <span class="cm">// Cross every length×kind combination, excluding error+large</span>
+    cx_lk   : <span class="kw">cross</span> cp_len, cp_kind {
+      <span class="kw">ignore_bins</span> big_err = <span class="kw">binsof</span>(cp_len.large) <span class="kw">intersect</span> {<span class="num">3</span>};
+    }
+  <span class="kw">endgroup</span>
+<span class="kw">endclass</span></div>
+          <div class="plate-caption"><span class="fig">Figure IX.1</span> — named bins, illegal bins, cross coverage, and an ignore_bins pruning.</div>
+        </div>
+
+        <h3>Cross coverage</h3>
+        <p>
+          <code>cross</code> is the Cartesian product metric. Did the stimulus hit every
+          (length × kind × error) combination, not just every length and every kind
+          independently? Missed crosses are classic bug hotspots — the feature worked
+          for big packets and for priority-3 traffic separately, but the combination
+          was never tested.
+        </p>
+
+        <h3>Specialized bin types</h3>
+        <div class="comparison">
+          <table>
+            <tr><th style="width:24%">Bin type</th><th>Purpose</th></tr>
+            <tr><td>bins</td><td>Counted toward coverage. The default.</td></tr>
+            <tr><td>illegal_bins</td><td>If this value is ever sampled, flag an error. Zero-length packets, reserved opcodes.</td></tr>
+            <tr><td>ignore_bins</td><td>Excluded from coverage — not an error, just not counted. Use for combinations the spec forbids.</td></tr>
+            <tr><td>wildcard bins</td><td>Don't-care bits in bin values: <code>wildcard bins b = {4'b10??}</code>.</td></tr>
+            <tr><td>transition bins</td><td>Value sequences: <code>bins t = (0 =&gt; 1 =&gt; 2)</code>. State-machine coverage.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- CHAPTER x -->
+  <article class="chapter" id="ch-x">
+    <div class="chapter-head">
+      <div class="chapter-label">
+        <div class="roman">x.</div>
+        <span class="num">Chapter Ten</span>
+      </div>
+      <h2 class="chapter-title">Advanced <em>Interfaces.</em></h2>
+    </div>
+
+    <div class="body-grid">
+      <aside class="margin">
+        <span class="term">Virtual interface</span>
+        <p>A handle-like reference to a physical interface instance. The bridge between a class-based testbench and hierarchical RTL signals.</p>
+      </aside>
+      <div class="main">
+
+        <p class="lede">
+          Classes live in packages; physical interfaces live in module hierarchy.
+          The virtual interface is the connector.
+        </p>
+
+        <h3>The problem</h3>
+        <p class="nodent">
+          <span class="dropcap">A</span> class cannot instantiate a module or an interface — those are elaboration-time
+          constructs, not runtime objects. But a class-based driver absolutely must be able
+          to drive signals into the DUT. The <em>virtual interface</em> resolves the impasse:
+          it is a class-compatible variable that <em>points at</em> a physical interface
+          instance. The test's top module constructs the real interface, then passes a
+          handle to it into the class-based environment.
+        </p>
+
+        <div class="plate">
+          <div class="plate-head">
+            <span class="lbl">Plate X.1</span>
+            <span>virtual_interface.sv</span>
+          </div>
+          <div class="plate-body"><span class="kw">class</span> <span class="ty">Driver</span>;
+  <span class="kw">virtual</span> <span class="ty">bus_if</span>.master vif;            <span class="cm">// virtual interface handle</span>
+
+  <span class="kw">function</span> <span class="ty">new</span>(<span class="kw">virtual</span> <span class="ty">bus_if</span>.master v);
+    vif = v;
+  <span class="kw">endfunction</span>
+
+  <span class="kw">task</span> <span class="fn">drive</span>(<span class="ty">Transaction</span> tr);
+    vif.addr <span class="kw">&lt;=</span> tr.addr;                  <span class="cm">// touch physical signals</span>
+    vif.data <span class="kw">&lt;=</span> tr.data;
+    vif.write <span class="kw">&lt;=</span> <span class="num">1</span>;
+    <span class="fn">@</span>(<span class="kw">posedge</span> vif.clk);
+  <span class="kw">endtask</span>
+<span class="kw">endclass</span>
+
+<span class="cm">// In the top module</span>
+<span class="ty">bus_if</span> bus(clk);                         <span class="cm">// real interface</span>
+<span class="ty">Driver</span> drv = <span class="kw">new</span>(bus);                   <span class="cm">// pass reference to class</span></div>
+          <div class="plate-caption"><span class="fig">Figure X.1</span> — the class holds a virtual interface; the top module provides the real one.</div>
+        </div>
+
+        <h3>Multiple configurations, arrays of interfaces</h3>
+        <p>
+          A single testbench can drive many DUT configurations by storing virtual
+          interfaces in an array or associative array. Parameterized interfaces
+          (with width or protocol parameters) require a matching parameterized class
+          declaration — the virtual interface type must exactly match.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <!-- CHAPTER xi -->
+  <article class="chapter" id="ch-xi">
+    <div class="chapter-head">
+      <div class="chapter-label">
+        <div class="roman">xi.</div>
+        <span class="num">Chapter Eleven</span>
+      </div>
+      <h2 class="chapter-title">A Complete <em>Testbench.</em></h2>
+    </div>
+
+    <div class="body-grid">
+      <aside class="margin">
+        <span class="term">Assembly</span>
+        <p>Every component you have met now fits into a single, extendable structure.</p>
+      </aside>
+      <div class="main">
+
+        <p class="lede">
+          The manual's penultimate chapter stitches everything together into a
+          production-shaped testbench — generator, driver, monitor, scoreboard, coverage —
+          for an ATM router DUT.
+        </p>
+
+        <h3>The architecture</h3>
+        <p class="nodent">
+          <span class="dropcap">A</span>t the top: a test class that configures and launches the environment.
+          The environment contains a generator (produces <code>Transaction</code>
+          objects), a driver (converts them to signal activity via a virtual interface),
+          a monitor (watches the DUT outputs and reconstructs transactions), a
+          scoreboard (compares expected against actual), and a coverage collector
+          (samples every observed transaction).
+        </p>
+
+        <div class="figure">
+          <svg width="600" height="260" viewBox="0 0 600 260" style="font-family: var(--display); font-style: italic; font-size: 13px;">
+            <!-- Test box -->
+            <rect x="220" y="10" width="160" height="36" fill="none" stroke="#a8322a" stroke-width="1.5"/>
+            <text x="300" y="34" text-anchor="middle" fill="#a8322a">Test</text>
+
+            <!-- Environment box -->
+            <rect x="40" y="70" width="520" height="170" fill="none" stroke="#1a1816" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <text x="300" y="90" text-anchor="middle" fill="#4a4540" font-size="11" letter-spacing="2">ENVIRONMENT</text>
+
+            <!-- Generator -->
+            <rect x="60" y="110" width="100" height="40" fill="#f3ede0" stroke="#1a1816"/>
+            <text x="110" y="135" text-anchor="middle">Generator</text>
+
+            <!-- Driver -->
+            <rect x="200" y="110" width="100" height="40" fill="#f3ede0" stroke="#1a1816"/>
+            <text x="250" y="135" text-anchor="middle">Driver</text>
+
+            <!-- Monitor -->
+            <rect x="340" y="110" width="100" height="40" fill="#f3ede0" stroke="#1a1816"/>
+            <text x="390" y="135" text-anchor="middle">Monitor</text>
+
+            <!-- Scoreboard -->
+            <rect x="470" y="110" width="80" height="40" fill="#f3ede0" stroke="#1a1816"/>
+            <text x="510" y="135" text-anchor="middle" font-size="11">Scoreboard</text>
+
+            <!-- Coverage -->
+            <rect x="220" y="180" width="120" height="34" fill="#f3ede0" stroke="#1a1816"/>
+            <text x="280" y="202" text-anchor="middle" font-size="12">Coverage</text>
+
+            <!-- Arrows between -->
+            <line x1="160" y1="130" x2="200" y2="130" stroke="#a8322a" marker-end="url(#arr)"/>
+            <line x1="300" y1="130" x2="340" y2="130" stroke="#2c4a6e" stroke-dasharray="2,2"/>
+            <line x1="440" y1="130" x2="470" y2="130" stroke="#a8322a" marker-end="url(#arr)"/>
+            <line x1="390" y1="150" x2="300" y2="180" stroke="#b8893a" marker-end="url(#arr)"/>
+
+            <!-- DUT -->
+            <rect x="225" y="140" width="150" height="22" fill="none" stroke="none"/>
+            <text x="300" y="155" text-anchor="middle" fill="#8b8377" font-size="10">[DUT signals]</text>
+
+            <!-- Arrows top -->
+            <line x1="300" y1="46" x2="300" y2="70" stroke="#a8322a" stroke-width="1"/>
+
+            <defs>
+              <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#a8322a"/>
+              </marker>
+            </defs>
+          </svg>
+          <div class="cap"><span class="fig">Figure XI.1</span> — a canonical layered environment. Solid arrows are transactions; dashed are signals.</div>
+        </div>
+
+        <h3>Extension, not modification</h3>
+        <p>
+          The critical design principle: subsequent tests extend the base environment by
+          substituting derived classes — through the factory — rather than editing it.
+          An "error injection" test overrides the driver's <code>send()</code>;
+          a "priority flood" test overrides the generator's <code>next()</code>;
+          neither touches the shared environment code. This is the pattern that makes
+          verification code durable across multiple chip projects.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <!-- CHAPTER xii -->
+  <article class="chapter" id="ch-xii">
+    <div class="chapter-head">
+      <div class="chapter-label">
+        <div class="roman">xii.</div>
+        <span class="num">Chapter Twelve</span>
+      </div>
+      <h2 class="chapter-title">Interfacing with <em>C / C++.</em></h2>
+    </div>
+
+    <div class="body-grid">
+      <aside class="margin">
+        <span class="term">DPI</span>
+        <p>Direct Programming Interface — a foreign-function bridge that calls straight into native code. No PLI, no VPI.</p>
+      </aside>
+      <div class="main">
+
+        <p class="lede">
+          Some things are already written in C. A reference model, a math library, a
+          software driver. The DPI lets you call them from SystemVerilog — and lets C
+          call back into SystemVerilog — without the ceremony of PLI or VPI.
+        </p>
+
+        <h3>Import &amp; export</h3>
+        <p class="nodent">
+          <span class="dropcap">A</span>n <em>imported</em> DPI routine is a C/C++ function that SystemVerilog may
+          call as if it were a native task or function. An <em>exported</em> routine
+          is the reverse — a SystemVerilog task or function that the C side may call
+          back. Together they form a bidirectional bridge.
+        </p>
+
+        <div class="plate">
+          <div class="plate-head">
+            <span class="lbl">Plate XII.1</span>
+            <span>dpi_example.sv</span>
+          </div>
+          <div class="plate-body"><span class="cm">// Import a C function — call it like a native function</span>
+<span class="kw">import</span> <span class="str">"DPI-C"</span> <span class="kw">function</span> <span class="ty">int</span> <span class="fn">sqrt_int</span>(<span class="kw">input</span> <span class="ty">int</span> x);
+
+<span class="cm">// Pure: no side effects, no state, no calls back into SV</span>
+<span class="kw">import</span> <span class="str">"DPI-C"</span> <span class="kw">pure</span> <span class="kw">function</span> <span class="ty">real</span> <span class="fn">cosine</span>(<span class="kw">input</span> <span class="ty">real</span> x);
+
+<span class="cm">// Context: may call back into SystemVerilog</span>
+<span class="kw">import</span> <span class="str">"DPI-C"</span> <span class="kw">context</span> <span class="kw">task</span> <span class="fn">cpp_model_step</span>(<span class="ty">chandle</span> h);
+
+<span class="cm">// Export a SV function for C to call back into</span>
+<span class="kw">export</span> <span class="str">"DPI-C"</span> <span class="kw">function</span> <span class="fn">sv_log</span>;
+
+<span class="kw">function</span> <span class="ty">void</span> <span class="fn">sv_log</span>(<span class="ty">string</span> msg);
+  <span class="fn">$display</span>(<span class="str">"[C]: %s"</span>, msg);
+<span class="kw">endfunction</span></div>
+          <div class="plate-caption"><span class="fig">Figure XII.1</span> — import (pure and context variants) and export, with a chandle for C++ object pointers.</div>
+        </div>
+
+        <h3><code>chandle</code> — the opaque bridge type</h3>
+        <p>
+          A <code>chandle</code> is SystemVerilog's word for a C-side pointer.
+          It holds a <code>void*</code> from the C side — typically the address of
+          a C++ model instance — and passes it back on subsequent calls. SystemVerilog
+          never dereferences a chandle, preserving encapsulation on both sides.
+        </p>
+
+        <h3>Pure vs context</h3>
+        <p>
+          A <code>pure</code> imported function is a mathematical function: same inputs
+          always produce the same output, no state, no side effects, no callbacks.
+          The simulator is free to optimize calls. A <code>context</code> imported
+          function may call back into SystemVerilog (via exported functions) and needs
+          to know its calling scope; the simulator saves and restores context around
+          the call, which is strictly slower.
+        </p>
+
+        <div class="gotcha">
+          <div class="label">Two-state defaulting</div>
+          <p>
+            Standard DPI argument types are 2-state. Passing a 4-state SystemVerilog
+            value across the boundary collapses X/Z to 0/1 silently. For 4-state-aware
+            DPI, use the open-array argument forms or the 4-state bit-vector types
+            documented in LRM Appendix H.
+          </p>
+        </div>
+      </div>
+    </div>
+  </article>
+
+</main>
+
+<section class="end-of-part">
+  <svg class="ornament" viewBox="0 0 120 18" fill="none" stroke="currentColor" stroke-width="0.8" stroke-linecap="round" style="margin:0 auto 20px; display:block; color:var(--red)">
+    <path d="M2,9 Q30,2 60,9 T118,9"/>
+    <circle cx="60" cy="9" r="2" fill="currentColor" stroke="none"/>
+  </svg>
+  <h3>End of <em>Part III.</em></h3>
+  <p>
+    You have read the whole book. The final examination awaits — twenty questions
+    on threads, polymorphism, coverage, virtual interfaces, and DPI.
+  </p>
+  <div class="end-actions">
+    <a href="test-advanced.html" class="btn red">Take Examination III &nbsp;→</a>
+    <a href="index.html" class="btn">Return to Contents</a>
+  </div>
+</section>
+
+<footer>
+  Part III of III <span class="flourish">·</span> Verif Academy <span class="flourish">·</span> After Spear &amp; Tumbush
+</footer>
+
+</body>
+</html>
