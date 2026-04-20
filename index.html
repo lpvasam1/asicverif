@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>asicverif.ai — A Verification Engineer's Press</title>
-<meta name="description" content="Generate production-ready UVM testbenches for AXI, APB and other bus protocols. Built by a senior verification engineer, for verification engineers." />
+<title>asicverif.ai — Generate production UVM testbenches in seconds</title>
+<meta name="description" content="Describe your bus interface, get a complete, production-ready UVM testbench. Agent, sequences, env, tests — all ready to compile." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,251 +12,225 @@
 </head>
 <body>
 
-<!-- MASTHEAD -->
-<div class="masthead">
-  <div class="left">
-    <span class="folio">ed. 1</span>
-    <span>asicverif.ai · for the working verifier</span>
-  </div>
-  <div class="right">A press of testbenches &amp; tools</div>
-</div>
-
 <!-- NAV -->
 <nav class="nav">
   <div class="nav-inner">
-    <a href="/" class="brand">asic <em>verif</em></a>
+    <a href="/" class="brand">
+      <span class="brand-mark">a</span>
+      asicverif<span style="color:var(--red);">.ai</span>
+    </a>
     <ul class="tabs">
-      <li><a href="/" class="active">Generate</a></li>
-      <li><a href="/learn/">Learn</a></li>
+      <li><a href="/" class="active">Generator</a></li>
+      <li><a href="/learn/">SystemVerilog</a></li>
       <li><a href="#about">About</a></li>
-      <li><a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Donate</a></li>
     </ul>
+    <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
   </div>
 </nav>
 
-<!-- TITLE PAGE -->
-<section class="title-page">
-  <div class="edition-line">First Edition · Illustrated · Unabridged</div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">v0.1 · AXI-Lite available now</div>
+      <h1>Generate production UVM testbenches <span class="accent">in seconds.</span></h1>
+      <p class="hero-lede">
+        Describe your bus interface. Get a complete, multi-file UVM project — agent, sequences, environment, scoreboard, tests. Ready to drop into your repo and compile.
+      </p>
+      <div class="hero-actions">
+        <a href="#generator" class="btn btn-primary">Start generating</a>
+        <a href="/learn/" class="btn btn-ghost">Read the SystemVerilog notes</a>
+      </div>
+      <div class="hero-meta">
+        <span>Free forever</span>
+        <span>No account required</span>
+        <span>MIT licensed output</span>
+      </div>
+    </div>
 
-  <h1 class="book-title">
-    <span class="lineA">asic<span class="amp">verif</span></span>
-    <span class="lineB">for the working verifier.</span>
-  </h1>
+    <div class="hero-preview" aria-hidden="true">
+      <div class="hero-preview-head">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span>axi_lite_driver.sv</span>
+      </div>
+<pre class="hero-preview-body"><span class="kw">class</span> <span class="tp">axi_lite_driver</span> <span class="kw">extends</span> <span class="tp">uvm_driver</span>#(axi_lite_seq_item);
+  `<span class="kw">uvm_component_utils</span>(axi_lite_driver)
 
-  <svg class="title-ornament" viewBox="0 0 260 36" fill="none" stroke="currentColor" stroke-width="0.8" stroke-linecap="round" style="color:var(--red)">
-    <path d="M10,18 Q40,4 80,18 T160,18 T230,18" />
-    <circle cx="130" cy="18" r="3" fill="currentColor" stroke="none"/>
-    <path d="M118,18 L100,18 M142,18 L160,18" stroke-width="0.6"/>
-    <path d="M4,18 L8,18 M252,18 L256,18" stroke-width="0.6"/>
-  </svg>
+  <span class="kw">virtual</span> <span class="tp">axi_lite_if</span> vif;
 
-  <p class="subtitle">
-    A small press for verification engineers. Describe an interface &mdash;
-    receive a full, production-ready <em>UVM</em> testbench. Agent, sequences,
-    environment, tests, all set in one imprint.
-  </p>
-
-  <div class="attribution">
-    Typeset by <span class="name">a senior verification engineer</span> · Folsom, California
-  </div>
-
-  <div class="epigraph">
-    I spent years writing the same boilerplate by hand. The details change;
-    the scaffolding does not. This is what I wish I'd had.
-    <span class="cite">— from the colophon</span>
+  <span class="kw">task</span> run_phase(<span class="tp">uvm_phase</span> phase);
+    <span class="kw">forever</span> <span class="kw">begin</span>
+      seq_item_port.get_next_item(req);
+      drive_transfer(req);
+      seq_item_port.item_done();
+    <span class="kw">end</span>
+  <span class="kw">endtask</span>
+<span class="kw">endclass</span></pre>
+    </div>
   </div>
 </section>
 
-<!-- ==================== GENERATOR — manuscript page ==================== -->
-<section class="manuscript" id="generator">
-  <div class="manuscript-header">
-    <span class="folio">§ i &mdash; the testbench generator</span>
-    <span class="imprint">claude opus 4.7 · warm from the press</span>
-  </div>
+<!-- GENERATOR -->
+<section class="generator" id="generator">
+  <div class="wrap">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="title">UVM testbench generator</div>
+        <div class="meta">claude opus 4.7</div>
+      </div>
+      <div class="panel-body">
 
-  <div class="manuscript-body">
-    <h2 class="manuscript-title">
-      A testbench, <span class="amp">specified.</span>
-    </h2>
-    <p class="manuscript-subtitle">
-      Choose your protocol, name your design, pick your features. A complete
-      UVM project will be set in print.
+        <div class="protocols" role="tablist">
+          <button class="protocol active" data-protocol="axi-lite">AXI-Lite</button>
+          <button class="protocol" disabled>AXI4<span class="soon">soon</span></button>
+          <button class="protocol" disabled>APB<span class="soon">soon</span></button>
+          <button class="protocol" disabled>AHB<span class="soon">soon</span></button>
+          <button class="protocol" disabled>Wishbone<span class="soon">soon</span></button>
+        </div>
+
+        <form id="gen-form">
+          <div class="form-grid">
+            <div class="field">
+              <label class="label">
+                <span>Address Width</span>
+                <span class="hint">bits</span>
+              </label>
+              <select class="select" name="addr_width">
+                <option value="8">8</option>
+                <option value="16">16</option>
+                <option value="32" selected>32</option>
+                <option value="64">64</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label">
+                <span>Data Width</span>
+                <span class="hint">bits</span>
+              </label>
+              <select class="select" name="data_width">
+                <option value="8">8</option>
+                <option value="16">16</option>
+                <option value="32" selected>32</option>
+                <option value="64">64</option>
+                <option value="128">128</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label">
+                <span>DUT Name</span>
+                <span class="hint">snake_case</span>
+              </label>
+              <input class="input" name="dut_name" value="my_axi_slave" placeholder="my_axi_slave" />
+            </div>
+
+            <div class="field">
+              <label class="label"><span>Agent Role</span></label>
+              <select class="select" name="agent_role">
+                <option value="master">Master (drives DUT)</option>
+                <option value="slave">Slave (responds to DUT)</option>
+                <option value="both">Both master &amp; slave</option>
+              </select>
+            </div>
+
+            <div class="field field-full">
+              <label class="label"><span>Include</span></label>
+              <div class="chips">
+                <label class="chip checked"><input type="checkbox" name="features" value="scoreboard" checked /><span>Scoreboard</span></label>
+                <label class="chip checked"><input type="checkbox" name="features" value="coverage" checked /><span>Coverage</span></label>
+                <label class="chip checked"><input type="checkbox" name="features" value="assertions" checked /><span>SVA assertions</span></label>
+                <label class="chip"><input type="checkbox" name="features" value="register_model" /><span>UVM reg model</span></label>
+                <label class="chip"><input type="checkbox" name="features" value="error_injection" /><span>Error injection</span></label>
+              </div>
+            </div>
+
+            <div class="field field-full">
+              <label class="label">
+                <span>Additional Notes</span>
+                <span class="hint">optional</span>
+              </label>
+              <textarea class="textarea" name="notes" placeholder="e.g. register map has 16 config regs at offsets 0x00–0x3C, read latency is 2 cycles..."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="gen-btn">Generate testbench</button>
+        </form>
+
+        <div class="output" id="output"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section class="steps">
+  <div class="wrap">
+    <div class="section-eyebrow">How it works</div>
+    <h2 class="section-h2">Three steps, no setup required.</h2>
+    <p class="section-lede">
+      Every generation is shaped by a system prompt built from years of production verification work. Not textbook UVM — the kind that ships.
     </p>
 
-    <div class="protocol-tabs" role="tablist">
-      <button class="protocol-tab active" data-protocol="axi-lite">AXI&#8209;Lite</button>
-      <button class="protocol-tab" disabled>AXI4<span class="soon">soon</span></button>
-      <button class="protocol-tab" disabled>APB<span class="soon">soon</span></button>
-      <button class="protocol-tab" disabled>AHB<span class="soon">soon</span></button>
-      <button class="protocol-tab" disabled>Wishbone<span class="soon">soon</span></button>
-    </div>
-
-    <form id="gen-form">
-      <div class="form-grid">
-        <div class="field">
-          <label class="field-label">
-            <span>Address Width</span>
-            <span class="field-hint">bits</span>
-          </label>
-          <select name="addr_width">
-            <option value="8">8</option>
-            <option value="16">16</option>
-            <option value="32" selected>32</option>
-            <option value="64">64</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label class="field-label">
-            <span>Data Width</span>
-            <span class="field-hint">bits</span>
-          </label>
-          <select name="data_width">
-            <option value="8">8</option>
-            <option value="16">16</option>
-            <option value="32" selected>32</option>
-            <option value="64">64</option>
-            <option value="128">128</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label class="field-label">
-            <span>DUT Name</span>
-            <span class="field-hint">snake_case</span>
-          </label>
-          <input name="dut_name" value="my_axi_slave" placeholder="my_axi_slave" />
-        </div>
-
-        <div class="field">
-          <label class="field-label"><span>Agent Role</span></label>
-          <select name="agent_role">
-            <option value="master">Master (drives DUT)</option>
-            <option value="slave">Slave (responds to DUT)</option>
-            <option value="both">Both master &amp; slave</option>
-          </select>
-        </div>
-
-        <div class="field field-full">
-          <label class="field-label"><span>Include</span></label>
-          <div class="checkbox-row">
-            <label class="check-chip checked">
-              <input type="checkbox" name="features" value="scoreboard" checked />
-              <span>Scoreboard</span>
-            </label>
-            <label class="check-chip checked">
-              <input type="checkbox" name="features" value="coverage" checked />
-              <span>Coverage</span>
-            </label>
-            <label class="check-chip checked">
-              <input type="checkbox" name="features" value="assertions" checked />
-              <span>SVA assertions</span>
-            </label>
-            <label class="check-chip">
-              <input type="checkbox" name="features" value="register_model" />
-              <span>UVM reg model</span>
-            </label>
-            <label class="check-chip">
-              <input type="checkbox" name="features" value="error_injection" />
-              <span>Error injection</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="field field-full">
-          <label class="field-label">
-            <span>Marginalia</span>
-            <span class="field-hint">notes specific to your DUT, optional</span>
-          </label>
-          <textarea name="notes" placeholder="e.g. register map has 16 config regs at offsets 0x00-0x3C, latency on reads is 2 cycles..."></textarea>
-        </div>
+    <div class="step-grid">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Configure</h3>
+        <p>Pick your protocol, set the widths, choose which features you want. Add any DUT-specific notes.</p>
       </div>
-
-      <button type="submit" class="btn-primary" id="gen-btn">
-        <span>set &amp; print the testbench</span>
-      </button>
-    </form>
-
-    <div class="output" id="output"></div>
-  </div>
-</section>
-
-<!-- WHAT'S INSIDE -->
-<section class="container" style="padding-top: 40px; padding-bottom: 80px;">
-  <div class="section-marker">what is inside the imprint</div>
-  <h2 class="section-head">Domain expertise, <span class="amp">&amp;</span> not generic AI.</h2>
-
-  <div class="feature-grid">
-    <div class="feature-card">
-      <div class="feature-num">i.</div>
-      <h3>Specify</h3>
-      <p>Choose your protocol. Set your widths. Describe any quirk specific to your DUT. The press accepts details the way a good editor does &mdash; attentively.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-num">ii.</div>
-      <h3>Compose</h3>
-      <p>Claude is directed by a system prompt crafted from years of production DV work. Not textbook UVM &mdash; the kind that ships.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-num">iii.</div>
-      <h3>Receive</h3>
-      <p>A full multi-file project. Agent, sequences, env, scoreboard, tests, Makefile. Drop it in your repo &mdash; it compiles.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-num">iv.</div>
-      <h3>Revise</h3>
-      <p>Adjust your specification. Print again. No login. No account. No tracking. A quiet workshop, open at all hours.</p>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Generate</h3>
+        <p>Claude writes a complete, multi-file UVM project tailored to your specification. Takes about 30–60 seconds.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Download</h3>
+        <p>Grab the zip, drop it into your repo, compile on VCS, Xcelium or Questa. Iterate by regenerating.</p>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- ABOUT -->
-<section class="preface" id="about">
-  <div class="section-marker">a note from the editor</div>
-  <h2 class="section-head">About the <span class="amp">press.</span></h2>
-
-  <p>
-    <span class="dropcap">A</span>sicverif.ai is a small press run by a senior
-    design verification engineer with more than a decade at tier-one silicon
-    companies &mdash; PCIe, NVMe, security IPs, the usual parade. Every
-    generation is shaped by a system prompt that encodes the patterns, pitfalls,
-    and conventions that separate a testbench that <em>works</em> from one that
-    merely compiles.
-  </p>
-
-  <p>
-    The service is free. If an afternoon of your life has been saved, there is
-    a donation jar at the end of the hall. No accounts, no upsells, no data
-    collection. Just tools for the trade, placed where you can reach them.
-  </p>
-
-  <p>
-    The companion <a href="/learn/">Learn</a> section contains practitioner
-    notes on SystemVerilog, arranged as a reader might arrange a working
-    manual &mdash; foundations, intermediate matters, advanced topics, each
-    with its own set of practice exercises.
-  </p>
+<section class="about" id="about">
+  <div class="wrap">
+    <div class="about-grid">
+      <div>
+        <div class="section-eyebrow">About</div>
+        <h2 class="section-h2">Built by a <span class="accent">verification engineer.</span></h2>
+      </div>
+      <div>
+        <p>
+          asicverif.ai is a small project by a Senior Design Verification engineer with 13+ years at tier-one silicon companies — PCIe, NVMe, security IPs.
+        </p>
+        <p>
+          The scaffolding of a UVM testbench is essentially the same every time, only the details change. This tool takes care of the boilerplate so you can focus on the details that matter — coverage models, protocol corner cases, the specific quirks of your DUT.
+        </p>
+        <p>
+          The service is <strong>free</strong>. If it saves you an afternoon, <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">buy a coffee</a>. No accounts, no upsells, no tracking.
+        </p>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- FOOTER -->
 <footer class="site-footer">
-  <div class="colophon">
-    Set in <em>Fraunces</em>, <em>Crimson Pro</em>, <span class="amp">&amp;</span> <em>JetBrains Mono</em>.
-  </div>
-  <div class="meta">
-    © MMXXVI asicverif.ai
-    <span>·</span>
-    <a href="/learn/">Learn SystemVerilog</a>
-    <span>·</span>
-    <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Donate</a>
-    <span>·</span>
-    <a href="mailto:hello@asicverif.ai">Contact</a>
+  <div class="footer-inner">
+    <div>© 2026 asicverif.ai</div>
+    <div>
+      <a href="/learn/">SystemVerilog</a>
+      <a href="#about">About</a>
+      <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
+      <a href="mailto:hello@asicverif.ai">Contact</a>
+    </div>
   </div>
 </footer>
 
 <script>
   // Chip toggling
-  document.querySelectorAll('.check-chip').forEach(chip => {
+  document.querySelectorAll('.chip').forEach(chip => {
     const input = chip.querySelector('input');
     chip.addEventListener('click', (e) => {
       if (e.target !== input) input.checked = !input.checked;
@@ -266,12 +240,11 @@
 
   // Form submission
   const form = document.getElementById('gen-form');
-  const btn = document.getElementById('gen-btn');
-  const output = document.getElementById('output');
+  const btn  = document.getElementById('gen-btn');
+  const out  = document.getElementById('output');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const fd = new FormData(form);
     const features = Array.from(form.querySelectorAll('input[name="features"]:checked')).map(i => i.value);
 
@@ -286,14 +259,9 @@
     };
 
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span><span>setting type &middot; 30 to 60 seconds</span>';
-    output.classList.add('visible');
-    output.innerHTML = `
-      <div class="output-status">
-        <div class="spinner"></div>
-        <span>The press is warming&hellip; Claude is typesetting your UVM project.</span>
-      </div>
-    `;
+    btn.innerHTML = '<span class="spinner"></span><span>Generating — 30 to 60 seconds</span>';
+    out.classList.add('visible');
+    out.innerHTML = '<div class="status"><div class="spinner"></div><span>Claude is writing your UVM project...</span></div>';
 
     try {
       const res = await fetch('/api/generate', {
@@ -303,15 +271,15 @@
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: 'Request failed' }));
-        throw new Error(err.error || `HTTP ${res.status}`);
+        throw new Error(err.error || 'HTTP ' + res.status);
       }
       const data = await res.json();
       renderOutput(data.files || {}, spec);
     } catch (err) {
-      output.innerHTML = `<div class="error-box">An error from the pressroom: ${escapeHtml(err.message)}</div>`;
+      out.innerHTML = '<div class="error">' + escapeHtml(err.message) + '</div>';
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '<span>set the testbench again</span>';
+      btn.innerHTML = 'Generate again';
     }
   });
 
@@ -320,94 +288,77 @@
   }
 
   function renderOutput(files, spec) {
-    const filenames = Object.keys(files);
-    if (!filenames.length) {
-      output.innerHTML = `<div class="error-box">The press returned no files. Please try again or adjust your specification.</div>`;
+    const names = Object.keys(files);
+    if (!names.length) {
+      out.innerHTML = '<div class="error">No files returned. Please try again.</div>';
       return;
     }
 
-    output.innerHTML = `
-      <div class="output-status success">
-        <span>Set and printed &middot; ${filenames.length} files &middot; ${escapeHtml(spec.dut_name)}_tb</span>
-      </div>
-      <div class="file-specimen">
-        <div class="file-tabs">
-          ${filenames.map((f, i) => `<button class="file-tab ${i === 0 ? 'active' : ''}" data-file="${escapeHtml(f)}">${escapeHtml(f)}</button>`).join('')}
-        </div>
-        <pre class="code-block" id="code-view"></pre>
-      </div>
-      <div class="output-actions">
-        <button class="btn-secondary" id="copy-btn">⧉ copy file</button>
-        <button class="btn-secondary" id="download-single">⬇ download file</button>
-        <button class="btn-secondary" id="download-btn">⬇ download all (.zip)</button>
-      </div>
-      <div class="donate-nudge">
-        <div>An afternoon saved? <strong>Leave a coffee for the press.</strong> No pressure &mdash; it keeps the lamps lit.</div>
-        <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="btn-donate">☕ buy a coffee</a>
-      </div>
-    `;
+    out.innerHTML =
+      '<div class="status success"><span>Generated ' + names.length + ' files · ' + escapeHtml(spec.dut_name) + '_tb</span></div>' +
+      '<div class="files">' +
+        '<div class="file-tabs">' +
+          names.map((f, i) => '<button class="file-tab ' + (i === 0 ? 'active' : '') + '" data-file="' + escapeHtml(f) + '">' + escapeHtml(f) + '</button>').join('') +
+        '</div>' +
+        '<pre class="code" id="code-view"></pre>' +
+      '</div>' +
+      '<div class="output-actions">' +
+        '<button class="btn btn-ghost" id="copy-btn">Copy file</button>' +
+        '<button class="btn btn-ghost" id="download-single">Download file</button>' +
+        '<button class="btn btn-primary" id="download-btn">Download .zip</button>' +
+      '</div>' +
+      '<div class="tip">' +
+        '<div>Saved you an afternoon? <strong>Support the project.</strong> It helps keep this free.</div>' +
+        '<a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="btn-donate">☕ Buy a coffee</a>' +
+      '</div>';
 
     const codeView = document.getElementById('code-view');
-    const tabs = output.querySelectorAll('.file-tab');
-    let currentFile = filenames[0];
-
-    function showFile(name) {
-      currentFile = name;
-      codeView.textContent = files[name];
-      tabs.forEach(t => t.classList.toggle('active', t.dataset.file === name));
+    const tabs = out.querySelectorAll('.file-tab');
+    let currentFile = names[0];
+    function showFile(n) {
+      currentFile = n;
+      codeView.textContent = files[n];
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.file === n));
     }
     tabs.forEach(t => t.addEventListener('click', () => showFile(t.dataset.file)));
-    showFile(filenames[0]);
+    showFile(names[0]);
 
     document.getElementById('copy-btn').addEventListener('click', () => {
       navigator.clipboard.writeText(files[currentFile]);
       const b = document.getElementById('copy-btn');
-      b.textContent = '✓ copied';
-      setTimeout(() => b.textContent = '⧉ copy file', 1200);
+      b.textContent = 'Copied';
+      setTimeout(() => b.textContent = 'Copy file', 1200);
     });
-
-    document.getElementById('download-single').addEventListener('click', () => {
-      downloadFile(currentFile, files[currentFile]);
-    });
-
-    document.getElementById('download-btn').addEventListener('click', () => {
-      downloadZip(files, spec.dut_name + '_tb');
-    });
+    document.getElementById('download-single').addEventListener('click', () => downloadFile(currentFile, files[currentFile]));
+    document.getElementById('download-btn').addEventListener('click', () => downloadZip(files, spec.dut_name + '_tb'));
   }
 
   function downloadFile(name, content) {
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(new Blob([content], { type: 'text/plain' }));
     const a = document.createElement('a');
     a.href = url; a.download = name; a.click();
     URL.revokeObjectURL(url);
   }
 
-  // Minimal ZIP (STORE method) — no dependencies
   async function downloadZip(files, zipName) {
-    const encoder = new TextEncoder();
-    const entries = [];
+    const enc = new TextEncoder();
+    const entries = [], central = [];
     let offset = 0;
-    const central = [];
-
     for (const [name, content] of Object.entries(files)) {
-      const nameBytes = encoder.encode(name);
-      const dataBytes = encoder.encode(content);
-      const crc = crc32(dataBytes);
-      const size = dataBytes.length;
-
-      const localHeader = new Uint8Array(30 + nameBytes.length);
-      const dv = new DataView(localHeader.buffer);
+      const nb = enc.encode(name), db = enc.encode(content);
+      const crc = crc32(db), size = db.length;
+      const lh = new Uint8Array(30 + nb.length);
+      const dv = new DataView(lh.buffer);
       dv.setUint32(0, 0x04034b50, true);
       dv.setUint16(4, 20, true);
       dv.setUint32(14, crc, true);
       dv.setUint32(18, size, true);
       dv.setUint32(22, size, true);
-      dv.setUint16(26, nameBytes.length, true);
-      localHeader.set(nameBytes, 30);
-      entries.push(localHeader, dataBytes);
+      dv.setUint16(26, nb.length, true);
+      lh.set(nb, 30);
+      entries.push(lh, db);
 
-      const cd = new Uint8Array(46 + nameBytes.length);
+      const cd = new Uint8Array(46 + nb.length);
       const cdv = new DataView(cd.buffer);
       cdv.setUint32(0, 0x02014b50, true);
       cdv.setUint16(4, 20, true);
@@ -415,34 +366,28 @@
       cdv.setUint32(16, crc, true);
       cdv.setUint32(20, size, true);
       cdv.setUint32(24, size, true);
-      cdv.setUint16(28, nameBytes.length, true);
+      cdv.setUint16(28, nb.length, true);
       cdv.setUint32(42, offset, true);
-      cd.set(nameBytes, 46);
+      cd.set(nb, 46);
       central.push(cd);
-
-      offset += localHeader.length + dataBytes.length;
+      offset += lh.length + db.length;
     }
-
-    const centralSize = central.reduce((s, e) => s + e.length, 0);
+    const cs = central.reduce((s, e) => s + e.length, 0);
     const eocd = new Uint8Array(22);
     const edv = new DataView(eocd.buffer);
     edv.setUint32(0, 0x06054b50, true);
     edv.setUint16(8, central.length, true);
     edv.setUint16(10, central.length, true);
-    edv.setUint32(12, centralSize, true);
+    edv.setUint32(12, cs, true);
     edv.setUint32(16, offset, true);
-
-    const blob = new Blob([...entries, ...central, eocd], { type: 'application/zip' });
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(new Blob([...entries, ...central, eocd], { type: 'application/zip' }));
     const a = document.createElement('a');
     a.href = url; a.download = zipName + '.zip'; a.click();
     URL.revokeObjectURL(url);
   }
-
   const crcTable = (() => {
     const t = new Uint32Array(256);
-    for (let i = 0; i < 256; i++) {
-      let c = i;
+    for (let i = 0; i < 256; i++) { let c = i;
       for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
       t[i] = c;
     }
