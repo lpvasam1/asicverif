@@ -29,7 +29,7 @@
 <section class="docs-hero">
   <div class="wrap">
     <div style="max-width: 780px;">
-      <div class="hero-eyebrow">Exam Advanced</div>
+      <div class="hero-eyebrow">Exam III</div>
       <h1>Exam III — Advanced</h1>
       <p class="docs-hero-lede">Twenty questions on threads, mailboxes, assertions, and DPI.</p>
     </div>
@@ -58,86 +58,76 @@
       <li><a href="/">UVM Generator</a></li>
     </ul>
   </aside>
-  <main class="docs-main">
-    <section class="exam-opener">
-  <div class="exam-marker">Part III · Examination</div>
-  <h1>The <em>Mastery</em><br>Exam.</h1>
-  <p class="sub">
-    Twenty questions on concurrency, advanced OOP, functional coverage, virtual
-    interfaces, the full testbench, and the DPI to C.
-  </p>
-  <div class="exam-stats">
-    <div class="exam-stat"><div class="n">20</div><div class="lbl">Questions</div></div>
-    <div class="exam-stat"><div class="n">~25</div><div class="lbl">Minutes</div></div>
-    <div class="exam-stat"><div class="n">VII–XII</div><div class="lbl">Chapters</div></div>
-  </div>
-  <div class="crumbs">
-    <a href="advanced.html">← Re-read Part III</a>
-    &nbsp; · &nbsp;
-    <a href="index.html">Contents</a>
-  </div>
-</section>
+  <main class="docs-main" style="max-width: 820px;">
 
-<div class="rules-card">
-  <h4>Instructions to the candidate</h4>
-  <p>
-    Select one answer per question. The <strong>Submit &amp; Grade</strong> button
-    enables once all twenty are answered. Grading is <strong>A</strong> ≥ 90%,
-    <strong>B</strong> ≥ 80%, <strong>C</strong> ≥ 70%, <strong>D</strong> ≥ 60%,
-    <strong>F</strong> below. Every question reveals an explanation on submit.
-    This is the capstone — take your time.
-  </p>
-</div>
+    <div style="padding: 16px 20px; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 8px; margin-bottom: 28px;">
+      <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--red); font-weight: 600; margin-bottom: 6px;">Instructions</div>
+      <p style="font-size: 14px; color: var(--ink-soft); line-height: 1.55; margin: 0;">
+        Select one answer per question. The <strong style="color: var(--ink);">Submit &amp; grade</strong> button enables once all twenty are answered.
+        Grading is A ≥ 90 %, B ≥ 80 %, C ≥ 70 %, D ≥ 60 %, F below. Every question reveals an explanation on submit. Retake as often as you like.
+      </p>
+    </div>
 
-<div class="progress" id="progress">
-  <div class="progress-top">
-    <span>Progress</span>
-    <span class="pct" id="progressPct">0 / 20</span>
-  </div>
-  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-</div>
-
-<main class="exam-body">
-  <form id="examForm"><div id="questionList"></div></form>
-
-  <div class="results" id="results">
-    <div class="label">Graded · Final</div>
-    <div class="results-grid">
-      <div class="results-cell score">
-        <div class="n"><span id="scorePct">0</span><sup>%</sup></div>
-        <div class="cap">Score</div>
+    <div class="progress" id="progress">
+      <div class="progress-top">
+        <span>Progress</span>
+        <span class="pct" id="progressPct">0 / 20</span>
       </div>
-      <div class="results-cell grade">
-        <div class="n" id="gradeLetter">–</div>
-        <div class="cap">Letter</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="exam-body" style="padding: 0; max-width: none;">
+      <form id="examForm"><div id="questionList"></div></form>
+
+      <div class="results" id="results">
+        <div class="label">Graded</div>
+        <div class="results-grid">
+          <div class="results-cell score">
+            <div class="n"><span id="scorePct">0</span><sup>%</sup></div>
+            <div class="cap">Score</div>
+          </div>
+          <div class="results-cell grade">
+            <div class="n" id="gradeLetter">–</div>
+            <div class="cap">Letter</div>
+          </div>
+          <div class="results-cell raw">
+            <div class="n"><span id="rawCorrect">0</span><span class="denom"> / 20</span></div>
+            <div class="cap">Correct</div>
+          </div>
+        </div>
+        <p class="blurb" id="gradeBlurb">–</p>
+        <div class="btn-row">
+          <button class="btn red" onclick="retake()">Retake exam</button>
+          <a href="/learn/advanced.html" class="btn">Part III</a>
+          <a href="/learn/" class="btn ghost">Back to index →</a>
+        </div>
       </div>
-      <div class="results-cell raw">
-        <div class="n"><span id="rawCorrect">0</span><span class="denom"> / 20</span></div>
-        <div class="cap">Correct</div>
+
+      <div class="submit-wrap" id="submitWrap">
+        <button class="btn red" id="submitBtn" disabled onclick="gradeExam()">Submit &amp; grade</button>
+        <div class="note" id="submitNote">Answer all 20 questions to enable submission</div>
       </div>
     </div>
-    <p class="blurb" id="gradeBlurb">–</p>
-    <div class="btn-row">
-      <button class="btn red" onclick="retake()">Retake Examination III</button>
-      <a href="advanced.html" class="btn">Re-read Part III</a>
-      <a href="index.html" class="btn ghost">← Return to Contents</a>
+
+    <div class="docs-nav-pager">
+      <a href="/learn/advanced.html">← Part III</a>
+      <a href="/learn/">Back to index →</a>
+    </div>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>© 2026 asicverif.ai</div>
+    <div>
+      <a href="/">Generator</a>
+      <a href="/learn/">SystemVerilog</a>
+      <a href="/#about">About</a>
+      <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
     </div>
   </div>
-
-  <div class="submit-wrap" id="submitWrap">
-    <button class="btn red" id="submitBtn" disabled onclick="gradeExam()">Submit &amp; grade</button>
-    <div class="note" id="submitNote">Answer all 20 questions to enable submission</div>
-  </div>
-</main>
-
-<section class="colophon">
-  <div class="orn">❦ · ❦ · ❦</div>
-  <div class="line">Finis · End of the three examinations</div>
-</section>
-
-<footer>
-  Examination III of III <span class="flourish">·</span> Verif Academy <span class="flourish">·</span> After Spear &amp; Tumbush
 </footer>
+
 <script>
 // ============================================================
 // EXAMINATION III — 20 questions, Chapters vii–xii
@@ -512,25 +502,6 @@ function retake() {
 renderExam();
 updateProgress();
 </script>
-
-    <div class="docs-nav-pager">
-      <a href="/learn/advanced.html">← Part III</a>
-      <a href="/learn/">Back to index →</a>
-    </div>
-  </main>
-</div>
-
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div>© 2026 asicverif.ai</div>
-    <div>
-      <a href="/">Generator</a>
-      <a href="/learn/">SystemVerilog</a>
-      <a href="/#about">About</a>
-      <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
-    </div>
-  </div>
-</footer>
 
 </body>
 </html>
