@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Exam II — Intermediate — asicverif.ai</title>
+<title>Exam II — SystemVerilog Intermediate — asicverif.ai</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,24 +20,19 @@
     <ul class="tabs">
       <li><a href="/">Generator</a></li>
       <li><a href="/learn/" class="active">SystemVerilog</a></li>
+      <li><a href="/uvm/">UVM</a></li>
       <li><a href="/#about">About</a></li>
     </ul>
     <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
   </div>
 </nav>
 
-<section class="docs-hero">
-  <div class="wrap">
-    <div style="max-width: 780px;">
-      <div class="hero-eyebrow">Exam II</div>
-      <h1>Exam II — Intermediate</h1>
-      <p class="docs-hero-lede">Twenty questions on OOP, randomization, and interfaces.</p>
-    </div>
-  </div>
-</section>
-
 <div class="docs-layout">
   <aside class="docs-sidebar">
+    <div class="group">SystemVerilog</div>
+    <ul>
+      <li><a href="/learn/">Overview</a></li>
+    </ul>
     <div class="group">Foundations</div>
     <ul>
       <li><a href="/learn/basic.html">Part I — Foundations</a></li>
@@ -58,14 +53,16 @@
       <li><a href="/">UVM Generator</a></li>
     </ul>
   </aside>
-  <main class="docs-main" style="max-width: 820px;">
+  <main class="docs-main" style="max-width: 760px;">
+    <h1>Exam II — SystemVerilog Intermediate</h1>
+    <p class="docs-subtitle">Twenty questions on the intermediate topics covered in Part II.</p>
 
-    <div style="padding: 16px 20px; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 8px; margin-bottom: 28px;">
-      <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--red); font-weight: 600; margin-bottom: 6px;">Instructions</div>
-      <p style="font-size: 14px; color: var(--ink-soft); line-height: 1.55; margin: 0;">
-        Select one answer per question. The <strong style="color: var(--ink);">Submit &amp; grade</strong> button enables once all twenty are answered.
-        Grading is A ≥ 90 %, B ≥ 80 %, C ≥ 70 %, D ≥ 60 %, F below. Every question reveals an explanation on submit. Retake as often as you like.
-      </p>
+    <div class="callout note">
+      <div class="callout-term">Instructions</div>
+      <div class="callout-body">
+        Select one answer per question. The <strong>Submit &amp; grade</strong> button enables once all 20 are answered.
+        Grading: A ≥ 90%, B ≥ 80%, C ≥ 70%, D ≥ 60%, F below. Explanations appear on submit. Retake as often as you like.
+      </div>
     </div>
 
     <div class="progress" id="progress">
@@ -76,7 +73,7 @@
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
     </div>
 
-    <div class="exam-body" style="padding: 0; max-width: none;">
+    <div class="exam-body">
       <form id="examForm"><div id="questionList"></div></form>
 
       <div class="results" id="results">
@@ -120,8 +117,8 @@
   <div class="footer-inner">
     <div>© 2026 asicverif.ai</div>
     <div>
-      <a href="/">Generator</a>
       <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
       <a href="/#about">About</a>
       <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
     </div>
@@ -129,367 +126,360 @@
 </footer>
 
 <script>
-// ============================================================
-// EXAMINATION II — 20 questions, Chapters 4-6
-// Answer distribution rebalanced across A/B/C/D
-// ============================================================
 const QUESTIONS = [
   {
-    chapter: "Ch. iv · Connecting TB & Design",
-    q: "What is the primary purpose of a SystemVerilog <code>interface</code>?",
-    choices: [
+    "chapter": "Ch. iv \u00b7 Connecting TB & Design",
+    "q": "What is the primary purpose of a SystemVerilog <code>interface</code>?",
+    "choices": [
       "To bundle related signals together, reducing port-list boilerplate and allowing shared timing and verification logic.",
       "To replace the Verilog <code>module</code> keyword.",
       "To provide a C-like function pointer.",
       "To declare coverage bins."
     ],
-    answer: 0,
-    explain: "Interfaces group signals, modports, clocking blocks, tasks, and assertions into one reusable construct. Connecting a 40-wire bus then becomes a single identifier instead of 40 port names."
+    "answer": 0,
+    "explain": "Interfaces group signals, modports, clocking blocks, tasks, and assertions into one reusable construct. Connecting a 40-wire bus then becomes a single identifier instead of 40 port names."
   },
   {
-    chapter: "Ch. iv · Connecting TB & Design",
-    q: "A <code>modport</code> inside an interface is used to…",
-    choices: [
+    "chapter": "Ch. iv \u00b7 Connecting TB & Design",
+    "q": "A <code>modport</code> inside an interface is used to\u2026",
+    "choices": [
       "declare the clocking region.",
       "connect two interfaces together.",
       "define a direction/view of the interface signals from the perspective of a particular module (e.g., master vs slave).",
       "instantiate a module inside the interface."
     ],
-    answer: 2,
-    explain: "Modports let the same interface present different directional views to different attached modules — e.g., master sees signals as output where slave sees them as input, all from one declaration."
+    "answer": 2,
+    "explain": "Modports let the same interface present different directional views to different attached modules \u2014 e.g., master sees signals as output where slave sees them as input, all from one declaration."
   },
   {
-    chapter: "Ch. iv · Connecting TB & Design",
-    q: "A <code>clocking</code> block primarily solves which problem?",
-    choices: [
+    "chapter": "Ch. iv \u00b7 Connecting TB & Design",
+    "q": "A <code>clocking</code> block primarily solves which problem?",
+    "choices": [
       "Generating the system clock.",
       "Providing deterministic, race-free sampling and driving of DUT signals with explicit input/output skews.",
       "Tracking simulation time.",
       "Replacing the <code>initial</code> block."
     ],
-    answer: 1,
-    explain: "Without a clocking block, a testbench reading an RTL signal on the same edge can race the RTL's write. Clocking blocks move TB sampling to the preponed region and driving to NBA, eliminating 0-time races."
+    "answer": 1,
+    "explain": "Without a clocking block, a testbench reading an RTL signal on the same edge can race the RTL's write. Clocking blocks move TB sampling to the preponed region and driving to NBA, eliminating 0-time races."
   },
   {
-    chapter: "Ch. iv · Connecting TB & Design",
-    q: "Why does the book recommend putting testbench code in a <code>program</code> block rather than a <code>module</code>?",
-    choices: [
+    "chapter": "Ch. iv \u00b7 Connecting TB & Design",
+    "q": "Why does the book recommend putting testbench code in a <code>program</code> block rather than a <code>module</code>?",
+    "choices": [
       "<code>program</code> blocks can be synthesized to silicon.",
       "<code>program</code> blocks execute in the Reactive region (after Active), avoiding race conditions with RTL, and cannot contain <code>always</code> blocks.",
-      "<code>program</code> blocks run 10× faster.",
+      "<code>program</code> blocks run 10\u00d7 faster.",
       "Only <code>program</code> blocks support classes."
     ],
-    answer: 1,
-    explain: "Program blocks schedule their initial code in the Reactive region, after the RTL's Active region has settled. This is what makes the TB-DUT sampling race go away. always blocks are disallowed to reinforce this model."
+    "answer": 1,
+    "explain": "Program blocks schedule their initial code in the Reactive region, after the RTL's Active region has settled. This is what makes the TB-DUT sampling race go away. always blocks are disallowed to reinforce this model."
   },
   {
-    chapter: "Ch. iv · Connecting TB & Design",
-    q: "What is the difference between an <em>immediate</em> assertion and a <em>concurrent</em> assertion?",
-    choices: [
+    "chapter": "Ch. iv \u00b7 Connecting TB & Design",
+    "q": "What is the difference between an <em>immediate</em> assertion and a <em>concurrent</em> assertion?",
+    "choices": [
       "Immediate assertions require a cover statement; concurrent ones do not.",
       "Concurrent assertions can only appear inside interfaces.",
       "Immediate assertions execute procedurally like an <code>if</code> and evaluate once when reached; concurrent assertions are clocked, continuously monitored sequences over time.",
-      "There is no difference — the terms are synonyms."
+      "There is no difference \u2014 the terms are synonyms."
     ],
-    answer: 2,
-    explain: "assert #(0) a == b; (immediate) is a one-shot procedural check. assert property(@(posedge clk) a |=> b); (concurrent) is a temporal property evaluated on every clock edge."
+    "answer": 2,
+    "explain": "assert #(0) a == b; (immediate) is a one-shot procedural check. assert property(@(posedge clk) a |=> b); (concurrent) is a temporal property evaluated on every clock edge."
   },
   {
-    chapter: "Ch. iv · Connecting TB & Design",
-    q: "What happens if you use a <code>logic</code> variable for a bidirectional bus signal driven by two modules?",
-    choices: [
-      "It works fine — <code>logic</code> automatically resolves multiple drivers.",
+    "chapter": "Ch. iv \u00b7 Connecting TB & Design",
+    "q": "What happens if you use a <code>logic</code> variable for a bidirectional bus signal driven by two modules?",
+    "choices": [
+      "It works fine \u2014 <code>logic</code> automatically resolves multiple drivers.",
       "The last-written value always wins.",
       "It silently behaves like an XOR of the drivers.",
       "The simulator will reject it because <code>logic</code> only tolerates a single structural driver."
     ],
-    answer: 3,
-    explain: "logic's single-driver restriction is exactly what lets the simulator flag netlist mistakes. For real bidirectional buses, use wire (or tri/tri0/tri1) so multi-driver resolution kicks in."
+    "answer": 3,
+    "explain": "logic's single-driver restriction is exactly what lets the simulator flag netlist mistakes. For real bidirectional buses, use wire (or tri/tri0/tri1) so multi-driver resolution kicks in."
   },
   {
-    chapter: "Ch. v · Basic OOP",
-    q: "In SystemVerilog, what type is a variable that stores a reference to a class object?",
-    choices: [
+    "chapter": "Ch. v \u00b7 Basic OOP",
+    "q": "In SystemVerilog, what type is a variable that stores a reference to a class object?",
+    "choices": [
       "A copy of the object's fields.",
-      "A <em>handle</em> — an opaque reference, null by default, set by calling <code>new()</code>.",
-      "A raw pointer — dereference with <code>*</code>.",
+      "A <em>handle</em> \u2014 an opaque reference, null by default, set by calling <code>new()</code>.",
+      "A raw pointer \u2014 dereference with <code>*</code>.",
       "A process ID."
     ],
-    answer: 1,
-    explain: "SystemVerilog has no C-style pointers. Class variables are handles — opaque references. Declaring one allocates nothing; you must call new() (or assign from another handle) to point at an actual object."
+    "answer": 1,
+    "explain": "SystemVerilog has no C-style pointers. Class variables are handles \u2014 opaque references. Declaring one allocates nothing; you must call new() (or assign from another handle) to point at an actual object."
   },
   {
-    chapter: "Ch. v · Basic OOP",
-    q: "What happens when you declare <code>Transaction t;</code> (no <code>new</code>) and then call <code>t.randomize();</code>?",
-    choices: [
+    "chapter": "Ch. v \u00b7 Basic OOP",
+    "q": "What happens when you declare <code>Transaction t;</code> (no <code>new</code>) and then call <code>t.randomize();</code>?",
+    "choices": [
       "The randomize call creates the object automatically.",
       "The simulator errors out at compile time.",
       "<code>t</code> is default-constructed with all fields set to zero.",
-      "It is a runtime null-handle dereference — the common bug when programmers forget constructors are explicit."
+      "It is a runtime null-handle dereference \u2014 the common bug when programmers forget constructors are explicit."
     ],
-    answer: 3,
-    explain: "Unlike C++ or Java, SystemVerilog never calls a constructor implicitly on declaration. A handle with no new() is null, and invoking any method/field on it is a runtime error."
+    "answer": 3,
+    "explain": "Unlike C++ or Java, SystemVerilog never calls a constructor implicitly on declaration. A handle with no new() is null, and invoking any method/field on it is a runtime error."
   },
   {
-    chapter: "Ch. v · Basic OOP",
-    q: "What does the <code>static</code> keyword on a class member variable indicate?",
-    choices: [
+    "chapter": "Ch. v \u00b7 Basic OOP",
+    "q": "What does the <code>static</code> keyword on a class member variable indicate?",
+    "choices": [
       "The variable is allocated on the simulator's heap.",
       "The variable is packed.",
       "There is exactly one copy shared by all objects of the class, accessible as <code>ClassName::var</code>.",
       "The variable cannot be modified after construction."
     ],
-    answer: 2,
-    explain: "static class members are per-class, not per-object. Good for counters, configuration pointers, or registries. Accessible via a handle or via ClassName::var."
+    "answer": 2,
+    "explain": "static class members are per-class, not per-object. Good for counters, configuration pointers, or registries. Accessible via a handle or via ClassName::var."
   },
   {
-    chapter: "Ch. v · Basic OOP",
-    q: "Which keyword disambiguates a class member from a constructor argument of the same name?",
-    choices: [
+    "chapter": "Ch. v \u00b7 Basic OOP",
+    "q": "Which keyword disambiguates a class member from a constructor argument of the same name?",
+    "choices": [
       "<code>super</code>",
       "<code>local</code>",
       "<code>this</code>",
       "<code>root</code>"
     ],
-    answer: 2,
-    explain: "this.name = name; is the canonical example — left side is the class field, right side is the argument. super refers to a parent class; local restricts visibility."
+    "answer": 2,
+    "explain": "this.name = name; is the canonical example \u2014 left side is the class field, right side is the argument. super refers to a parent class; local restricts visibility."
   },
   {
-    chapter: "Ch. v · Basic OOP",
-    q: "Inside a class, what does the <code>::</code> operator do?",
-    choices: [
-      "It is the scope-resolution operator — e.g., <code>Transaction::count</code> accesses a static member or a nested type.",
+    "chapter": "Ch. v \u00b7 Basic OOP",
+    "q": "Inside a class, what does the <code>::</code> operator do?",
+    "choices": [
+      "It is the scope-resolution operator \u2014 e.g., <code>Transaction::count</code> accesses a static member or a nested type.",
       "It concatenates two strings.",
       "It is not valid SystemVerilog.",
       "It separates bits of a packed array."
     ],
-    answer: 0,
-    explain: "The class scope-resolution operator lets you reach static members without a handle, reference nested typedefs/enums, or call a parent's method as super::m(). It also names package members: pkg::sym."
+    "answer": 0,
+    "explain": "The class scope-resolution operator lets you reach static members without a handle, reference nested typedefs/enums, or call a parent's method as super::m(). It also names package members: pkg::sym."
   },
   {
-    chapter: "Ch. vi · Randomization",
-    q: "What is the difference between <code>rand</code> and <code>randc</code>?",
-    choices: [
+    "chapter": "Ch. vi \u00b7 Randomization",
+    "q": "What is the difference between <code>rand</code> and <code>randc</code>?",
+    "choices": [
       "<code>rand</code> is for integers only; <code>randc</code> is for reals.",
       "<code>randc</code> is a Verilog-1995 keyword; <code>rand</code> is new.",
       "They are identical; the 'c' stands for compatible.",
       "<code>rand</code> produces uniformly random values on each randomize(); <code>randc</code> (random-cyclic) permutes through all legal values before repeating."
     ],
-    answer: 3,
-    explain: "randc cycles through the value range in a random permutation — useful when you want full coverage of a small field (opcode, bank id) without accidental repeats."
+    "answer": 3,
+    "explain": "randc cycles through the value range in a random permutation \u2014 useful when you want full coverage of a small field (opcode, bank id) without accidental repeats."
   },
   {
-    chapter: "Ch. vi · Randomization",
-    q: "Given a constraint block inside a class with <code>rand int len</code>, which of the following is a legal constraint expression?",
-    choices: [
+    "chapter": "Ch. vi \u00b7 Randomization",
+    "q": "Given a constraint block inside a class with <code>rand int len</code>, which of the following is a legal constraint expression?",
+    "choices": [
       "<code>len = 42;</code>",
       "<code>len == 42;</code>",
       "<code>len &lt;= 100 &amp;&amp; len &gt;= 1;</code>",
       "Both B and C are legal."
     ],
-    answer: 3,
-    explain: "Constraint blocks contain <em>expressions</em>, not assignments, so `=` is illegal. Equivalence is `==`, and relational combinators like `&&` are fine. Option A uses an assignment."
+    "answer": 3,
+    "explain": "Constraint blocks contain <em>expressions</em>, not assignments, so `=` is illegal. Equivalence is `==`, and relational combinators like `&&` are fine. Option A uses an assignment."
   },
   {
-    chapter: "Ch. vi · Randomization",
-    q: "What does the <code>inside</code> operator do in a constraint?",
-    choices: [
+    "chapter": "Ch. vi \u00b7 Randomization",
+    "q": "What does the <code>inside</code> operator do in a constraint?",
+    "choices": [
       "Checks whether a handle is non-null.",
       "Declares a nested covergroup.",
-      "Tests set membership — <code>x inside {1,3,[5:10]}</code> means x is 1, 3, or between 5 and 10 inclusive.",
+      "Tests set membership \u2014 <code>x inside {1,3,[5:10]}</code> means x is 1, 3, or between 5 and 10 inclusive.",
       "Copies a value into an array."
     ],
-    answer: 2,
-    explain: "inside is the compact set-membership operator and accepts discrete values and closed ranges. It also works in procedural if statements, not just constraints."
+    "answer": 2,
+    "explain": "inside is the compact set-membership operator and accepts discrete values and closed ranges. It also works in procedural if statements, not just constraints."
   },
   {
-    chapter: "Ch. vi · Randomization",
-    q: "What does the <code>dist</code> operator do in a constraint?",
-    choices: [
+    "chapter": "Ch. vi \u00b7 Randomization",
+    "q": "What does the <code>dist</code> operator do in a constraint?",
+    "choices": [
       "Distributes the constraint across all class instances.",
-      "Assigns a weighted distribution to the values of a random variable — e.g., <code>x dist {0 := 5, 1 := 3, 2 := 1}</code>.",
+      "Assigns a weighted distribution to the values of a random variable \u2014 e.g., <code>x dist {0 := 5, 1 := 3, 2 := 1}</code>.",
       "Specifies a timing distance between signals.",
       "Marks the constraint as synthesizable."
     ],
-    answer: 1,
-    explain: "dist biases the randomizer. := assigns a weight to each value/range; :/ spreads the weight across the range. Useful for stressing corner cases more often than middle values."
+    "answer": 1,
+    "explain": "dist biases the randomizer. := assigns a weight to each value/range; :/ spreads the weight across the range. Useful for stressing corner cases more often than middle values."
   },
   {
-    chapter: "Ch. vi · Randomization",
-    q: "When is a class's <code>pre_randomize()</code> callback executed?",
-    choices: [
+    "chapter": "Ch. vi \u00b7 Randomization",
+    "q": "When is a class's <code>pre_randomize()</code> callback executed?",
+    "choices": [
       "Once, at simulation start.",
       "After randomization, to clean up.",
       "Only if <code>randomize()</code> fails.",
       "Automatically, before the constraint solver runs on each <code>.randomize()</code> call."
     ],
-    answer: 3,
-    explain: "pre_randomize runs before the solver — useful to set up state or flip enable flags on constraints. post_randomize runs after to log or post-process. Neither is called automatically on constructor invocation."
+    "answer": 3,
+    "explain": "pre_randomize runs before the solver \u2014 useful to set up state or flip enable flags on constraints. post_randomize runs after to log or post-process. Neither is called automatically on constructor invocation."
   },
   {
-    chapter: "Ch. vi · Randomization",
-    q: "<code>solve a before b;</code> in a constraint tells the solver to…",
-    choices: [
+    "chapter": "Ch. vi \u00b7 Randomization",
+    "q": "<code>solve a before b;</code> in a constraint tells the solver to\u2026",
+    "choices": [
       "randomize <code>a</code> first and then <code>b</code>, changing the resulting probability distribution in <code>a</code>'s favor.",
       "schedule <code>a</code> at an earlier simulation time than <code>b</code>.",
       "declare that <code>a</code> is a prerequisite field of <code>b</code>.",
       "force <code>a == b</code>."
     ],
-    answer: 0,
-    explain: "solve-before influences ordering in the solver, which matters for distribution when two variables are related. Without it, the solver can pick a joint solution that is uniform over the <em>space</em>, not over one variable conditioned on the other."
+    "answer": 0,
+    "explain": "solve-before influences ordering in the solver, which matters for distribution when two variables are related. Without it, the solver can pick a joint solution that is uniform over the <em>space</em>, not over one variable conditioned on the other."
   },
   {
-    chapter: "Ch. vi · Randomization",
-    q: "What does <code>.randomize() with { ... }</code> do?",
-    choices: [
+    "chapter": "Ch. vi \u00b7 Randomization",
+    "q": "What does <code>.randomize() with { ... }</code> do?",
+    "choices": [
       "Renames the <code>randomize</code> method.",
       "Disables all the class's constraints.",
       "It is a syntax error.",
       "Adds inline additional constraints for just that one call, on top of the class's own constraint blocks."
     ],
-    answer: 3,
-    explain: "Inline with-blocks are extra constraints layered on for one randomize() call — perfect for 'just this test needs len == 0' without editing the generator class."
+    "answer": 3,
+    "explain": "Inline with-blocks are extra constraints layered on for one randomize() call \u2014 perfect for 'just this test needs len == 0' without editing the generator class."
   },
   {
-    chapter: "Ch. vi · Randomization",
-    q: "What is the return type of <code>.randomize()</code>, and what does it indicate?",
-    choices: [
-      "<code>void</code> — it always succeeds silently.",
-      "<code>string</code> — a list of field names randomized.",
-      "<code>bit</code> — 1 on success, 0 on failure; should always be checked or asserted.",
-      "<code>int</code> — the seed used."
+    "chapter": "Ch. vi \u00b7 Randomization",
+    "q": "What is the return type of <code>.randomize()</code>, and what does it indicate?",
+    "choices": [
+      "<code>void</code> \u2014 it always succeeds silently.",
+      "<code>string</code> \u2014 a list of field names randomized.",
+      "<code>bit</code> \u2014 1 on success, 0 on failure; should always be checked or asserted.",
+      "<code>int</code> \u2014 the seed used."
     ],
-    answer: 2,
-    explain: "Failure to check randomize()'s return value is a common bug: a contradiction in constraints leaves random variables at their previous values. Wrap calls in `assert(x.randomize())` to catch this."
+    "answer": 2,
+    "explain": "Failure to check randomize()'s return value is a common bug: a contradiction in constraints leaves random variables at their previous values. Wrap calls in `assert(x.randomize())` to catch this."
   },
   {
-    chapter: "Ch. vi · Randomization",
-    q: "Given <code>rand bit [7:0] len;</code> and <code>rand byte data[];</code>, which constraint best couples the array size to <code>len</code>?",
-    choices: [
+    "chapter": "Ch. vi \u00b7 Randomization",
+    "q": "Given <code>rand bit [7:0] len;</code> and <code>rand byte data[];</code>, which constraint best couples the array size to <code>len</code>?",
+    "choices": [
       "<code>constraint c { len &gt; 0; data.size == len; }</code>",
       "<code>constraint c { data.size == 32; }</code>",
       "<code>constraint c { len = $size(data); }</code>",
       "<code>constraint c { data == new[len]; }</code>"
     ],
-    answer: 0,
-    explain: "data.size is a read-only method call <em>used in a constraint</em> that couples the dynamic array's size to another random variable. Option C uses an assignment (illegal in constraints)."
+    "answer": 0,
+    "explain": "data.size is a read-only method call <em>used in a constraint</em> that couples the dynamic array's size to another random variable. Option C uses an assignment (illegal in constraints)."
   }
 ];
 
-// Roman numerals for question numbering
-const ROMAN = ['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii','xiii','xiv','xv','xvi','xvii','xviii','xix','xx'];
-const LETTERS = ['A','B','C','D'];
-
-const listEl = document.getElementById('questionList');
-const answers = new Array(QUESTIONS.length).fill(null);
+let selected = new Array(QUESTIONS.length).fill(null);
 let graded = false;
 
-function renderExam() {
-  listEl.innerHTML = '';
-  QUESTIONS.forEach((q, idx) => {
-    const card = document.createElement('article');
-    card.className = 'question';
-    card.id = `q-${idx}`;
-    const choicesHtml = q.choices.map((c, i) => `
-      <li class="choice" data-idx="${i}" onclick="selectChoice(${idx}, ${i})">
-        <span class="choice-letter">${LETTERS[i]}</span>
-        <span class="choice-text">${c}</span>
-      </li>`).join('');
-    card.innerHTML = `
+function renderQuestions() {
+  const list = document.getElementById('questionList');
+  list.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const el = document.createElement('div');
+    el.className = 'question';
+    el.id = 'q' + i;
+    el.innerHTML = `
       <div class="q-head">
-        <div class="q-num"><span class="roman">${ROMAN[idx]}.</span> Question ${idx+1}</div>
+        <div class="q-num">Question ${i+1}</div>
         <div class="q-meta">${q.chapter}</div>
       </div>
       <div class="q-body">
         <div class="q-prompt">${q.q}</div>
-        <ul class="choices">${choicesHtml}</ul>
+        <ul class="choices">
+          ${q.choices.map((c, j) => `
+            <li class="choice" data-q="${i}" data-c="${j}">
+              <span class="choice-letter">${'ABCD'[j]}</span>
+              <span class="choice-text">${c}</span>
+            </li>
+          `).join('')}
+        </ul>
       </div>
-      <div class="explain"><span class="lbl">Explanation</span>${q.explain}</div>`;
-    listEl.appendChild(card);
+      <div class="explain">
+        <span class="lbl">Explanation</span>
+        ${q.explain}
+      </div>
+    `;
+    list.appendChild(el);
+  });
+  document.querySelectorAll('.choice').forEach(el => {
+    el.addEventListener('click', onChoice);
   });
 }
 
-function selectChoice(qIdx, cIdx) {
+function onChoice(e) {
   if (graded) return;
-  answers[qIdx] = cIdx;
-  const card = document.getElementById(`q-${qIdx}`);
-  card.querySelectorAll('.choice').forEach(ch => ch.classList.remove('selected'));
-  card.querySelectorAll('.choice')[cIdx].classList.add('selected');
-  card.classList.add('answered');
+  const el = e.currentTarget;
+  const qi = parseInt(el.dataset.q);
+  const ci = parseInt(el.dataset.c);
+  selected[qi] = ci;
+  // Update siblings
+  const qEl = document.getElementById('q' + qi);
+  qEl.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  qEl.classList.add('answered');
   updateProgress();
 }
 
 function updateProgress() {
-  const answered = answers.filter(a => a !== null).length;
+  const answered = selected.filter(s => s !== null).length;
   const total = QUESTIONS.length;
   const bar = document.getElementById('progress');
   if (answered > 0) bar.classList.add('visible');
   document.getElementById('progressPct').textContent = `${answered} / ${total}`;
   document.getElementById('progressFill').style.width = (answered / total * 100) + '%';
-
   const btn = document.getElementById('submitBtn');
   const note = document.getElementById('submitNote');
   if (answered === total) {
     btn.disabled = false;
-    note.textContent = 'All twenty answered — ready to grade';
+    note.textContent = 'All 20 answered — ready to submit';
     note.classList.add('ready');
   } else {
     btn.disabled = true;
-    note.textContent = `Answer all ${total} questions to enable submission (${total - answered} remaining)`;
+    note.textContent = `${total - answered} remaining`;
     note.classList.remove('ready');
   }
 }
 
 function gradeExam() {
-  if (answers.some(a => a === null)) return;
   graded = true;
   let correct = 0;
-  QUESTIONS.forEach((q, idx) => {
-    const card = document.getElementById(`q-${idx}`);
-    card.classList.add('graded');
-    const choiceEls = card.querySelectorAll('.choice');
-    const user = answers[idx];
-    choiceEls.forEach((el, i) => {
-      el.classList.remove('selected');
-      if (i === q.answer) el.classList.add('correct');
-      if (i === user && user !== q.answer) el.classList.add('incorrect');
+  QUESTIONS.forEach((q, i) => {
+    const qEl = document.getElementById('q' + i);
+    qEl.classList.add('graded');
+    qEl.querySelectorAll('.choice').forEach(el => {
+      const ci = parseInt(el.dataset.c);
+      if (ci === q.answer) el.classList.add('correct');
+      else if (ci === selected[i]) el.classList.add('incorrect');
     });
-    if (user === q.answer) correct++;
+    if (selected[i] === q.answer) correct++;
   });
-
-  const total = QUESTIONS.length;
-  const pct = Math.round(correct / total * 100);
-  let letter, blurb;
-  if (pct >= 90) { letter = 'A'; blurb = 'Outstanding. Interfaces and randomization hold no mystery. Proceed to Part III.'; }
-  else if (pct >= 80) { letter = 'B'; blurb = 'Solid grasp. Review the missed items on constraints and you are ready for Part III.'; }
-  else if (pct >= 70) { letter = 'C'; blurb = 'Working knowledge. Re-read Chapter vi on randomization once more.'; }
-  else if (pct >= 60) { letter = 'D'; blurb = 'Shaky middle. Reread Chapters iv and vi before retaking.'; }
-  else { letter = 'F'; blurb = 'Return to Part II. The solver, the interface, and the class need time.'; }
-
+  const pct = Math.round((correct / QUESTIONS.length) * 100);
+  let letter = 'F', blurb = 'Review the material and try again.';
+  if (pct >= 90) { letter = 'A'; blurb = 'Excellent. You have a firm grasp of this material.'; }
+  else if (pct >= 80) { letter = 'B'; blurb = 'Solid. A few rough edges worth reviewing.'; }
+  else if (pct >= 70) { letter = 'C'; blurb = 'Passing. Review the missed questions and retake.'; }
+  else if (pct >= 60) { letter = 'D'; blurb = 'Just passing — worth a careful re-read.'; }
   document.getElementById('scorePct').textContent = pct;
   document.getElementById('gradeLetter').textContent = letter;
   document.getElementById('rawCorrect').textContent = correct;
   document.getElementById('gradeBlurb').textContent = blurb;
-
   document.getElementById('results').classList.add('visible');
   document.getElementById('submitWrap').style.display = 'none';
-  document.getElementById('progress').style.display = 'none';
-
-  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+  window.scrollTo({ top: document.getElementById('results').offsetTop - 100, behavior: 'smooth' });
 }
 
 function retake() {
+  selected = new Array(QUESTIONS.length).fill(null);
   graded = false;
-  for (let i = 0; i < answers.length; i++) answers[i] = null;
   document.getElementById('results').classList.remove('visible');
-  document.getElementById('submitWrap').style.display = 'block';
-  renderExam();
+  document.getElementById('submitWrap').style.display = '';
+  renderQuestions();
   updateProgress();
-  window.scrollTo({top: 0, behavior:'smooth'});
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-renderExam();
-updateProgress();
+renderQuestions();
 </script>
 
 </body>

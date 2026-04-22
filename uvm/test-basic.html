@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Exam I — UVM Foundations — asicverif.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark">a</span>
+      asicverif<span style="color:var(--red);">.ai</span>
+    </a>
+    <ul class="tabs">
+      <li><a href="/">Generator</a></li>
+      <li><a href="/learn/">SystemVerilog</a></li>
+      <li><a href="/uvm/" class="active">UVM</a></li>
+      <li><a href="/#about">About</a></li>
+    </ul>
+    <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
+  </div>
+</nav>
+
+<div class="docs-layout">
+  <aside class="docs-sidebar">
+    <div class="group">UVM</div>
+    <ul>
+      <li><a href="/uvm/">Overview</a></li>
+    </ul>
+    <div class="group">Foundations</div>
+    <ul>
+      <li><a href="/uvm/basic.html">Part I — Foundations</a></li>
+      <li><a href="/uvm/test-basic.html" class="active">Exam I</a></li>
+    </ul>
+    <div class="group">Intermediate</div>
+    <ul>
+      <li><a href="/uvm/intermediate.html">Part II — Intermediate</a></li>
+      <li><a href="/uvm/test-intermediate.html">Exam II</a></li>
+    </ul>
+    <div class="group">Advanced</div>
+    <ul>
+      <li><a href="/uvm/advanced.html">Part III — Advanced</a></li>
+      <li><a href="/uvm/test-advanced.html">Exam III</a></li>
+    </ul>
+    <div class="group">Tools</div>
+    <ul>
+      <li><a href="/">UVM Generator</a></li>
+    </ul>
+  </aside>
+  <main class="docs-main" style="max-width: 760px;">
+    <h1>Exam I — UVM Foundations</h1>
+    <p class="docs-subtitle">Twenty questions on the foundational concepts covered in Part I.</p>
+
+    <div class="callout note">
+      <div class="callout-term">Instructions</div>
+      <div class="callout-body">
+        Select one answer per question. The <strong>Submit &amp; grade</strong> button enables once all 20 are answered.
+        Grading: A ≥ 90%, B ≥ 80%, C ≥ 70%, D ≥ 60%, F below. Explanations appear on submit. Retake as often as you like.
+      </div>
+    </div>
+
+    <div class="progress" id="progress">
+      <div class="progress-top">
+        <span>Progress</span>
+        <span class="pct" id="progressPct">0 / 20</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="exam-body">
+      <form id="examForm"><div id="questionList"></div></form>
+
+      <div class="results" id="results">
+        <div class="label">Graded</div>
+        <div class="results-grid">
+          <div class="results-cell score">
+            <div class="n"><span id="scorePct">0</span><sup>%</sup></div>
+            <div class="cap">Score</div>
+          </div>
+          <div class="results-cell grade">
+            <div class="n" id="gradeLetter">–</div>
+            <div class="cap">Letter</div>
+          </div>
+          <div class="results-cell raw">
+            <div class="n"><span id="rawCorrect">0</span><span class="denom"> / 20</span></div>
+            <div class="cap">Correct</div>
+          </div>
+        </div>
+        <p class="blurb" id="gradeBlurb">–</p>
+        <div class="btn-row">
+          <button class="btn red" onclick="retake()">Retake exam</button>
+          <a href="/uvm/basic.html" class="btn">Part I</a>
+          <a href="/uvm/intermediate.html" class="btn ghost">Part II →</a>
+        </div>
+      </div>
+
+      <div class="submit-wrap" id="submitWrap">
+        <button class="btn red" id="submitBtn" disabled onclick="gradeExam()">Submit &amp; grade</button>
+        <div class="note" id="submitNote">Answer all 20 questions to enable submission</div>
+      </div>
+    </div>
+
+    <div class="docs-nav-pager">
+      <a href="/uvm/basic.html">← Part I</a>
+      <a href="/uvm/intermediate.html">Part II →</a>
+    </div>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>© 2026 asicverif.ai</div>
+    <div>
+      <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
+      <a href="/#about">About</a>
+      <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const QUESTIONS = [
+  {
+    "chapter": "Ch. i \u00b7 UVM Basics",
+    "q": "What is UVM, precisely?",
+    "choices": [
+      "A new hardware description language replacing SystemVerilog.",
+      "A SystemVerilog class library and set of conventions for building reusable verification components.",
+      "A simulator feature in VCS, Xcelium, and Questa.",
+      "An Accellera standard for RTL design practices."
+    ],
+    "answer": 1,
+    "explain": "UVM is a class library with conventions. It's written in SystemVerilog and imported like any other package. Simulators don't implement UVM directly \u2014 they just run the SystemVerilog code that is UVM."
+  },
+  {
+    "chapter": "Ch. i \u00b7 UVM Basics",
+    "q": "Which UVM base class should you extend for a <em>data</em> object like a transaction or a sequence?",
+    "choices": [
+      "<code>uvm_component</code>",
+      "<code>uvm_object</code>",
+      "<code>uvm_transaction</code>",
+      "<code>uvm_root</code>"
+    ],
+    "answer": 1,
+    "explain": "<code>uvm_object</code> is the base for transient data. Its subclass <code>uvm_sequence_item</code> is what you actually extend for transactions in modern UVM. Components (drivers, monitors, env) extend <code>uvm_component</code>."
+  },
+  {
+    "chapter": "Ch. i \u00b7 UVM Basics",
+    "q": "What's the fundamental difference between <code>uvm_component</code> and <code>uvm_object</code>?",
+    "choices": [
+      "<code>uvm_component</code> can be randomized, <code>uvm_object</code> cannot.",
+      "<code>uvm_component</code> lives in the component hierarchy and has phases; <code>uvm_object</code> is transient data.",
+      "<code>uvm_object</code> is deprecated.",
+      "They're aliases for the same class."
+    ],
+    "answer": 1,
+    "explain": "Components have a parent, a hierarchical path, and run through phases. Objects are plain data \u2014 no parent, no phases, garbage-collected when no handles remain. This distinction drives every architectural choice in UVM."
+  },
+  {
+    "chapter": "Ch. ii \u00b7 Factory",
+    "q": "Why does UVM have a factory at all? Why not just <code>new()</code>?",
+    "choices": [
+      "Because <code>new()</code> is illegal in SystemVerilog.",
+      "To enable runtime type substitution \u2014 a test can replace any registered class with a subclass without editing the component that creates it.",
+      "Because UVM components cannot be constructed directly.",
+      "To avoid heap allocation."
+    ],
+    "answer": 1,
+    "explain": "The factory's whole point is the <em>override</em>: a test says \"wherever the env asks for an <code>axi_driver</code>, give it an <code>error_injecting_driver</code> instead.\" The env doesn't know, doesn't care, doesn't need editing."
+  },
+  {
+    "chapter": "Ch. ii \u00b7 Factory",
+    "q": "Which macro registers a component class with the factory?",
+    "choices": [
+      "<code>`uvm_object_utils</code>",
+      "<code>`uvm_component_utils</code>",
+      "<code>`uvm_register</code>",
+      "<code>`uvm_factory_register</code>"
+    ],
+    "answer": 1,
+    "explain": "<code>`uvm_component_utils(class_name)</code> registers a component; <code>`uvm_object_utils(class_name)</code> registers a data class (object/sequence_item). Using the wrong one is a classic bug."
+  },
+  {
+    "chapter": "Ch. ii \u00b7 Factory",
+    "q": "A test needs every <code>axi_txn</code> in the sim to be replaced with <code>bad_axi_txn</code>. Where does this happen?",
+    "choices": [
+      "In the scoreboard's <code>build_phase</code>, using <code>set_inst_override</code>.",
+      "In the test's <code>build_phase</code>, using <code>set_type_override</code> before calling <code>super.build_phase()</code>.",
+      "Nowhere \u2014 type substitution is not possible in UVM.",
+      "In the top-level module's initial block, after <code>run_test</code>."
+    ],
+    "answer": 1,
+    "explain": "Type overrides must be set before factory.create() is called, which happens during <code>build_phase</code>. Doing it in the test's build phase (before the env is built) is the standard pattern."
+  },
+  {
+    "chapter": "Ch. iii \u00b7 Phasing",
+    "q": "During which phase should a component create its child components?",
+    "choices": [
+      "<code>connect_phase</code>",
+      "<code>build_phase</code>",
+      "<code>run_phase</code>",
+      "<code>end_of_elaboration</code>"
+    ],
+    "answer": 1,
+    "explain": "<code>build_phase</code> is top-down: parents build their children there, using <code>type_id::create</code>. By <code>connect_phase</code>, everything exists, and it runs bottom-up to wire up TLM ports."
+  },
+  {
+    "chapter": "Ch. iii \u00b7 Phasing",
+    "q": "In what direction does UVM call <code>build_phase</code> through the component tree?",
+    "choices": [
+      "Bottom-up \u2014 leaves first.",
+      "Top-down \u2014 root first, then its children, then their children.",
+      "Left-to-right by instance order.",
+      "Randomly, determined by the seed."
+    ],
+    "answer": 1,
+    "explain": "Top-down is required because each parent must exist before it can build its children. Connect is bottom-up so that by the time a parent wires ports, its children's ports already exist."
+  },
+  {
+    "chapter": "Ch. iii \u00b7 Phasing",
+    "q": "Which phase is a consuming-time task, as opposed to a zero-time function?",
+    "choices": [
+      "<code>build_phase</code>",
+      "<code>connect_phase</code>",
+      "<code>run_phase</code>",
+      "<code>report_phase</code>"
+    ],
+    "answer": 2,
+    "explain": "<code>run_phase</code> is a task \u2014 it consumes simulation time, and the sim ends when no component has raised an objection. The other phases listed are zero-time functions."
+  },
+  {
+    "chapter": "Ch. iv \u00b7 Config DB",
+    "q": "The top-level <code>tb</code> module creates an <code>axi_lite_if</code>. How should the driver (deep inside env.agent.drv) receive a handle to it?",
+    "choices": [
+      "Through a global variable declared in a package.",
+      "Through the config DB: tb does <code>set</code>, driver does <code>get</code>.",
+      "Through a static class member of <code>uvm_root</code>.",
+      "By peeking at the test's member variables."
+    ],
+    "answer": 1,
+    "explain": "The config DB is UVM's standard way to pass configuration \u2014 especially virtual interfaces \u2014 from the top level to components buried in the hierarchy. Globals break reusability; peeking breaks encapsulation."
+  },
+  {
+    "chapter": "Ch. iv \u00b7 Config DB",
+    "q": "What does <code>uvm_config_db#(T)::set(null, \"uvm_test_top.env.*\", \"vif\", iface)</code> do?",
+    "choices": [
+      "Deletes any prior value for <code>vif</code>.",
+      "Sets the value of key <code>vif</code> for any component whose path matches the scope.",
+      "Subscribes to changes on <code>vif</code>.",
+      "Returns the current value of <code>vif</code>."
+    ],
+    "answer": 1,
+    "explain": "<code>set</code> stores a value keyed by scope+name. The scope is a wildcard-matched path string. Any component whose full path matches will receive the value on <code>get</code>."
+  },
+  {
+    "chapter": "Ch. v \u00b7 Sequence Items",
+    "q": "Which macro block generates <code>copy</code>, <code>compare</code>, <code>pack</code>, and <code>print</code> methods automatically?",
+    "choices": [
+      "<code>`uvm_object_utils(...)</code> alone.",
+      "<code>`uvm_object_utils_begin / `uvm_field_int / `uvm_object_utils_end</code>.",
+      "<code>`uvm_auto_methods</code>.",
+      "None \u2014 you must implement them by hand."
+    ],
+    "answer": 1,
+    "explain": "The begin/end block with interspersed <code>`uvm_field_*</code> macros tells the library which fields to include in the automatic <code>copy/compare/pack/print</code>. The plain <code>`uvm_object_utils</code> just registers the class without adding field methods."
+  },
+  {
+    "chapter": "Ch. v \u00b7 Sequence Items",
+    "q": "Marking a field <code>rand</code> means:",
+    "choices": [
+      "It becomes a class member (required for all members).",
+      "The randomizer may assign it a new value when <code>randomize()</code> is called.",
+      "The field is visible to all components in the hierarchy.",
+      "The field is automatically included in coverage."
+    ],
+    "answer": 1,
+    "explain": "<code>rand</code> tells the randomizer the field is in play. <code>randc</code> is similar but cyclic \u2014 it exhausts all values in the range before repeating. Without either, randomize() leaves the field unchanged."
+  },
+  {
+    "chapter": "Ch. v \u00b7 Sequence Items",
+    "q": "You write <code>`uvm_object_utils(axi_txn)</code>. You forgot the <code>new()</code> constructor. What happens?",
+    "choices": [
+      "The class won't compile.",
+      "The class compiles but can't be created by the factory.",
+      "It works fine \u2014 SystemVerilog generates a default constructor.",
+      "It works, because <code>`uvm_object_utils</code> also generates a default constructor."
+    ],
+    "answer": 2,
+    "explain": "SystemVerilog generates a default <code>function new(string name=\"\");</code> for <code>uvm_object</code>-derived classes when you don't provide one. Components, however, require a two-argument <code>new(name, parent)</code> which is NOT auto-generated."
+  },
+  {
+    "chapter": "Ch. vi \u00b7 Sequences",
+    "q": "A sequence runs on a sequencer. What does the sequencer do with the items?",
+    "choices": [
+      "Executes them directly \u2014 the sequencer is the driver.",
+      "Arbitrates between multiple sequences and hands one item at a time to the driver via <code>seq_item_port</code>.",
+      "Writes them to a log file.",
+      "Publishes them on an analysis port."
+    ],
+    "answer": 1,
+    "explain": "The sequencer is a broker. Sequences push items to it; the driver pulls items from it. When multiple sequences compete (<code>uvm_sequencer</code>'s arbitration policy), the sequencer decides the order."
+  },
+  {
+    "chapter": "Ch. vi \u00b7 Sequences",
+    "q": "What does <code>`uvm_do_with(req, { addr &lt; 32'h1000; })</code> do?",
+    "choices": [
+      "Creates a new <code>req</code>, randomizes it with the inline constraint, sends to the driver, and waits for <code>item_done</code>.",
+      "Sends the existing <code>req</code> exactly once without randomization.",
+      "Compares <code>req</code> against the constraint.",
+      "Prints <code>req</code> if the constraint is satisfied."
+    ],
+    "answer": 0,
+    "explain": "<code>`uvm_do_with</code> is a convenience macro that wraps <code>create / start_item / randomize with / finish_item</code>. It's the standard one-liner for stimulus inside a sequence's body."
+  },
+  {
+    "chapter": "Ch. iv \u00b7 Config DB",
+    "q": "A driver calls <code>uvm_config_db#(virtual axi_if)::get(this, \"\", \"vif\", vif)</code> and the call returns 0. What's the most likely cause?",
+    "choices": [
+      "The virtual interface has a null pointer.",
+      "Nobody called <code>set</code> with a scope that matches the driver's path.",
+      "The simulation hasn't started yet.",
+      "The driver is in passive mode."
+    ],
+    "answer": 1,
+    "explain": "<code>get</code> returning 0 means no matching entry exists. Usually a typo in the scope path passed to <code>set</code>, or the <code>set</code> happened too late (after the driver's <code>build_phase</code>). Fail loudly with <code>uvm_fatal</code> when this happens."
+  },
+  {
+    "chapter": "Ch. i \u00b7 UVM Basics",
+    "q": "Where does <code>run_test(\"smoke_test\")</code> typically appear?",
+    "choices": [
+      "Inside the test's <code>build_phase</code>.",
+      "Inside the top-level module's <code>initial</code> block, after config DB setup.",
+      "Inside every component's <code>run_phase</code>.",
+      "It's called by the simulator automatically."
+    ],
+    "answer": 1,
+    "explain": "<code>run_test</code> is the UVM entry point. The top-level module (the testbench wrapper) calls it once, optionally with a default test name. A <code>+UVM_TESTNAME=foo</code> plusarg overrides the argument."
+  },
+  {
+    "chapter": "Ch. ii \u00b7 Factory",
+    "q": "In your code you write <code>axi_driver drv = new(\"drv\", this);</code> instead of using <code>type_id::create</code>. What do you lose?",
+    "choices": [
+      "Nothing \u2014 they're equivalent.",
+      "The ability to override <code>axi_driver</code> with a subclass from outside, since the factory never sees this creation.",
+      "Compile-time type checking.",
+      "The ability to randomize the driver."
+    ],
+    "answer": 1,
+    "explain": "Direct <code>new()</code> bypasses the factory. The component still works, but no test can substitute a subclass via <code>set_type_override</code> \u2014 defeating one of UVM's main benefits. Always use <code>type_id::create</code> for UVM components."
+  },
+  {
+    "chapter": "Ch. v \u00b7 Sequence Items",
+    "q": "You want to clone an <code>axi_txn</code> into a new object with the same field values. Which method?",
+    "choices": [
+      "<code>t2 = t1;</code> \u2014 handle assignment.",
+      "<code>t2 = t1.clone();</code> \u2014 and cast to the concrete type.",
+      "<code>t2 = new t1;</code> \u2014 copy constructor.",
+      "<code>t2.pack(t1);</code>"
+    ],
+    "answer": 1,
+    "explain": "Handle assignment makes two names for the same object. <code>clone()</code> (generated by <code>`uvm_field_*</code> macros) creates a new object with the same field values. You must <code>$cast</code> the result to the concrete subtype."
+  }
+];
+
+let selected = new Array(QUESTIONS.length).fill(null);
+let graded = false;
+
+function renderQuestions() {
+  const list = document.getElementById('questionList');
+  list.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const el = document.createElement('div');
+    el.className = 'question';
+    el.id = 'q' + i;
+    el.innerHTML = `
+      <div class="q-head">
+        <div class="q-num">Question ${i+1}</div>
+        <div class="q-meta">${q.chapter}</div>
+      </div>
+      <div class="q-body">
+        <div class="q-prompt">${q.q}</div>
+        <ul class="choices">
+          ${q.choices.map((c, j) => `
+            <li class="choice" data-q="${i}" data-c="${j}">
+              <span class="choice-letter">${'ABCD'[j]}</span>
+              <span class="choice-text">${c}</span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+      <div class="explain">
+        <span class="lbl">Explanation</span>
+        ${q.explain}
+      </div>
+    `;
+    list.appendChild(el);
+  });
+  document.querySelectorAll('.choice').forEach(el => {
+    el.addEventListener('click', onChoice);
+  });
+}
+
+function onChoice(e) {
+  if (graded) return;
+  const el = e.currentTarget;
+  const qi = parseInt(el.dataset.q);
+  const ci = parseInt(el.dataset.c);
+  selected[qi] = ci;
+  // Update siblings
+  const qEl = document.getElementById('q' + qi);
+  qEl.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  qEl.classList.add('answered');
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = selected.filter(s => s !== null).length;
+  const total = QUESTIONS.length;
+  const bar = document.getElementById('progress');
+  if (answered > 0) bar.classList.add('visible');
+  document.getElementById('progressPct').textContent = `${answered} / ${total}`;
+  document.getElementById('progressFill').style.width = (answered / total * 100) + '%';
+  const btn = document.getElementById('submitBtn');
+  const note = document.getElementById('submitNote');
+  if (answered === total) {
+    btn.disabled = false;
+    note.textContent = 'All 20 answered — ready to submit';
+    note.classList.add('ready');
+  } else {
+    btn.disabled = true;
+    note.textContent = `${total - answered} remaining`;
+    note.classList.remove('ready');
+  }
+}
+
+function gradeExam() {
+  graded = true;
+  let correct = 0;
+  QUESTIONS.forEach((q, i) => {
+    const qEl = document.getElementById('q' + i);
+    qEl.classList.add('graded');
+    qEl.querySelectorAll('.choice').forEach(el => {
+      const ci = parseInt(el.dataset.c);
+      if (ci === q.answer) el.classList.add('correct');
+      else if (ci === selected[i]) el.classList.add('incorrect');
+    });
+    if (selected[i] === q.answer) correct++;
+  });
+  const pct = Math.round((correct / QUESTIONS.length) * 100);
+  let letter = 'F', blurb = 'Review the material and try again.';
+  if (pct >= 90) { letter = 'A'; blurb = 'Excellent. You have a firm grasp of this material.'; }
+  else if (pct >= 80) { letter = 'B'; blurb = 'Solid. A few rough edges worth reviewing.'; }
+  else if (pct >= 70) { letter = 'C'; blurb = 'Passing. Review the missed questions and retake.'; }
+  else if (pct >= 60) { letter = 'D'; blurb = 'Just passing — worth a careful re-read.'; }
+  document.getElementById('scorePct').textContent = pct;
+  document.getElementById('gradeLetter').textContent = letter;
+  document.getElementById('rawCorrect').textContent = correct;
+  document.getElementById('gradeBlurb').textContent = blurb;
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('submitWrap').style.display = 'none';
+  window.scrollTo({ top: document.getElementById('results').offsetTop - 100, behavior: 'smooth' });
+}
+
+function retake() {
+  selected = new Array(QUESTIONS.length).fill(null);
+  graded = false;
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('submitWrap').style.display = '';
+  renderQuestions();
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuestions();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Advanced UVM — asicverif.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark">a</span>
+      asicverif<span style="color:var(--red);">.ai</span>
+    </a>
+    <ul class="tabs">
+      <li><a href="/">Generator</a></li>
+      <li><a href="/learn/">SystemVerilog</a></li>
+      <li><a href="/uvm/" class="active">UVM</a></li>
+      <li><a href="/#about">About</a></li>
+    </ul>
+    <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
+  </div>
+</nav>
+
+<div class="docs-layout">
+  <aside class="docs-sidebar">
+    <div class="group">UVM</div>
+    <ul>
+      <li><a href="/uvm/">Overview</a></li>
+    </ul>
+    <div class="group">Foundations</div>
+    <ul>
+      <li><a href="/uvm/basic.html">Part I — Foundations</a></li>
+      <li><a href="/uvm/test-basic.html">Exam I</a></li>
+    </ul>
+    <div class="group">Intermediate</div>
+    <ul>
+      <li><a href="/uvm/intermediate.html">Part II — Intermediate</a></li>
+      <li><a href="/uvm/test-intermediate.html">Exam II</a></li>
+    </ul>
+    <div class="group">Advanced</div>
+    <ul>
+      <li><a href="/uvm/advanced.html" class="active">Part III — Advanced</a></li>
+      <li><a href="/uvm/test-advanced.html">Exam III</a></li>
+    </ul>
+    <div class="group">Tools</div>
+    <ul>
+      <li><a href="/">UVM Generator</a></li>
+    </ul>
+  </aside>
+  <main class="docs-main">
+    <h1>Advanced UVM</h1>
+    <p class="docs-subtitle">Virtual sequences, the register model, objections, callbacks, and running on three simulators.</p>
+    
+    <section class="lesson">
+      <span class="lesson-tag">01 · Virtual sequences</span>
+      <h2>Coordinating multiple agents</h2>
+      
+        <p>A regular sequence runs on one sequencer, driving one agent. A <strong>virtual sequence</strong> runs on a <em>virtual sequencer</em> and coordinates multiple real sequencers — essential when your test needs synchronized stimulus across interfaces (e.g., configure via APB, then traffic via AXI).</p>
+        <div class="plate">
+          <div class="plate-head"><span>virtual_seq.sv</span><span class="lbl">VIRTUAL SEQUENCE</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">v_sequencer</span> <span class="kw">extends</span> <span class="tp">uvm_sequencer</span>;
+  <span class="tp">axi_sequencer</span> axi_seqr;
+  <span class="tp">apb_sequencer</span> apb_seqr;
+  `<span class="kw">uvm_component_utils</span>(v_sequencer)
+<span class="kw">endclass</span>
+
+<span class="kw">class</span> <span class="tp">config_then_traffic_seq</span> <span class="kw">extends</span> <span class="tp">uvm_sequence</span>;
+  `<span class="kw">uvm_object_utils</span>(config_then_traffic_seq)
+  `<span class="kw">uvm_declare_p_sequencer</span>(v_sequencer)
+
+  <span class="kw">task</span> body();
+    <span class="tp">apb_config_seq</span> cfg = <span class="tp">apb_config_seq</span>::<span class="kw">type_id</span>::create(<span class="st">"cfg"</span>);
+    <span class="tp">axi_traffic_seq</span> tr = <span class="tp">axi_traffic_seq</span>::<span class="kw">type_id</span>::create(<span class="st">"tr"</span>);
+    cfg.start(p_sequencer.apb_seqr);     <span class="cm">// configure first</span>
+    tr.start(p_sequencer.axi_seqr);      <span class="cm">// then traffic</span>
+  <span class="kw">endtask</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        <div class="callout tip">
+          <div class="callout-term">Use virtual sequences from day one</div>
+          <div class="callout-body">Even if you only have one agent today, start with a virtual sequence pattern. Adding a second agent later becomes trivial — you don't rewrite every test.</div>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">02 · Register model</span>
+      <h2>uvm_reg, adapter, predictor</h2>
+      
+        <p>The UVM register model mirrors the DUT's register map in SystemVerilog. You get typed field access (<code>regmodel.status.error.read()</code>) instead of manual bus transactions, plus shadow registers, mirror/desired value tracking, and built-in access tests.</p>
+        <ul>
+          <li><code>uvm_reg_field</code> — a bit range inside a register.</li>
+          <li><code>uvm_reg</code> — a single addressable register.</li>
+          <li><code>uvm_reg_block</code> — a collection of registers and sub-blocks.</li>
+          <li><code>uvm_reg_map</code> — maps registers to an address space.</li>
+          <li><code>uvm_reg_adapter</code> — translates register operations to bus transactions.</li>
+          <li><code>uvm_reg_predictor</code> — updates mirrored values from observed bus traffic.</li>
+        </ul>
+        <div class="plate">
+          <div class="plate-head"><span>reg_connect.sv</span><span class="lbl">ENV.CONNECT_PHASE</span></div>
+          <pre class="plate-body"><span class="kw">function</span> <span class="tp">void</span> connect_phase(<span class="tp">uvm_phase</span> phase);
+  adapter   = <span class="tp">axi_reg_adapter</span>::<span class="kw">type_id</span>::create(<span class="st">"adapter"</span>);
+  predictor = <span class="tp">uvm_reg_predictor</span>#(axi_txn)::<span class="kw">type_id</span>::create(<span class="st">"pred"</span>, <span class="kw">this</span>);
+
+  regmodel.default_map.set_sequencer(agent.seqr, adapter);
+  predictor.map     = regmodel.default_map;
+  predictor.adapter = adapter;
+  agent.mon.ap.connect(predictor.bus_in);
+<span class="kw">endfunction</span></pre>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">03 · Objections and end-of-test</span>
+      <h2>When does run_phase finish?</h2>
+      
+        <p>UVM's <code>run_phase</code> ends when no component has an active <em>objection</em>. A test raises an objection when it has work pending and drops it when that work is done. The simulator doesn't exit until the objection count is zero.</p>
+        <div class="plate">
+          <div class="plate-head"><span>objections.sv</span><span class="lbl">TEST</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">smoke_test</span> <span class="kw">extends</span> <span class="tp">base_test</span>;
+  `<span class="kw">uvm_component_utils</span>(smoke_test)
+
+  <span class="kw">task</span> run_phase(<span class="tp">uvm_phase</span> phase);
+    <span class="tp">axi_basic_seq</span> seq;
+    phase.raise_objection(<span class="kw">this</span>);     <span class="cm">// hold the phase open</span>
+    seq = <span class="tp">axi_basic_seq</span>::<span class="kw">type_id</span>::create(<span class="st">"seq"</span>);
+    seq.start(env.agent.seqr);
+    phase.phase_done.set_drain_time(<span class="kw">this</span>, <span class="nm">100</span>);  <span class="cm">// let residuals flush</span>
+    phase.drop_objection(<span class="kw">this</span>);
+  <span class="kw">endtask</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        <div class="callout note">
+          <div class="callout-term">Drain time matters</div>
+          <div class="callout-body">Bus transactions in flight when objection drops can leave orphaned callbacks. <code>set_drain_time</code> asks UVM to wait a bit longer before actually ending the phase — long enough for the last expected response to arrive.</div>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">04 · Callbacks</span>
+      <h2>Injecting behavior without subclassing</h2>
+      
+        <p>UVM callbacks let you hook into a component's behavior from outside. Register a callback class, and the target calls it at well-defined points — without the target having to know about the callback's existence.</p>
+        <p>Common use: error injection. A test registers a callback that corrupts 5% of outgoing transactions, without rewriting the driver.</p>
+        <div class="plate">
+          <div class="plate-head"><span>callback.sv</span><span class="lbl">CALLBACK</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">axi_driver_cb</span> <span class="kw">extends</span> <span class="tp">uvm_callback</span>;
+  <span class="kw">virtual</span> <span class="kw">function</span> <span class="tp">void</span> pre_drive(<span class="tp">axi_txn</span> t); <span class="kw">endfunction</span>
+<span class="kw">endclass</span>
+
+<span class="kw">class</span> <span class="tp">corrupt_cb</span> <span class="kw">extends</span> <span class="tp">axi_driver_cb</span>;
+  <span class="kw">function</span> <span class="tp">void</span> pre_drive(<span class="tp">axi_txn</span> t);
+    <span class="kw">if</span> ($urandom_range(<span class="nm">0</span>,<span class="nm">99</span>) &lt; <span class="nm">5</span>) t.data ^= <span class="nm">32'h1</span>;
+  <span class="kw">endfunction</span>
+<span class="kw">endclass</span>
+
+<span class="cm">// In driver.run_phase:</span>
+`<span class="kw">uvm_do_callbacks</span>(axi_driver, axi_driver_cb, pre_drive(req))</pre>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">05 · Running the simulation</span>
+      <h2>VCS, Xcelium, Questa</h2>
+      
+        <p>UVM code is simulator-agnostic, but each tool has its own command-line conventions.</p>
+        <div class="plate">
+          <div class="plate-head"><span>Makefile</span><span class="lbl">THREE VENDORS</span></div>
+          <pre class="plate-body"><span class="cm"># Synopsys VCS</span>
+vcs -sverilog -ntb_opts uvm-1.2 -full64 \
+    -timescale=1ns/1ps +define+UVM_NO_DPI \
+    -l compile.log tb_top.sv
+./simv +UVM_TESTNAME=smoke_test -l run.log
+
+<span class="cm"># Cadence Xcelium</span>
+xrun -sv -uvm -timescale 1ns/1ps \
+     tb_top.sv +UVM_TESTNAME=smoke_test -l xrun.log
+
+<span class="cm"># Siemens Questa</span>
+vlog -sv +incdir+$UVM_HOME/src $UVM_HOME/src/uvm_pkg.sv tb_top.sv
+vsim -c -do "run -all; quit" tb_top \
+     +UVM_TESTNAME=smoke_test -l questa.log</pre>
+        </div>
+        <p>Control verbosity with <code>+UVM_VERBOSITY=UVM_MEDIUM</code>. Dial individual components up/down with <code>+uvm_set_verbosity=env.agent.drv,_ALL_,UVM_HIGH,time</code>.</p>
+        
+    </section>
+
+    <div class="docs-nav-pager">
+      <a href="/uvm/intermediate.html">← Intermediate UVM</a>
+      <a href="/uvm/test-advanced.html">Exam III →</a>
+    </div>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>© 2026 asicverif.ai</div>
+    <div>
+      <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
+      <a href="/#about">About</a>
+      <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

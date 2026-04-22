@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Intermediate Topics — asicverif.ai</title>
+<title>Intermediate SystemVerilog — asicverif.ai</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,24 +20,19 @@
     <ul class="tabs">
       <li><a href="/">Generator</a></li>
       <li><a href="/learn/" class="active">SystemVerilog</a></li>
+      <li><a href="/uvm/">UVM</a></li>
       <li><a href="/#about">About</a></li>
     </ul>
     <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
   </div>
 </nav>
 
-<section class="docs-hero">
-  <div class="wrap">
-    <div style="max-width: 780px;">
-      <div class="hero-eyebrow">Intermediate</div>
-      <h1>Intermediate Topics</h1>
-      <p class="docs-hero-lede">Object-oriented programming, randomization, interfaces.</p>
-    </div>
-  </div>
-</section>
-
 <div class="docs-layout">
   <aside class="docs-sidebar">
+    <div class="group">SystemVerilog</div>
+    <ul>
+      <li><a href="/learn/">Overview</a></li>
+    </ul>
     <div class="group">Foundations</div>
     <ul>
       <li><a href="/learn/basic.html">Part I — Foundations</a></li>
@@ -59,148 +54,126 @@
     </ul>
   </aside>
   <main class="docs-main">
-    <h2>Connecting the Testbench <em>&amp; Design.</em></h2>
-
-
-        <p class="lede-para">
-          A testbench that wires into the DUT signal-by-signal is a testbench you will
-          spend your career maintaining. Interfaces, modports, clocking blocks — these
-          are SystemVerilog's answers to the wire-count problem <em>and</em> to the
-          race-condition problem at once.
-        </p>
-
-        <h3>The <code>interface</code> construct</h3>
-        <p>
-          An interface is a bundle. It gathers related signals — address, data, read,
-          write, ready — into a single named scope. Modules connect to the bundle
-          instead of to each individual wire. A 40-signal bus becomes a 1-identifier port.
-          Better still, the interface can carry its own timing (via clocking blocks),
-          its own assertions, and its own monitor tasks — none of which have to be
-          duplicated in each module that uses the bus.
-        </p>
-
-        <h3>Modports — one interface, many perspectives</h3>
-        <p>
-          A <em>modport</em> declares a directional view of the interface for a particular
-          kind of client. The master sees <code>addr</code> as an output; the slave sees
-          it as an input — but both views derive from one interface declaration.
-          Modports also scope <em>which</em> signals a client can touch, which prevents
-          a monitor from accidentally driving the bus.
-        </p>
-
+    <h1>Intermediate SystemVerilog</h1>
+    <p class="docs-subtitle">Classes and OOP, constrained randomization, functional coverage, interfaces, and clocking blocks.</p>
+    
+    <section class="lesson">
+      <span class="lesson-tag">01 · Object-oriented programming</span>
+      <h2>Classes, handles, and inheritance</h2>
+      
+        <p>SystemVerilog brings OOP to the verification layer. A <code>class</code> bundles data and the operations on that data. Unlike C++, SystemVerilog classes have no pointers — you work with <strong>handles</strong>, which are opaque references managed by garbage collection.</p>
         <div class="plate">
-          <div class="plate-head">
-            <span class="lbl">Plate IV.1</span>
-            <span>bus_if.sv</span>
-          </div>
-          <div class="plate-body"><span class="kw">interface</span> <span class="fn">bus_if</span>(<span class="kw">input</span> <span class="ty">logic</span> clk);
-  <span class="ty">logic</span> [<span class="num">31</span>:<span class="num">0</span>] addr, data;
-  <span class="ty">logic</span>        read, write, ready;
+          <div class="plate-head"><span>transaction.sv</span><span class="lbl">CLASS</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">axi_txn</span>;
+  <span class="kw">rand</span> <span class="tp">bit</span>[<span class="nm">31</span>:<span class="nm">0</span>] addr;
+  <span class="kw">rand</span> <span class="tp">bit</span>[<span class="nm">31</span>:<span class="nm">0</span>] data;
+  <span class="tp">axi_resp_e</span> resp;
 
-  <span class="kw">modport</span> master (<span class="kw">output</span> addr, data, read, write,
-                   <span class="kw">input</span>  ready);
-
-  <span class="kw">modport</span> slave  (<span class="kw">input</span>  addr, data, read, write,
-                   <span class="kw">output</span> ready);
-
-  <span class="kw">modport</span> monitor (<span class="kw">input</span> addr, data, read, write, ready);
-<span class="kw">endinterface</span></div>
-          <div class="plate-caption"><span class="fig">Figure IV.1</span> — one interface, three modports. The monitor cannot drive; the compiler guarantees it.
-<div class="callout"><div class="callout-term">The Race</div><div class="callout-body"><p>Without a clocking block, a testbench reading a signal on the same edge the RTL writes it can race. The simulator may give you either value.</p></div></div>
-<h2>Basic Object-Oriented <em>Programming.</em></h2>
-
-
-        <p class="lede-para">
-          OOP is the mechanism by which a verification environment survives its first
-          project and reappears on the second. Classes gather state with behavior;
-          inheritance extends behavior without editing shared code; handles let you
-          pass transactions through queues without copying.
-        </p>
-
-        <h3>Classes, objects, handles</h3>
-        <p>
-          A <em>class</em> is a template. An <em>object</em> is an instance of that template
-          allocated on the simulator's heap. A <em>handle</em> is a reference to an object.
-          Unlike C++, SystemVerilog has no raw pointers; unlike Java, SystemVerilog never
-          implicitly constructs objects. The two rules fit together into one workflow:
-        </p>
-
-        <div class="plate">
-          <div class="plate-head">
-            <span class="lbl">Plate V.1</span>
-            <span>basic_class.sv</span>
-          </div>
-          <div class="plate-body"><span class="kw">class</span> <span class="ty">Transaction</span>;
-  <span class="ty">bit</span> [<span class="num">31</span>:<span class="num">0</span>] addr, data;
-  <span class="ty">int</span> id;
-
-  <span class="kw">function</span> <span class="ty">new</span>(<span class="ty">bit</span>[<span class="num">31</span>:<span class="num">0</span>] a=<span class="num">0</span>, <span class="ty">bit</span>[<span class="num">31</span>:<span class="num">0</span>] d=<span class="num">0</span>);
-    <span class="kw">this</span>.addr = a;           <span class="cm">// 'this' disambiguates</span>
-    <span class="kw">this</span>.data = d;
-  <span class="kw">endfunction</span>
-<span class="kw">endclass</span>
-
-<span class="ty">Transaction</span> t;           <span class="cm">// handle, null</span>
-t = <span class="kw">new</span>(<span class="num">32'h4000</span>, <span class="num">32'hDEAD</span>); <span class="cm">// object allocated</span>
-t.data = <span class="num">32'hBEEF</span>;        <span class="cm">// member access via handle</span></div>
-          <div class="plate-caption"><span class="fig">Figure V.1</span> — declare, construct, use. All three steps are explicit.
-<div class="callout"><div class="callout-term">Handle, not Pointer</div><div class="callout-body"><p>A class variable is an opaque reference. Uninitialized, it is <code style="font-family:var(--mono);color:var(--blue);background:var(--paper-2);padding:0 4px;border:1px solid var(--rule-soft);font-size:12px">null</code>. You construct with <code style="font-family:var(--mono);color:var(--blue);background:var(--paper-2);padding:0 4px;border:1px solid var(--rule-soft);font-size:12px">new()</code> — explicitly, always.</p></div></div>
-<h2><em>Randomization.</em></h2>
-
-
-        <p class="lede-para">
-          Randomization is the heart of the modern testbench. A single class — a handful
-          of <code>rand</code> fields, a few <code>constraint</code> blocks — can
-          generate stimulus that a directed test author would need a year to enumerate.
-        </p>
-
-        <h3><code>rand</code> and <code>randc</code></h3>
-        <p>
-          Mark a class member <code>rand</code> and it is randomized on every
-          <code>.randomize()</code> call, uniformly across its legal range. Mark it
-          <code>randc</code> (random-cyclic) and it instead runs through a random
-          <em>permutation</em> of its range before any repetition. <code>randc</code>
-          is perfect for narrow enums — opcode, bank id, port number — where you want
-          every value exercised before any is exercised twice.
-        </p>
-
-        <h3>Constraint blocks</h3>
-        <p>
-          A <code>constraint</code> block contains <em>expressions</em>, not assignments.
-          The solver picks values such that every expression evaluates to true. Use
-          <code>==</code> for equivalence, never <code>=</code>. Group alternatives
-          with <code>{ … }</code>, not <code>begin…end</code> (which is procedural).
-        </p>
-
-        <div class="plate">
-          <div class="plate-head">
-            <span class="lbl">Plate VI.1</span>
-            <span>constraints.sv</span>
-          </div>
-          <div class="plate-body"><span class="kw">class</span> <span class="ty">Pkt</span>;
-  <span class="kw">rand</span>  <span class="ty">bit</span> [<span class="num">15</span>:<span class="num">0</span>] len;
-  <span class="kw">rand</span>  <span class="ty">bit</span> [<span class="num">7</span>:<span class="num">0</span>]  payload [];
-  <span class="kw">randc</span> <span class="ty">bit</span> [<span class="num">2</span>:<span class="num">0</span>]  priority;
-
-  <span class="kw">constraint</span> c_len  { len <span class="kw">inside</span> {[<span class="num">64</span>:<span class="num">1518</span>]}; }
-  <span class="kw">constraint</span> c_size { payload.size() == len; }
-  <span class="kw">constraint</span> c_dist { len <span class="kw">dist</span> {[<span class="num">64</span>:<span class="num">127</span>]   := <span class="num">5</span>,
-                              [<span class="num">128</span>:<span class="num">511</span>]  := <span class="num">3</span>,
-                              [<span class="num">512</span>:<span class="num">1518</span>] := <span class="num">1</span>}; }
-
-  <span class="kw">function</span> <span class="ty">void</span> <span class="fn">post_randomize</span>();
-    <span class="fn">$display</span>(<span class="str">"len=%0d prio=%0d"</span>, len, priority);
+  <span class="kw">function</span> <span class="tp">void</span> display();
+    $display(<span class="st">"addr=%0h data=%0h resp=%s"</span>, addr, data, resp.name());
   <span class="kw">endfunction</span>
 <span class="kw">endclass</span>
 
 <span class="cm">// Usage</span>
-<span class="ty">Pkt</span> p = <span class="kw">new</span>();
-<span class="kw">assert</span>(p.randomize() <span class="kw">with</span> { len &gt; <span class="num">100</span>; });</div>
-          <div class="plate-caption"><span class="fig">Figure VI.1</span> — rand/randc fields, constraint blocks, and an inline <code>with</code>.
-<div class="callout"><div class="callout-term">Let the solver drive</div><div class="callout-body"><p>Constraints are declarative. The solver picks values; you describe the rules. <em>There are no assignments inside a constraint.</em></p></div></div>
+<span class="tp">axi_txn</span> t = <span class="kw">new</span>();   <span class="cm">// create the object</span>
+t.addr = <span class="nm">32'h1000</span>;
+t.display();</pre>
+        </div>
+        <h3>Inheritance</h3>
+        <p><code>extends</code> creates a subclass that inherits all members of the base. <code>super.method()</code> calls the base-class version. <code>virtual</code> marks a method for polymorphic dispatch — the runtime type decides which implementation runs.</p>
+        <div class="callout note">
+          <div class="callout-term">Always make run_phase virtual</div>
+          <div class="callout-body">UVM relies on virtual methods for phase dispatch. Forgetting <code>virtual</code> on a method that should be overridden is a classic bug.</div>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">02 · Randomization</span>
+      <h2>rand, randc, and constraint blocks</h2>
+      
+        <p>Mark class members <code>rand</code> (can repeat values) or <code>randc</code> (cyclic — visits every value in the range before repeating). Call <code>obj.randomize()</code> to generate a new random value set, respecting all active constraints.</p>
+        <h3>Constraint blocks</h3>
+        <p>Constraints restrict the random solution space. They're declarative: the order you write them doesn't matter.</p>
+        <div class="plate">
+          <div class="plate-head"><span>constraints.sv</span><span class="lbl">CONSTRAINTS</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">axi_txn</span>;
+  <span class="kw">rand</span> <span class="tp">bit</span>[<span class="nm">31</span>:<span class="nm">0</span>] addr;
+  <span class="kw">rand</span> <span class="tp">bit</span>[<span class="nm">7</span>:<span class="nm">0</span>]  length;
+
+  <span class="kw">constraint</span> c_addr_align    { addr[<span class="nm">1</span>:<span class="nm">0</span>] == <span class="nm">0</span>; }    <span class="cm">// word-aligned</span>
+  <span class="kw">constraint</span> c_length_bounded { length <span class="kw">inside</span> {[<span class="nm">1</span>:<span class="nm">16</span>]}; }
+  <span class="kw">constraint</span> c_addr_dist     {
+    addr <span class="kw">dist</span> { <span class="nm">'h0000</span>:= <span class="nm">10</span>, [<span class="nm">'h1000</span>:<span class="nm">'hFFFF</span>]:= <span class="nm">90</span> };
+  }
+<span class="kw">endclass</span></pre>
+        </div>
+        <h3>Soft constraints and override</h3>
+        <p>A <code>soft</code> constraint can be overridden in a derived class or an inline <code>randomize() with { … }</code> block. Use soft constraints for "default" policies that tests should be free to change. Use hard constraints only for protocol rules the randomizer must not violate.</p>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">03 · Functional coverage</span>
+      <h2>Covergroups, bins, and crosses</h2>
+      
+        <p>Code coverage tells you what lines ran. <strong>Functional coverage</strong> tells you what scenarios you exercised. A <code>covergroup</code> samples values at a trigger and binds them to <em>coverpoints</em>. Each coverpoint has <em>bins</em> — value ranges you care about.</p>
+        <div class="plate">
+          <div class="plate-head"><span>coverage.sv</span><span class="lbl">COVERGROUP</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">axi_coverage</span>;
+  <span class="tp">axi_txn</span> t;
+
+  <span class="kw">covergroup</span> cg;
+    <span class="kw">option</span>.per_instance = <span class="nm">1</span>;
+    addr_cp : <span class="kw">coverpoint</span> t.addr {
+      <span class="kw">bins</span> low    = {[<span class="nm">0</span>:<span class="nm">'hFFF</span>]};
+      <span class="kw">bins</span> mid    = {[<span class="nm">'h1000</span>:<span class="nm">'hFFFF</span>]};
+      <span class="kw">bins</span> high   = {[<span class="nm">'h10000</span>:<span class="nm">$</span>]};
+    }
+    resp_cp : <span class="kw">coverpoint</span> t.resp;
+    cross_ar : <span class="kw">cross</span> addr_cp, resp_cp;
+  <span class="kw">endgroup</span>
+
+  <span class="kw">function</span> <span class="kw">new</span>(); cg = <span class="kw">new</span>(); <span class="kw">endfunction</span>
+  <span class="kw">function</span> <span class="tp">void</span> sample(<span class="tp">axi_txn</span> tr); t = tr; cg.sample(); <span class="kw">endfunction</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        <div class="callout tip">
+          <div class="callout-term">Sample in the monitor</div>
+          <div class="callout-body">Coverage should be sampled from the <em>monitor</em> on analysis-port writes — never from the driver. The monitor is the source of truth for what actually happened on the bus.</div>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">04 · Interfaces and modports</span>
+      <h2>The bridge between testbench and DUT</h2>
+      
+        <p>An <code>interface</code> is a named bundle of signals. It's the connective tissue between your DUT and your testbench. Declared once, passed as a single port to both sides.</p>
+        <div class="plate">
+          <div class="plate-head"><span>axi_lite_if.sv</span><span class="lbl">INTERFACE</span></div>
+          <pre class="plate-body"><span class="kw">interface</span> <span class="tp">axi_lite_if</span>(<span class="kw">input</span> <span class="tp">logic</span> clk, rst_n);
+  <span class="tp">logic</span> [<span class="nm">31</span>:<span class="nm">0</span>] awaddr;
+  <span class="tp">logic</span>        awvalid, awready;
+  <span class="tp">logic</span> [<span class="nm">31</span>:<span class="nm">0</span>] wdata;
+  <span class="tp">logic</span>        wvalid, wready;
+  <span class="tp">logic</span> [<span class="nm">1</span>:<span class="nm">0</span>]  bresp;
+  <span class="tp">logic</span>        bvalid, bready;
+
+  <span class="kw">clocking</span> cb_m @(<span class="kw">posedge</span> clk);
+    <span class="kw">output</span> awaddr, awvalid, wdata, wvalid, bready;
+    <span class="kw">input</span>  awready, wready, bvalid, bresp;
+  <span class="kw">endclocking</span>
+
+  <span class="kw">modport</span> master (<span class="kw">clocking</span> cb_m, <span class="kw">input</span> clk, rst_n);
+<span class="kw">endinterface</span></pre>
+        </div>
+        <h3>Clocking blocks</h3>
+        <p>A <code>clocking</code> block groups signals under a clock with a direction and a sampling/drive skew. Using it in your driver and monitor eliminates an entire class of race-condition bugs between testbench and DUT.</p>
+        <h3>Modports</h3>
+        <p>A <code>modport</code> gives each side of the interface a named, directional view. The master can't accidentally drive <code>awready</code> because the modport says it's an input.</p>
+        
+    </section>
 
     <div class="docs-nav-pager">
-      <a href="/learn/basic.html">← Part I</a>
+      <a href="/learn/basic.html">← SystemVerilog Foundations</a>
       <a href="/learn/test-intermediate.html">Exam II →</a>
     </div>
   </main>
@@ -210,13 +183,12 @@ t.data = <span class="num">32'hBEEF</span>;        <span class="cm">// member ac
   <div class="footer-inner">
     <div>© 2026 asicverif.ai</div>
     <div>
-      <a href="/">Generator</a>
       <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
       <a href="/#about">About</a>
       <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
     </div>
   </div>
 </footer>
-
 </body>
 </html>

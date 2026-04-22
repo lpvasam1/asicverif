@@ -20,24 +20,19 @@
     <ul class="tabs">
       <li><a href="/">Generator</a></li>
       <li><a href="/learn/" class="active">SystemVerilog</a></li>
+      <li><a href="/uvm/">UVM</a></li>
       <li><a href="/#about">About</a></li>
     </ul>
     <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
   </div>
 </nav>
 
-<section class="docs-hero">
-  <div class="wrap">
-    <div style="max-width: 780px;">
-      <div class="hero-eyebrow">Advanced</div>
-      <h1>Advanced SystemVerilog</h1>
-      <p class="docs-hero-lede">Threads, mailboxes, assertions, and the DPI.</p>
-    </div>
-  </div>
-</section>
-
 <div class="docs-layout">
   <aside class="docs-sidebar">
+    <div class="group">SystemVerilog</div>
+    <ul>
+      <li><a href="/learn/">Overview</a></li>
+    </ul>
     <div class="group">Foundations</div>
     <ul>
       <li><a href="/learn/basic.html">Part I — Foundations</a></li>
@@ -59,292 +54,127 @@
     </ul>
   </aside>
   <main class="docs-main">
-    <h2>Threads <em>&amp;</em> Interprocess Communication</h2>
-
-
-        <p class="lede-para">
-          A real testbench has a generator, a driver, a monitor, a scoreboard, and a
-          coverage collector — all running at once. SystemVerilog spawns them with
-          <code>fork</code>, coordinates them with events, semaphores, and mailboxes.
-        </p>
-
-        <h3>The three joins</h3>
-        <p>
-          A <code>fork…join</code> block spawns its contained statements as concurrent
-          threads and the parent blocks until <em>all</em> children complete.
-          <code>join_any</code> returns to the parent as soon as the <em>first</em>
-          child completes, leaving the others running. <code>join_none</code> returns
-          immediately, allowing the parent to proceed while all children run in the
-          background. The three variants map cleanly onto "barrier", "race", and
-          "spawn-and-go".
-        </p>
-
+    <h1>Advanced SystemVerilog</h1>
+    <p class="docs-subtitle">Concurrent threads, synchronization primitives, SVA assertions, and the Direct Programming Interface.</p>
+    
+    <section class="lesson">
+      <span class="lesson-tag">01 · Threads</span>
+      <h2>fork, join, and concurrent processes</h2>
+      
+        <p>Hardware is inherently concurrent. SystemVerilog gives you four forms of <code>fork</code> to express concurrent threads in stimulus and checking code.</p>
         <div class="plate">
-          <div class="plate-head">
-            <span class="lbl">Plate VII.1</span>
-            <span>forks.sv</span>
-          </div>
-          <div class="plate-body"><span class="cm">// Run three transactors concurrently, block until all done</span>
+          <div class="plate-head"><span>threads.sv</span><span class="lbl">FORK VARIANTS</span></div>
+          <pre class="plate-body"><span class="kw">fork</span>
+  drive_writes();
+  drive_reads();
+  monitor_responses();
+<span class="kw">join</span>          <span class="cm">// waits for ALL three to finish</span>
+
 <span class="kw">fork</span>
-  driver.run();
-  monitor.run();
-  scoreboard.run();
-<span class="kw">join</span>
+  watchdog_timer();
+  transaction();
+<span class="kw">join_any</span>      <span class="cm">// finishes when EITHER completes</span>
 
-<span class="cm">// Race: whichever finishes first wins; disable the rest</span>
 <span class="kw">fork</span>
-  <span class="kw">begin</span> <span class="fn">#</span><span class="num">1000</span>; <span class="fn">$display</span>(<span class="str">"timeout"</span>); <span class="kw">end</span>
-  <span class="kw">begin</span> <span class="kw">wait</span>(done); <span class="fn">$display</span>(<span class="str">"ok"</span>); <span class="kw">end</span>
-<span class="kw">join_any</span>
-<span class="kw">disable</span> <span class="kw">fork</span>;   <span class="cm">// kill the survivor</span>
+  background_monitor();
+<span class="kw">join_none</span>     <span class="cm">// continues immediately, monitor runs in bg</span>
 
-<span class="cm">// Background: return immediately, keep children running</span>
-<span class="kw">fork</span> logger.run(); <span class="kw">join_none</span></div>
-          <div class="plate-caption"><span class="fig">Figure VII.1</span> — three idioms: barrier, race-with-cleanup, background task.
-<div class="callout"><div class="callout-term">Three joins</div><div class="callout-body"><p><code style="font-family:var(--mono);color:var(--blue);background:var(--paper-2);padding:0 4px;border:1px solid var(--rule-soft);font-size:12px">join</code> waits for all.<br><code style="font-family:var(--mono);color:var(--blue);background:var(--paper-2);padding:0 4px;border:1px solid var(--rule-soft);font-size:12px">join_any</code> waits for one.<br><code style="font-family:var(--mono);color:var(--blue);background:var(--paper-2);padding:0 4px;border:1px solid var(--rule-soft);font-size:12px">join_none</code> waits for none.</p></div></div>
-<h2>Advanced <em>OOP.</em></h2>
-
-
-        <p class="lede-para">
-          Inheritance, polymorphism, callbacks, and the factory pattern — the four
-          mechanisms that let you extend a testbench without editing the shared
-          environment that dozens of other engineers depend on.
-        </p>
-
-        <h3>Inheritance &amp; virtual methods</h3>
-        <p>
-          A derived class <code>extends</code> a base class, inheriting its members and
-          adding or overriding as needed. For the override to take effect through a
-          base-class handle, the base method must be declared <em>virtual</em>.
-          Without it, a call through a base-class handle dispatches to the base
-          implementation — defeating the entire point of the type hierarchy.
-        </p>
-
+<span class="kw">fork begin</span>
+  <span class="cm">// isolated local variables</span>
+  <span class="kw">automatic int</span> i = <span class="nm">5</span>;
+  handle_request(i);
+<span class="kw">end join_none</span></pre>
+        </div>
+        <div class="callout note">
+          <div class="callout-term">The automatic trap</div>
+          <div class="callout-body">When you spawn N threads from a for-loop, each thread must capture its loop index into a local <code>automatic</code> variable — otherwise they all race on the shared outer <code>i</code>.</div>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">02 · Synchronization</span>
+      <h2>Mailboxes, semaphores, and events</h2>
+      
+        <p>Three built-in classes handle inter-thread communication:</p>
+        <ul>
+          <li><code>mailbox</code> — typed FIFO queue. Producer puts, consumer gets. Bounded or unbounded.</li>
+          <li><code>semaphore</code> — counting signal for resource pools. <code>get(n)</code> blocks until n keys available.</li>
+          <li><code>event</code> — edge-triggered flag. <code>-&gt;</code> fires it, <code>@(ev)</code> waits for the next fire.</li>
+        </ul>
         <div class="plate">
-          <div class="plate-head">
-            <span class="lbl">Plate VIII.1</span>
-            <span>polymorphism.sv</span>
-          </div>
-          <div class="plate-body"><span class="kw">class</span> <span class="ty">BaseTr</span>;
-  <span class="kw">virtual</span> <span class="kw">function</span> <span class="ty">void</span> <span class="fn">display</span>();
-    <span class="fn">$display</span>(<span class="str">"Base transaction"</span>);
-  <span class="kw">endfunction</span>
-<span class="kw">endclass</span>
+          <div class="plate-head"><span>mailbox.sv</span><span class="lbl">MAILBOX</span></div>
+          <pre class="plate-body"><span class="tp">mailbox</span> #(<span class="tp">axi_txn</span>) mbx = <span class="kw">new</span>(<span class="nm">16</span>);  <span class="cm">// bounded, capacity 16</span>
 
-<span class="kw">class</span> <span class="ty">BadTr</span> <span class="kw">extends</span> <span class="ty">BaseTr</span>;
-  <span class="kw">virtual</span> <span class="kw">function</span> <span class="ty">void</span> <span class="fn">display</span>();   <span class="cm">// override</span>
-    <span class="fn">$display</span>(<span class="str">"Bad (error-injecting) transaction"</span>);
-  <span class="kw">endfunction</span>
-<span class="kw">endclass</span>
+<span class="cm">// Producer</span>
+<span class="kw">task</span> drive();
+  <span class="tp">axi_txn</span> t;
+  <span class="kw">forever begin</span>
+    t = <span class="kw">new</span>();
+    <span class="kw">assert</span>(t.randomize());
+    mbx.put(t);                    <span class="cm">// blocks if full</span>
+  <span class="kw">end</span>
+<span class="kw">endtask</span>
 
-<span class="ty">BaseTr</span> t;
-t = <span class="kw">new</span> <span class="ty">BadTr</span>();   <span class="cm">// base handle, derived object</span>
-t.display();          <span class="cm">// → "Bad (error-injecting) transaction"</span></div>
-          <div class="plate-caption"><span class="fig">Figure VIII.1</span> — a base-class handle calling a derived method. <em>virtual</em> is what makes it work.
-<div class="callout"><div class="callout-term">Virtual, or nothing</div><div class="callout-body"><p>A method must be declared <code style="font-family:var(--mono);color:var(--blue);background:var(--paper-2);padding:0 4px;border:1px solid var(--rule-soft);font-size:12px">virtual</code> to dispatch polymorphically. Without it, the compiler binds the call at the declared-type of the handle.</p></div></div>
-<h2>Functional <em>Coverage.</em></h2>
-
-
-        <p class="lede-para">
-          "We ran a million cycles" is not a verification deliverable. Functional coverage
-          converts cycles into a map — what interesting combinations the stimulus actually
-          exercised — and hands you the map with the blank spots circled.
-        </p>
-
-        <h3>covergroup &amp; coverpoint</h3>
-        <p>
-          A <code>covergroup</code> is a sampling construct — a named collection of
-          coverpoints that fire either automatically on a clock event or explicitly
-          via <code>.sample()</code>. Each <code>coverpoint</code> is a variable or
-          expression whose observed values are to be tracked. Without explicit bins,
-          a coverpoint creates <em>automatic bins</em>: one per enum value for enum
-          types; otherwise up to <code>auto_bin_max</code> (default 64) ranges
-          spanning the type.
-        </p>
-
+<span class="cm">// Consumer</span>
+<span class="kw">task</span> check();
+  <span class="tp">axi_txn</span> t;
+  <span class="kw">forever begin</span>
+    mbx.get(t);                    <span class="cm">// blocks if empty</span>
+    compare_with_ref_model(t);
+  <span class="kw">end</span>
+<span class="kw">endtask</span></pre>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">03 · Assertions (SVA)</span>
+      <h2>Declaring properties of correct behavior</h2>
+      
+        <p>SystemVerilog Assertions (SVA) let you state what <em>should</em> happen in declarative form. The simulator checks it on every cycle. Two flavors:</p>
+        <ul>
+          <li><strong>Immediate assertions</strong> — procedural, evaluated when reached. <code>assert(a == b);</code></li>
+          <li><strong>Concurrent assertions</strong> — temporal, watch over time. <code>property</code>/<code>assert property</code>.</li>
+        </ul>
         <div class="plate">
-          <div class="plate-head">
-            <span class="lbl">Plate IX.1</span>
-            <span>coverage.sv</span>
-          </div>
-          <div class="plate-body"><span class="kw">class</span> <span class="ty">TxnCov</span>;
-  <span class="ty">bit</span> [<span class="num">7</span>:<span class="num">0</span>]  len;
-  <span class="ty">bit</span> [<span class="num">1</span>:<span class="num">0</span>]  kind;
-  <span class="ty">bit</span>         err;
+          <div class="plate-head"><span>sva.sv</span><span class="lbl">ASSERTION</span></div>
+          <pre class="plate-body"><span class="cm">// "valid must not drop before ready"</span>
+<span class="kw">property</span> p_valid_stable;
+  @(<span class="kw">posedge</span> clk) <span class="kw">disable</span> <span class="kw">iff</span> (!rst_n)
+  (awvalid && !awready) |=&gt; awvalid;
+<span class="kw">endproperty</span>
 
-  <span class="kw">covergroup</span> cg;
-    cp_len  : <span class="kw">coverpoint</span> len {
-      <span class="kw">bins</span> short  = {[<span class="num">1</span>:<span class="num">63</span>]};
-      <span class="kw">bins</span> medium = {[<span class="num">64</span>:<span class="num">511</span>]};
-      <span class="kw">bins</span> large  = {[<span class="num">512</span>:<span class="num">1518</span>]};
-      <span class="kw">illegal_bins</span> zero = {<span class="num">0</span>};
-    }
-    cp_kind : <span class="kw">coverpoint</span> kind;                 <span class="cm">// auto-bins</span>
-    cp_err  : <span class="kw">coverpoint</span> err;
-
-    <span class="cm">// Cross every length×kind combination, excluding error+large</span>
-    cx_lk   : <span class="kw">cross</span> cp_len, cp_kind {
-      <span class="kw">ignore_bins</span> big_err = <span class="kw">binsof</span>(cp_len.large) <span class="kw">intersect</span> {<span class="num">3</span>};
-    }
-  <span class="kw">endgroup</span>
-<span class="kw">endclass</span></div>
-          <div class="plate-caption"><span class="fig">Figure IX.1</span> — named bins, illegal bins, cross coverage, and an ignore_bins pruning.
-<div class="callout"><div class="callout-term">Coverage is the map</div><div class="callout-body"><p>Random tests answer "what happened?" Coverage answers "was it interesting?"</p></div></div>
-<h2>Advanced <em>Interfaces.</em></h2>
-
-
-        <p class="lede-para">
-          Classes live in packages; physical interfaces live in module hierarchy.
-          The virtual interface is the connector.
-        </p>
-
-        <h3>The problem</h3>
-        <p>
-          A class cannot instantiate a module or an interface — those are elaboration-time
-          constructs, not runtime objects. But a class-based driver absolutely must be able
-          to drive signals into the DUT. The <em>virtual interface</em> resolves the impasse:
-          it is a class-compatible variable that <em>points at</em> a physical interface
-          instance. The test's top module constructs the real interface, then passes a
-          handle to it into the class-based environment.
-        </p>
-
+a_valid_stable: <span class="kw">assert property</span> (p_valid_stable)
+  <span class="kw">else</span> $error(<span class="st">"awvalid dropped before awready"</span>);</pre>
+        </div>
+        <div class="callout tip">
+          <div class="callout-term">Put SVA in the interface</div>
+          <div class="callout-body">Protocol-level properties belong in the interface file, not scattered through the DUT or testbench. They document the protocol and catch violations from either side.</div>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">04 · Direct Programming Interface</span>
+      <h2>Calling C from SystemVerilog (and vice versa)</h2>
+      
+        <p>The DPI lets SystemVerilog call C functions and C call SystemVerilog tasks. Used for reference models, scoreboards backed by C libraries, and CRC/encryption routines that already exist in C.</p>
         <div class="plate">
-          <div class="plate-head">
-            <span class="lbl">Plate X.1</span>
-            <span>virtual_interface.sv</span>
-          </div>
-          <div class="plate-body"><span class="kw">class</span> <span class="ty">Driver</span>;
-  <span class="kw">virtual</span> <span class="ty">bus_if</span>.master vif;            <span class="cm">// virtual interface handle</span>
+          <div class="plate-head"><span>dpi.sv</span><span class="lbl">DPI</span></div>
+          <pre class="plate-body"><span class="kw">import</span> <span class="st">"DPI-C"</span> <span class="kw">function</span> <span class="tp">int</span> c_crc32(<span class="kw">input</span> <span class="tp">byte</span> data[]);
 
-  <span class="kw">function</span> <span class="ty">new</span>(<span class="kw">virtual</span> <span class="ty">bus_if</span>.master v);
-    vif = v;
-  <span class="kw">endfunction</span>
-
-  <span class="kw">task</span> <span class="fn">drive</span>(<span class="ty">Transaction</span> tr);
-    vif.addr <span class="kw">&lt;=</span> tr.addr;                  <span class="cm">// touch physical signals</span>
-    vif.data <span class="kw">&lt;=</span> tr.data;
-    vif.write <span class="kw">&lt;=</span> <span class="num">1</span>;
-    <span class="fn">@</span>(<span class="kw">posedge</span> vif.clk);
-  <span class="kw">endtask</span>
-<span class="kw">endclass</span>
-
-<span class="cm">// In the top module</span>
-<span class="ty">bus_if</span> bus(clk);                         <span class="cm">// real interface</span>
-<span class="ty">Driver</span> drv = <span class="kw">new</span>(bus);                   <span class="cm">// pass reference to class</span></div>
-          <div class="plate-caption"><span class="fig">Figure X.1</span> — the class holds a virtual interface; the top module provides the real one.
-<div class="callout"><div class="callout-term">Virtual interface</div><div class="callout-body"><p>A handle-like reference to a physical interface instance. The bridge between a class-based testbench and hierarchical RTL signals.</p></div></div>
-<h2>A Complete <em>Testbench.</em></h2>
-
-
-        <p class="lede-para">
-          The manual's penultimate chapter stitches everything together into a
-          production-shaped testbench — generator, driver, monitor, scoreboard, coverage —
-          for an ATM router DUT.
-        </p>
-
-        <h3>The architecture</h3>
-        <p>
-          At the top: a test class that configures and launches the environment.
-          The environment contains a generator (produces <code>Transaction</code>
-          objects), a driver (converts them to signal activity via a virtual interface),
-          a monitor (watches the DUT outputs and reconstructs transactions), a
-          scoreboard (compares expected against actual), and a coverage collector
-          (samples every observed transaction).
-        </p>
-
-        <div class="figure">
-          <svg width="600" height="260" viewBox="0 0 600 260" style="font-family: var(--display); font-style: italic; font-size: 13px;">
-            <!-- Test box -->
-            <rect x="220" y="10" width="160" height="36" fill="none" stroke="#a8322a" stroke-width="1.5"/>
-            <text x="300" y="34" text-anchor="middle" fill="#a8322a">Test</text>
-
-            <!-- Environment box -->
-            <rect x="40" y="70" width="520" height="170" fill="none" stroke="#1a1816" stroke-width="1.5" stroke-dasharray="4,3"/>
-            <text x="300" y="90" text-anchor="middle" fill="#4a4540" font-size="11" letter-spacing="2">ENVIRONMENT</text>
-
-            <!-- Generator -->
-            <rect x="60" y="110" width="100" height="40" fill="#f3ede0" stroke="#1a1816"/>
-            <text x="110" y="135" text-anchor="middle">Generator</text>
-
-            <!-- Driver -->
-            <rect x="200" y="110" width="100" height="40" fill="#f3ede0" stroke="#1a1816"/>
-            <text x="250" y="135" text-anchor="middle">Driver</text>
-
-            <!-- Monitor -->
-            <rect x="340" y="110" width="100" height="40" fill="#f3ede0" stroke="#1a1816"/>
-            <text x="390" y="135" text-anchor="middle">Monitor</text>
-
-            <!-- Scoreboard -->
-            <rect x="470" y="110" width="80" height="40" fill="#f3ede0" stroke="#1a1816"/>
-            <text x="510" y="135" text-anchor="middle" font-size="11">Scoreboard</text>
-
-            <!-- Coverage -->
-            <rect x="220" y="180" width="120" height="34" fill="#f3ede0" stroke="#1a1816"/>
-            <text x="280" y="202" text-anchor="middle" font-size="12">Coverage</text>
-
-            <!-- Arrows between -->
-            <line x1="160" y1="130" x2="200" y2="130" stroke="#a8322a" marker-end="url(#arr)"/>
-            <line x1="300" y1="130" x2="340" y2="130" stroke="#2c4a6e" stroke-dasharray="2,2"/>
-            <line x1="440" y1="130" x2="470" y2="130" stroke="#a8322a" marker-end="url(#arr)"/>
-            <line x1="390" y1="150" x2="300" y2="180" stroke="#b8893a" marker-end="url(#arr)"/>
-
-            <!-- DUT -->
-            <rect x="225" y="140" width="150" height="22" fill="none" stroke="none"/>
-            <text x="300" y="155" text-anchor="middle" fill="#8b8377" font-size="10">[DUT signals]</text>
-
-            <!-- Arrows top -->
-            <line x1="300" y1="46" x2="300" y2="70" stroke="#a8322a" stroke-width="1"/>
-
-            <defs>
-              <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                <path d="M0,0 L8,4 L0,8 Z" fill="#a8322a"/>
-              </marker>
-            </defs>
-          </svg>
-          <div class="cap"><span class="fig">Figure XI.1</span> — a canonical layered environment. Solid arrows are transactions; dashed are signals.
-<div class="callout"><div class="callout-term">Assembly</div><div class="callout-body"><p>Every component you have met now fits into a single, extendable structure.</p></div></div>
-<h2>Interfacing with <em>C / C++.</em></h2>
-
-
-        <p class="lede-para">
-          Some things are already written in C. A reference model, a math library, a
-          software driver. The DPI lets you call them from SystemVerilog — and lets C
-          call back into SystemVerilog — without the ceremony of PLI or VPI.
-        </p>
-
-        <h3>Import &amp; export</h3>
-        <p>
-          An <em>imported</em> DPI routine is a C/C++ function that SystemVerilog may
-          call as if it were a native task or function. An <em>exported</em> routine
-          is the reverse — a SystemVerilog task or function that the C side may call
-          back. Together they form a bidirectional bridge.
-        </p>
-
-        <div class="plate">
-          <div class="plate-head">
-            <span class="lbl">Plate XII.1</span>
-            <span>dpi_example.sv</span>
-          </div>
-          <div class="plate-body"><span class="cm">// Import a C function — call it like a native function</span>
-<span class="kw">import</span> <span class="str">"DPI-C"</span> <span class="kw">function</span> <span class="ty">int</span> <span class="fn">sqrt_int</span>(<span class="kw">input</span> <span class="ty">int</span> x);
-
-<span class="cm">// Pure: no side effects, no state, no calls back into SV</span>
-<span class="kw">import</span> <span class="str">"DPI-C"</span> <span class="kw">pure</span> <span class="kw">function</span> <span class="ty">real</span> <span class="fn">cosine</span>(<span class="kw">input</span> <span class="ty">real</span> x);
-
-<span class="cm">// Context: may call back into SystemVerilog</span>
-<span class="kw">import</span> <span class="str">"DPI-C"</span> <span class="kw">context</span> <span class="kw">task</span> <span class="fn">cpp_model_step</span>(<span class="ty">chandle</span> h);
-
-<span class="cm">// Export a SV function for C to call back into</span>
-<span class="kw">export</span> <span class="str">"DPI-C"</span> <span class="kw">function</span> <span class="fn">sv_log</span>;
-
-<span class="kw">function</span> <span class="ty">void</span> <span class="fn">sv_log</span>(<span class="ty">string</span> msg);
-  <span class="fn">$display</span>(<span class="str">"[C]: %s"</span>, msg);
-<span class="kw">endfunction</span></div>
-          <div class="plate-caption"><span class="fig">Figure XII.1</span> — import (pure and context variants) and export, with a chandle for C++ object pointers.
-<div class="callout"><div class="callout-term">DPI</div><div class="callout-body"><p>Direct Programming Interface — a foreign-function bridge that calls straight into native code. No PLI, no VPI.</p></div></div>
+<span class="kw">task</span> check_packet(<span class="tp">byte</span> payload[]);
+  <span class="tp">int</span> expected = c_crc32(payload);
+  <span class="kw">if</span> (expected != pkt.crc)
+    `uvm_error(<span class="st">"CRC"</span>, $sformatf(<span class="st">"crc mismatch: exp=%0h got=%0h"</span>,
+                                  expected, pkt.crc))
+<span class="kw">endtask</span></pre>
+        </div>
+        <h3>Pure and context functions</h3>
+        <p>Mark a DPI import <code>pure</code> if the C function has no side effects — the simulator can optimize calls. Mark it <code>context</code> if the C function needs to call back into SystemVerilog.</p>
+        
+    </section>
 
     <div class="docs-nav-pager">
-      <a href="/learn/intermediate.html">← Part II</a>
+      <a href="/learn/intermediate.html">← Intermediate SystemVerilog</a>
       <a href="/learn/test-advanced.html">Exam III →</a>
     </div>
   </main>
@@ -354,13 +184,12 @@ t.display();          <span class="cm">// → "Bad (error-injecting) transaction
   <div class="footer-inner">
     <div>© 2026 asicverif.ai</div>
     <div>
-      <a href="/">Generator</a>
       <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
       <a href="/#about">About</a>
       <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
     </div>
   </div>
 </footer>
-
 </body>
 </html>

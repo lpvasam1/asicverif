@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UVM Foundations — asicverif.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark">a</span>
+      asicverif<span style="color:var(--red);">.ai</span>
+    </a>
+    <ul class="tabs">
+      <li><a href="/">Generator</a></li>
+      <li><a href="/learn/">SystemVerilog</a></li>
+      <li><a href="/uvm/" class="active">UVM</a></li>
+      <li><a href="/#about">About</a></li>
+    </ul>
+    <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
+  </div>
+</nav>
+
+<div class="docs-layout">
+  <aside class="docs-sidebar">
+    <div class="group">UVM</div>
+    <ul>
+      <li><a href="/uvm/">Overview</a></li>
+    </ul>
+    <div class="group">Foundations</div>
+    <ul>
+      <li><a href="/uvm/basic.html" class="active">Part I — Foundations</a></li>
+      <li><a href="/uvm/test-basic.html">Exam I</a></li>
+    </ul>
+    <div class="group">Intermediate</div>
+    <ul>
+      <li><a href="/uvm/intermediate.html">Part II — Intermediate</a></li>
+      <li><a href="/uvm/test-intermediate.html">Exam II</a></li>
+    </ul>
+    <div class="group">Advanced</div>
+    <ul>
+      <li><a href="/uvm/advanced.html">Part III — Advanced</a></li>
+      <li><a href="/uvm/test-advanced.html">Exam III</a></li>
+    </ul>
+    <div class="group">Tools</div>
+    <ul>
+      <li><a href="/">UVM Generator</a></li>
+    </ul>
+  </aside>
+  <main class="docs-main">
+    <h1>UVM Foundations</h1>
+    <p class="docs-subtitle">What UVM is, the factory, phasing, config DB, and your first sequence item and sequence.</p>
+    
+    <section class="lesson">
+      <span class="lesson-tag">01 · What UVM is</span>
+      <h2>The Universal Verification Methodology</h2>
+      
+        <p>UVM is a SystemVerilog class library and set of conventions for building <strong>reusable</strong> verification components. Before UVM, every team re-invented its own testbench architecture. UVM standardized that architecture so an agent written for one project can drop into another.</p>
+        <p>UVM is not a language feature. It's a library: you import it, extend its base classes, and rely on its factory and phasing machinery.</p>
+        <div class="callout note">
+          <div class="callout-term">UVM is plumbing</div>
+          <div class="callout-body">UVM gives you the plumbing — factory, phasing, config DB, TLM ports. You still have to write the actual verification logic (drivers, monitors, checkers, coverage).</div>
+        </div>
+        <h3>The three base classes</h3>
+        <p>Almost everything in UVM inherits from one of three base classes:</p>
+        <ul>
+          <li><code>uvm_object</code> — data containers (transactions, configs, sequences).</li>
+          <li><code>uvm_component</code> — long-lived actors in the hierarchy (drivers, monitors, scoreboards, agents, env, tests).</li>
+          <li><code>uvm_transaction</code> — legacy; in modern UVM use <code>uvm_sequence_item</code>.</li>
+        </ul>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">02 · The factory</span>
+      <h2>Registration and type substitution</h2>
+      
+        <p>UVM's factory is a type registry. You register every class, and the factory constructs instances by type name — which means you can replace any type with a subtype from outside the class, without editing the class.</p>
+        <div class="plate">
+          <div class="plate-head"><span>factory.sv</span><span class="lbl">REGISTRATION</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">axi_driver</span> <span class="kw">extends</span> <span class="tp">uvm_driver</span>#(axi_txn);
+  `<span class="kw">uvm_component_utils</span>(axi_driver)   <span class="cm">// register with factory</span>
+
+  <span class="kw">function</span> <span class="kw">new</span>(<span class="tp">string</span> name, <span class="tp">uvm_component</span> parent);
+    <span class="kw">super</span>.<span class="kw">new</span>(name, parent);
+  <span class="kw">endfunction</span>
+<span class="kw">endclass</span>
+
+<span class="kw">class</span> <span class="tp">axi_txn</span> <span class="kw">extends</span> <span class="tp">uvm_sequence_item</span>;
+  `<span class="kw">uvm_object_utils</span>(axi_txn)         <span class="cm">// register data type</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        <p>Use <code>uvm_component_utils</code> for components (anything with a parent in the test hierarchy). Use <code>uvm_object_utils</code> for data objects (transactions, sequences, configs).</p>
+        <h3>Type overrides</h3>
+        <p>From a test, you can tell the factory to create a subclass wherever the base class was requested:</p>
+        <div class="plate">
+          <div class="plate-head"><span>override.sv</span><span class="lbl">TYPE OVERRIDE</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">error_test</span> <span class="kw">extends</span> <span class="tp">base_test</span>;
+  <span class="kw">function</span> <span class="tp">void</span> build_phase(<span class="tp">uvm_phase</span> phase);
+    <span class="kw">super</span>.build_phase(phase);
+    <span class="tp">axi_txn</span>::<span class="kw">type_id</span>::set_type_override(bad_axi_txn::get_type());
+    <span class="cm">// now every axi_txn created is actually a bad_axi_txn</span>
+  <span class="kw">endfunction</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">03 · Phasing</span>
+      <h2>The build/run schedule UVM runs for you</h2>
+      
+        <p>UVM runs every component through a sequence of <strong>phases</strong>. You override the phase methods you care about; UVM calls them in order.</p>
+        <table>
+          <tr><th>Phase</th><th>Use for</th></tr>
+          <tr><td><code>build_phase</code></td><td>Create child components. Get config from <code>uvm_config_db</code>.</td></tr>
+          <tr><td><code>connect_phase</code></td><td>Connect TLM ports and exports.</td></tr>
+          <tr><td><code>end_of_elaboration</code></td><td>Final checks before simulation starts.</td></tr>
+          <tr><td><code>run_phase</code></td><td>The simulation itself. Tasks here consume time.</td></tr>
+          <tr><td><code>extract / check / report</code></td><td>Post-sim analysis and pass/fail reporting.</td></tr>
+        </table>
+        <div class="callout tip">
+          <div class="callout-term">Top-down build, bottom-up connect</div>
+          <div class="callout-body">UVM calls <code>build_phase</code> top-down — parents build their children first. It calls <code>connect_phase</code> bottom-up — leaves connect first, then parents wire them together.</div>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">04 · Config DB</span>
+      <h2>Passing config from top to deep children</h2>
+      
+        <p>The <code>uvm_config_db</code> is a keyed registry for runtime configuration. A test <code>set</code>s a value under a scope path; any component in that scope can <code>get</code> it during build.</p>
+        <div class="plate">
+          <div class="plate-head"><span>config_db.sv</span><span class="lbl">VIRTUAL INTERFACE</span></div>
+          <pre class="plate-body"><span class="cm">// In top-level tb module:</span>
+<span class="kw">initial</span> <span class="kw">begin</span>
+  <span class="tp">uvm_config_db</span>#(<span class="kw">virtual</span> <span class="tp">axi_lite_if</span>)::set(
+    <span class="kw">null</span>, <span class="st">"uvm_test_top.env.agent*"</span>, <span class="st">"vif"</span>, dut_if);
+  run_test(<span class="st">"base_test"</span>);
+<span class="kw">end</span>
+
+<span class="cm">// In the agent's build_phase:</span>
+<span class="kw">if</span> (!<span class="tp">uvm_config_db</span>#(<span class="kw">virtual</span> <span class="tp">axi_lite_if</span>)::get(
+      <span class="kw">this</span>, <span class="st">""</span>, <span class="st">"vif"</span>, vif))
+  `uvm_fatal(<span class="st">"AGENT"</span>, <span class="st">"no virtual interface supplied"</span>)</pre>
+        </div>
+        <p>The most common use is handing a virtual interface from the top-level module (where the actual interface is instanced) down to the driver and monitor deep inside the env.</p>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">05 · Sequence items</span>
+      <h2>The unit of transaction-level stimulus</h2>
+      
+        <p>A <code>uvm_sequence_item</code> is a data class carrying everything the driver needs to perform one transaction. It's a bag of <code>rand</code> fields plus the methods UVM needs (<code>convert2string</code>, <code>do_copy</code>, <code>do_compare</code>).</p>
+        <div class="plate">
+          <div class="plate-head"><span>axi_txn.sv</span><span class="lbl">SEQUENCE ITEM</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">axi_txn</span> <span class="kw">extends</span> <span class="tp">uvm_sequence_item</span>;
+  <span class="kw">rand</span> <span class="tp">bit</span>[<span class="nm">31</span>:<span class="nm">0</span>] addr;
+  <span class="kw">rand</span> <span class="tp">bit</span>[<span class="nm">31</span>:<span class="nm">0</span>] data;
+  <span class="kw">rand</span> <span class="tp">bit</span>          is_write;
+  <span class="tp">axi_resp_e</span>      resp;
+
+  `<span class="kw">uvm_object_utils_begin</span>(axi_txn)
+    `<span class="kw">uvm_field_int</span>(addr,     UVM_ALL_ON)
+    `<span class="kw">uvm_field_int</span>(data,     UVM_ALL_ON)
+    `<span class="kw">uvm_field_int</span>(is_write, UVM_ALL_ON)
+    `<span class="kw">uvm_field_enum</span>(axi_resp_e, resp, UVM_ALL_ON)
+  `<span class="kw">uvm_object_utils_end</span>
+
+  <span class="kw">function</span> <span class="kw">new</span>(<span class="tp">string</span> name = <span class="st">"axi_txn"</span>);
+    <span class="kw">super</span>.<span class="kw">new</span>(name);
+  <span class="kw">endfunction</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        <p>The <code>uvm_field_*</code> macros generate <code>copy</code>, <code>compare</code>, <code>pack</code>, <code>print</code> for free. Heavy macro magic but effective.</p>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">06 · Your first sequence</span>
+      <h2>A sequence drives items at a sequencer</h2>
+      
+        <p>A sequence is a stream of sequence items. It runs on a sequencer, which hands items to the driver.</p>
+        <div class="plate">
+          <div class="plate-head"><span>basic_seq.sv</span><span class="lbl">SEQUENCE</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">axi_basic_seq</span> <span class="kw">extends</span> <span class="tp">uvm_sequence</span>#(axi_txn);
+  `<span class="kw">uvm_object_utils</span>(axi_basic_seq)
+
+  <span class="kw">function</span> <span class="kw">new</span>(<span class="tp">string</span> name = <span class="st">"axi_basic_seq"</span>);
+    <span class="kw">super</span>.<span class="kw">new</span>(name);
+  <span class="kw">endfunction</span>
+
+  <span class="kw">task</span> body();
+    <span class="kw">repeat</span> (<span class="nm">10</span>) <span class="kw">begin</span>
+      `<span class="kw">uvm_do_with</span>(req, { req.is_write == <span class="nm">1</span>; req.addr[<span class="nm">1</span>:<span class="nm">0</span>] == <span class="nm">0</span>; })
+    <span class="kw">end</span>
+  <span class="kw">endtask</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        <p>The <code>`uvm_do_with</code> macro creates, randomizes with the given inline constraint, sends to the driver, and waits for completion — all in one line.</p>
+        
+    </section>
+
+    <div class="docs-nav-pager">
+      <a href="/uvm/">← Overview</a>
+      <a href="/uvm/test-basic.html">Exam I →</a>
+    </div>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>© 2026 asicverif.ai</div>
+    <div>
+      <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
+      <a href="/#about">About</a>
+      <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

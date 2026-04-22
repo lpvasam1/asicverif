@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>asicverif.ai — Generate production UVM testbenches in seconds</title>
-<meta name="description" content="Describe your bus interface, get a complete, production-ready UVM testbench. Agent, sequences, env, tests — all ready to compile." />
+<meta name="description" content="Describe your bus interface, get a complete, production-ready UVM testbench. Plus a practitioner's guide to SystemVerilog and UVM." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,7 +12,6 @@
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="nav">
   <div class="nav-inner">
     <a href="/" class="brand">
@@ -22,13 +21,13 @@
     <ul class="tabs">
       <li><a href="/" class="active">Generator</a></li>
       <li><a href="/learn/">SystemVerilog</a></li>
+      <li><a href="/uvm/">UVM</a></li>
       <li><a href="#about">About</a></li>
     </ul>
     <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
     <div>
@@ -39,7 +38,7 @@
       </p>
       <div class="hero-actions">
         <a href="#generator" class="btn btn-primary">Start generating</a>
-        <a href="/learn/" class="btn btn-ghost">Read the SystemVerilog notes</a>
+        <a href="/learn/" class="btn btn-ghost">Learn SystemVerilog</a>
       </div>
       <div class="hero-meta">
         <span>Free forever</span>
@@ -70,7 +69,6 @@
   </div>
 </section>
 
-<!-- GENERATOR -->
 <section class="generator" id="generator">
   <div class="wrap">
     <div class="panel">
@@ -91,10 +89,7 @@
         <form id="gen-form">
           <div class="form-grid">
             <div class="field">
-              <label class="label">
-                <span>Address Width</span>
-                <span class="hint">bits</span>
-              </label>
+              <label class="label"><span>Address Width</span><span class="hint">bits</span></label>
               <select class="select" name="addr_width">
                 <option value="8">8</option>
                 <option value="16">16</option>
@@ -104,10 +99,7 @@
             </div>
 
             <div class="field">
-              <label class="label">
-                <span>Data Width</span>
-                <span class="hint">bits</span>
-              </label>
+              <label class="label"><span>Data Width</span><span class="hint">bits</span></label>
               <select class="select" name="data_width">
                 <option value="8">8</option>
                 <option value="16">16</option>
@@ -118,10 +110,7 @@
             </div>
 
             <div class="field">
-              <label class="label">
-                <span>DUT Name</span>
-                <span class="hint">snake_case</span>
-              </label>
+              <label class="label"><span>DUT Name</span><span class="hint">snake_case</span></label>
               <input class="input" name="dut_name" value="my_axi_slave" placeholder="my_axi_slave" />
             </div>
 
@@ -146,10 +135,7 @@
             </div>
 
             <div class="field field-full">
-              <label class="label">
-                <span>Additional Notes</span>
-                <span class="hint">optional</span>
-              </label>
+              <label class="label"><span>Additional Notes</span><span class="hint">optional</span></label>
               <textarea class="textarea" name="notes" placeholder="e.g. register map has 16 config regs at offsets 0x00–0x3C, read latency is 2 cycles..."></textarea>
             </div>
           </div>
@@ -163,7 +149,6 @@
   </div>
 </section>
 
-<!-- STEPS -->
 <section class="steps">
   <div class="wrap">
     <div class="section-eyebrow">How it works</div>
@@ -192,7 +177,6 @@
   </div>
 </section>
 
-<!-- ABOUT -->
 <section class="about" id="about">
   <div class="wrap">
     <div class="about-grid">
@@ -215,12 +199,12 @@
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer class="site-footer">
   <div class="footer-inner">
     <div>© 2026 asicverif.ai</div>
     <div>
       <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
       <a href="#about">About</a>
       <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
       <a href="mailto:hello@asicverif.ai">Contact</a>
@@ -229,7 +213,6 @@
 </footer>
 
 <script>
-  // Chip toggling
   document.querySelectorAll('.chip').forEach(chip => {
     const input = chip.querySelector('input');
     chip.addEventListener('click', (e) => {
@@ -238,7 +221,6 @@
     });
   });
 
-  // Form submission
   const form = document.getElementById('gen-form');
   const btn  = document.getElementById('gen-btn');
   const out  = document.getElementById('output');
@@ -247,7 +229,6 @@
     e.preventDefault();
     const fd = new FormData(form);
     const features = Array.from(form.querySelectorAll('input[name="features"]:checked')).map(i => i.value);
-
     const spec = {
       protocol: 'axi-lite',
       addr_width: parseInt(fd.get('addr_width')),
@@ -257,12 +238,10 @@
       features,
       notes: (fd.get('notes') || '').trim()
     };
-
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span><span>Generating — 30 to 60 seconds</span>';
     out.classList.add('visible');
     out.innerHTML = '<div class="status"><div class="spinner"></div><span>Claude is writing your UVM project...</span></div>';
-
     try {
       const res = await fetch('/api/generate', {
         method: 'POST',
@@ -293,7 +272,6 @@
       out.innerHTML = '<div class="error">No files returned. Please try again.</div>';
       return;
     }
-
     out.innerHTML =
       '<div class="status success"><span>Generated ' + names.length + ' files · ' + escapeHtml(spec.dut_name) + '_tb</span></div>' +
       '<div class="files">' +
@@ -311,7 +289,6 @@
         '<div>Saved you an afternoon? <strong>Support the project.</strong> It helps keep this free.</div>' +
         '<a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="btn-donate">☕ Buy a coffee</a>' +
       '</div>';
-
     const codeView = document.getElementById('code-view');
     const tabs = out.querySelectorAll('.file-tab');
     let currentFile = names[0];
@@ -322,7 +299,6 @@
     }
     tabs.forEach(t => t.addEventListener('click', () => showFile(t.dataset.file)));
     showFile(names[0]);
-
     document.getElementById('copy-btn').addEventListener('click', () => {
       navigator.clipboard.writeText(files[currentFile]);
       const b = document.getElementById('copy-btn');
@@ -357,7 +333,6 @@
       dv.setUint16(26, nb.length, true);
       lh.set(nb, 30);
       entries.push(lh, db);
-
       const cd = new Uint8Array(46 + nb.length);
       const cdv = new DataView(cd.buffer);
       cdv.setUint32(0, 0x02014b50, true);

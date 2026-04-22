@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Exam III — UVM Advanced — asicverif.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark">a</span>
+      asicverif<span style="color:var(--red);">.ai</span>
+    </a>
+    <ul class="tabs">
+      <li><a href="/">Generator</a></li>
+      <li><a href="/learn/">SystemVerilog</a></li>
+      <li><a href="/uvm/" class="active">UVM</a></li>
+      <li><a href="/#about">About</a></li>
+    </ul>
+    <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
+  </div>
+</nav>
+
+<div class="docs-layout">
+  <aside class="docs-sidebar">
+    <div class="group">UVM</div>
+    <ul>
+      <li><a href="/uvm/">Overview</a></li>
+    </ul>
+    <div class="group">Foundations</div>
+    <ul>
+      <li><a href="/uvm/basic.html">Part I — Foundations</a></li>
+      <li><a href="/uvm/test-basic.html">Exam I</a></li>
+    </ul>
+    <div class="group">Intermediate</div>
+    <ul>
+      <li><a href="/uvm/intermediate.html">Part II — Intermediate</a></li>
+      <li><a href="/uvm/test-intermediate.html">Exam II</a></li>
+    </ul>
+    <div class="group">Advanced</div>
+    <ul>
+      <li><a href="/uvm/advanced.html">Part III — Advanced</a></li>
+      <li><a href="/uvm/test-advanced.html" class="active">Exam III</a></li>
+    </ul>
+    <div class="group">Tools</div>
+    <ul>
+      <li><a href="/">UVM Generator</a></li>
+    </ul>
+  </aside>
+  <main class="docs-main" style="max-width: 760px;">
+    <h1>Exam III — UVM Advanced</h1>
+    <p class="docs-subtitle">Twenty questions on the advanced material covered in Part III.</p>
+
+    <div class="callout note">
+      <div class="callout-term">Instructions</div>
+      <div class="callout-body">
+        Select one answer per question. The <strong>Submit &amp; grade</strong> button enables once all 20 are answered.
+        Grading: A ≥ 90%, B ≥ 80%, C ≥ 70%, D ≥ 60%, F below. Explanations appear on submit. Retake as often as you like.
+      </div>
+    </div>
+
+    <div class="progress" id="progress">
+      <div class="progress-top">
+        <span>Progress</span>
+        <span class="pct" id="progressPct">0 / 20</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="exam-body">
+      <form id="examForm"><div id="questionList"></div></form>
+
+      <div class="results" id="results">
+        <div class="label">Graded</div>
+        <div class="results-grid">
+          <div class="results-cell score">
+            <div class="n"><span id="scorePct">0</span><sup>%</sup></div>
+            <div class="cap">Score</div>
+          </div>
+          <div class="results-cell grade">
+            <div class="n" id="gradeLetter">–</div>
+            <div class="cap">Letter</div>
+          </div>
+          <div class="results-cell raw">
+            <div class="n"><span id="rawCorrect">0</span><span class="denom"> / 20</span></div>
+            <div class="cap">Correct</div>
+          </div>
+        </div>
+        <p class="blurb" id="gradeBlurb">–</p>
+        <div class="btn-row">
+          <button class="btn red" onclick="retake()">Retake exam</button>
+          <a href="/uvm/advanced.html" class="btn">Part III</a>
+          <a href="/uvm/" class="btn ghost">Back to overview →</a>
+        </div>
+      </div>
+
+      <div class="submit-wrap" id="submitWrap">
+        <button class="btn red" id="submitBtn" disabled onclick="gradeExam()">Submit &amp; grade</button>
+        <div class="note" id="submitNote">Answer all 20 questions to enable submission</div>
+      </div>
+    </div>
+
+    <div class="docs-nav-pager">
+      <a href="/uvm/advanced.html">← Part III</a>
+      <a href="/uvm/">Back to overview →</a>
+    </div>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>© 2026 asicverif.ai</div>
+    <div>
+      <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
+      <a href="/#about">About</a>
+      <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const QUESTIONS = [
+  {
+    "chapter": "Ch. xii \u00b7 Virtual Sequences",
+    "q": "A test needs to configure the DUT via APB and then drive traffic on AXI. What's the cleanest pattern?",
+    "choices": [
+      "Put both sequences in the same sequencer.",
+      "Use a virtual sequence on a virtual sequencer that coordinates the real APB and AXI sequencers.",
+      "Use two separate tests.",
+      "Drive both sequences from the <code>initial</code> block at top-level."
+    ],
+    "answer": 1,
+    "explain": "A virtual sequence is the UVM pattern for multi-agent coordination. It runs on a <code>v_sequencer</code> that holds handles to all the real sequencers, and starts child sequences on each of them in the order you dictate."
+  },
+  {
+    "chapter": "Ch. xii \u00b7 Virtual Sequences",
+    "q": "Inside a virtual sequence, how do you start a child sequence on the APB sequencer?",
+    "choices": [
+      "<code>apb_seq.start();</code>",
+      "<code>apb_seq.start(p_sequencer.apb_seqr);</code>",
+      "<code>apb_seq.run_phase();</code>",
+      "<code>`uvm_do(apb_seq)</code>"
+    ],
+    "answer": 1,
+    "explain": "<code>start(sequencer)</code> is the explicit form. <code>`uvm_declare_p_sequencer(v_sequencer)</code> gives you a typed <code>p_sequencer</code> handle whose fields are the child sequencer handles \u2014 this is idiomatic."
+  },
+  {
+    "chapter": "Ch. xiii \u00b7 Register Model",
+    "q": "What does a <code>uvm_reg_adapter</code> do?",
+    "choices": [
+      "Translates register operations (read/write address & data) into concrete bus transactions the driver can drive.",
+      "Adapts the UVM version to the simulator.",
+      "Merges coverage from multiple blocks.",
+      "Converts <code>uvm_reg</code> to <code>uvm_object</code>."
+    ],
+    "answer": 0,
+    "explain": "The adapter is the bridge between the abstract register model and your concrete bus protocol. It implements <code>reg2bus</code> (register op \u2192 bus item) and <code>bus2reg</code> (observed bus item \u2192 register op for the predictor)."
+  },
+  {
+    "chapter": "Ch. xiii \u00b7 Register Model",
+    "q": "Which component keeps the register model's <em>mirror</em> values in sync with reality when the DUT's registers change due to hardware events (like a status bit auto-clearing)?",
+    "choices": [
+      "The <code>uvm_reg_adapter</code>.",
+      "The <code>uvm_reg_predictor</code>.",
+      "The <code>uvm_reg_block</code>.",
+      "The test itself."
+    ],
+    "answer": 1,
+    "explain": "The predictor subscribes to the monitor's analysis port. Every observed bus transaction updates the mirror \u2014 so even when the DUT writes its own status bits and the testbench never issued the transaction, the model stays in sync."
+  },
+  {
+    "chapter": "Ch. xiv \u00b7 Objections",
+    "q": "When does UVM's <code>run_phase</code> end?",
+    "choices": [
+      "When the first <code>`uvm_error</code> is raised.",
+      "When simulation time reaches a hard-coded limit.",
+      "When the objection count drops to zero.",
+      "When <code>run_test</code> returns."
+    ],
+    "answer": 2,
+    "explain": "The phase object tracks objections. Components raise objections when they have pending work, drop them when done. When no component has an active objection, the phase ends. This is how UVM avoids running forever."
+  },
+  {
+    "chapter": "Ch. xiv \u00b7 Objections",
+    "q": "Why call <code>phase.phase_done.set_drain_time(this, 100)</code>?",
+    "choices": [
+      "To limit the phase to 100 cycles.",
+      "To ask UVM to wait an extra 100 time units after the last objection drops, giving in-flight transactions time to complete.",
+      "To delay the start of the phase by 100 units.",
+      "To set a timeout."
+    ],
+    "answer": 1,
+    "explain": "Drain time is for residual traffic. After your last sequence finishes and you drop the objection, responses or monitor events in flight may still need cycles to settle. Drain time lets the phase linger just long enough to catch them."
+  },
+  {
+    "chapter": "Ch. xii \u00b7 Virtual Sequences",
+    "q": "Your virtual sequencer has <code>axi_sequencer axi_seqr;</code> as a member. In the env's <code>connect_phase</code>, you must:",
+    "choices": [
+      "Nothing \u2014 UVM auto-wires sequencer handles.",
+      "Assign <code>v_seqr.axi_seqr = axi_agent.seqr;</code>",
+      "Call <code>v_seqr.axi_seqr.new(v_seqr)</code>.",
+      "Override the factory."
+    ],
+    "answer": 1,
+    "explain": "The v_sequencer's sequencer handles are plain members; they must be wired to the real sequencers in env.connect_phase. It's just a handle copy \u2014 not factory create, not analysis connect."
+  },
+  {
+    "chapter": "Ch. xv \u00b7 Callbacks",
+    "q": "What problem do UVM callbacks solve?",
+    "choices": [
+      "Compile-time performance.",
+      "Injecting extra behavior into a component without editing it or subclassing it.",
+      "Cross-simulator portability.",
+      "Type-safe sequence composition."
+    ],
+    "answer": 1,
+    "explain": "Callbacks let you hook a component from outside \u2014 e.g., register an error-injection callback that corrupts 5% of driver transactions, without touching the driver source. The target component just calls <code>`uvm_do_callbacks</code> at its extension points."
+  },
+  {
+    "chapter": "Ch. xiii \u00b7 Register Model",
+    "q": "What's the difference between <code>regmodel.status.write(status, 'h1)</code> and <code>regmodel.status.poke('h1)</code>?",
+    "choices": [
+      "No difference \u2014 <code>poke</code> is a deprecated alias.",
+      "<code>write</code> uses the bus (generates a real transaction); <code>poke</code> updates the mirror directly without bus activity.",
+      "<code>poke</code> is the write, <code>write</code> is the read.",
+      "<code>poke</code> is for read-only registers."
+    ],
+    "answer": 1,
+    "explain": "<code>write/read</code> drive the bus via the adapter. <code>poke/peek</code> short-circuit the bus and operate directly on the model's mirror \u2014 useful for backdoor setup or for observing the mirror without a bus transaction."
+  },
+  {
+    "chapter": "Ch. xiv \u00b7 Objections",
+    "q": "A test raises an objection in its <code>run_phase</code> but never drops it. What happens?",
+    "choices": [
+      "Simulation ends immediately.",
+      "Simulation runs until it hits the simulator's default timeout or is killed manually.",
+      "UVM auto-drops objections at the end of the test.",
+      "The objection becomes an error."
+    ],
+    "answer": 1,
+    "explain": "The phase will never end on its own because the objection count is stuck at 1. You'll wait until whatever timeout your simulator imposes (or Ctrl-C). Always pair raise/drop \u2014 typically wrap in try/finally equivalent in a sequence's body."
+  },
+  {
+    "chapter": "Ch. xv \u00b7 Callbacks",
+    "q": "In the driver's <code>run_phase</code>, how do you invoke all registered callbacks at a specific extension point?",
+    "choices": [
+      "<code>callback.pre_drive(req)</code>",
+      "<code>`uvm_do_callbacks(driver_type, cb_type, pre_drive(req))</code>",
+      "<code>this.fire_callbacks()</code>",
+      "<code>uvm_callback_iter::all().invoke()</code>"
+    ],
+    "answer": 1,
+    "explain": "<code>`uvm_do_callbacks(target_type, cb_type, method_with_args)</code> expands into a loop over all registered callbacks of that type, calling the named method on each. Boilerplate-heavy but that's UVM."
+  },
+  {
+    "chapter": "Ch. xiii \u00b7 Register Model",
+    "q": "The built-in <code>uvm_reg_hw_reset_seq</code> does what?",
+    "choices": [
+      "Asserts the DUT's reset pin.",
+      "Reads every register after reset and compares the read value against the model's documented reset value.",
+      "Writes the reset value into every register.",
+      "Resets the coverage collectors."
+    ],
+    "answer": 1,
+    "explain": "It's a pre-canned access test: for each register, perform a read after reset and compare against the expected reset value declared in the model. A quick sanity check that the RTL's reset behavior matches the model."
+  },
+  {
+    "chapter": "Ch. xii \u00b7 Virtual Sequences",
+    "q": "You write a virtual sequence that starts two child sequences on different sequencers with <code>fork / join</code>. What does this achieve?",
+    "choices": [
+      "Parallel execution \u2014 both child sequences run concurrently on their respective sequencers.",
+      "Serial execution \u2014 the second starts only after the first completes.",
+      "Random execution order.",
+      "Nothing \u2014 UVM disallows fork/join in sequences."
+    ],
+    "answer": 0,
+    "explain": "<code>fork/join</code> is plain SystemVerilog and is perfectly valid in a sequence's <code>body</code> task. Use it to drive two agents simultaneously \u2014 e.g., stimulate AXI while APB polls a status register."
+  },
+  {
+    "chapter": "Ch. xvi \u00b7 Simulation",
+    "q": "Which plusarg selects which test UVM runs?",
+    "choices": [
+      "<code>+UVM_TEST=foo</code>",
+      "<code>+UVM_TESTNAME=foo</code>",
+      "<code>+TEST=foo</code>",
+      "<code>+UVMTEST=foo</code>"
+    ],
+    "answer": 1,
+    "explain": "<code>+UVM_TESTNAME</code> is the plusarg. UVM's <code>run_test()</code> checks for it first; if present, it overrides any default name passed as the <code>run_test(\"...\")</code> argument."
+  },
+  {
+    "chapter": "Ch. xvi \u00b7 Simulation",
+    "q": "How do you bump verbosity for just one component from the command line?",
+    "choices": [
+      "<code>+UVM_VERBOSITY=UVM_HIGH</code>",
+      "<code>+uvm_set_verbosity=env.agent.drv,_ALL_,UVM_HIGH,time</code>",
+      "<code>+uvm_debug=env.agent.drv</code>",
+      "<code>+uvm_component_verbosity=env.agent.drv:UVM_HIGH</code>"
+    ],
+    "answer": 1,
+    "explain": "<code>+uvm_set_verbosity=&lt;scope&gt;,&lt;id&gt;,&lt;verbosity&gt;,&lt;phase&gt;</code> sets verbosity for a specific component scope. Global <code>+UVM_VERBOSITY</code> affects all components, which is usually too noisy."
+  },
+  {
+    "chapter": "Ch. xv \u00b7 Callbacks",
+    "q": "Callbacks vs factory override for changing driver behavior. When would you prefer callbacks?",
+    "choices": [
+      "Always \u2014 callbacks are strictly better.",
+      "When you need to <em>add</em> side behavior (logging, error injection) without replacing the driver class.",
+      "When performance matters.",
+      "When the UVM version is &lt; 1.2."
+    ],
+    "answer": 1,
+    "explain": "Factory override replaces the whole class. Callbacks inject extra behavior alongside the existing implementation \u2014 useful for orthogonal concerns like tracing or error injection that you want to add/remove per-test without forking the driver."
+  },
+  {
+    "chapter": "Ch. xiii \u00b7 Register Model",
+    "q": "Which <code>uvm_reg</code> method issues a read transaction on the bus and returns the read data?",
+    "choices": [
+      "<code>peek(data)</code>",
+      "<code>read(status, data)</code>",
+      "<code>sample(data)</code>",
+      "<code>observe(data)</code>"
+    ],
+    "answer": 1,
+    "explain": "<code>read(status, data, path=UVM_DEFAULT_PATH)</code> drives a bus read via the adapter and returns the result in <code>data</code> (and a <code>status</code> field indicating OK/fail). <code>peek</code> is the mirror-only backdoor equivalent."
+  },
+  {
+    "chapter": "Ch. xiv \u00b7 Objections",
+    "q": "You see \"No drivers registered with sequencer\" warnings. What's the fix?",
+    "choices": [
+      "Register the sequencer with the config DB.",
+      "In the agent's connect_phase: <code>drv.seq_item_port.connect(seqr.seq_item_export);</code>",
+      "Call <code>factory.set_default(seqr)</code>.",
+      "Increase verbosity."
+    ],
+    "answer": 1,
+    "explain": "That warning means a sequence is starting on a sequencer that has no driver pulling from it. The connect is done in the agent's connect_phase \u2014 linking driver's <code>seq_item_port</code> to sequencer's <code>seq_item_export</code>."
+  },
+  {
+    "chapter": "Ch. xvi \u00b7 Simulation",
+    "q": "A test passes but UVM reports \"UVM_ERROR: 3\" at end. What's the overall result?",
+    "choices": [
+      "Pass \u2014 UVM_ERROR only counts warnings.",
+      "Fail \u2014 any UVM_ERROR is a failure in most CI setups.",
+      "Pass if the 3 errors are all before UVM_MEDIUM.",
+      "Undetermined \u2014 depends on the seed."
+    ],
+    "answer": 1,
+    "explain": "Most scripts treat any <code>UVM_ERROR > 0</code> as test failure regardless of what the sequence \"finished.\" Use <code>`uvm_info</code> for benign diagnostics; reserve <code>`uvm_error</code> for actual problems."
+  },
+  {
+    "chapter": "Ch. xii \u00b7 Virtual Sequences",
+    "q": "Your virtual sequence uses <code>`uvm_do_on(child_seq, p_sequencer.axi_seqr)</code>. What does the <code>_on</code> suffix do?",
+    "choices": [
+      "Starts the child on the specified sequencer instead of the current one.",
+      "Turns the sequence on for logging only.",
+      "Triggers a callback.",
+      "Nothing \u2014 it's a legacy alias."
+    ],
+    "answer": 0,
+    "explain": "<code>`uvm_do_on</code> starts the child sequence on a sequencer you specify, not the default (which would be the virtual sequencer \u2014 where it can't run). Essential inside virtual sequences to target real sequencers."
+  }
+];
+
+let selected = new Array(QUESTIONS.length).fill(null);
+let graded = false;
+
+function renderQuestions() {
+  const list = document.getElementById('questionList');
+  list.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const el = document.createElement('div');
+    el.className = 'question';
+    el.id = 'q' + i;
+    el.innerHTML = `
+      <div class="q-head">
+        <div class="q-num">Question ${i+1}</div>
+        <div class="q-meta">${q.chapter}</div>
+      </div>
+      <div class="q-body">
+        <div class="q-prompt">${q.q}</div>
+        <ul class="choices">
+          ${q.choices.map((c, j) => `
+            <li class="choice" data-q="${i}" data-c="${j}">
+              <span class="choice-letter">${'ABCD'[j]}</span>
+              <span class="choice-text">${c}</span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+      <div class="explain">
+        <span class="lbl">Explanation</span>
+        ${q.explain}
+      </div>
+    `;
+    list.appendChild(el);
+  });
+  document.querySelectorAll('.choice').forEach(el => {
+    el.addEventListener('click', onChoice);
+  });
+}
+
+function onChoice(e) {
+  if (graded) return;
+  const el = e.currentTarget;
+  const qi = parseInt(el.dataset.q);
+  const ci = parseInt(el.dataset.c);
+  selected[qi] = ci;
+  // Update siblings
+  const qEl = document.getElementById('q' + qi);
+  qEl.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  qEl.classList.add('answered');
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = selected.filter(s => s !== null).length;
+  const total = QUESTIONS.length;
+  const bar = document.getElementById('progress');
+  if (answered > 0) bar.classList.add('visible');
+  document.getElementById('progressPct').textContent = `${answered} / ${total}`;
+  document.getElementById('progressFill').style.width = (answered / total * 100) + '%';
+  const btn = document.getElementById('submitBtn');
+  const note = document.getElementById('submitNote');
+  if (answered === total) {
+    btn.disabled = false;
+    note.textContent = 'All 20 answered — ready to submit';
+    note.classList.add('ready');
+  } else {
+    btn.disabled = true;
+    note.textContent = `${total - answered} remaining`;
+    note.classList.remove('ready');
+  }
+}
+
+function gradeExam() {
+  graded = true;
+  let correct = 0;
+  QUESTIONS.forEach((q, i) => {
+    const qEl = document.getElementById('q' + i);
+    qEl.classList.add('graded');
+    qEl.querySelectorAll('.choice').forEach(el => {
+      const ci = parseInt(el.dataset.c);
+      if (ci === q.answer) el.classList.add('correct');
+      else if (ci === selected[i]) el.classList.add('incorrect');
+    });
+    if (selected[i] === q.answer) correct++;
+  });
+  const pct = Math.round((correct / QUESTIONS.length) * 100);
+  let letter = 'F', blurb = 'Review the material and try again.';
+  if (pct >= 90) { letter = 'A'; blurb = 'Excellent. You have a firm grasp of this material.'; }
+  else if (pct >= 80) { letter = 'B'; blurb = 'Solid. A few rough edges worth reviewing.'; }
+  else if (pct >= 70) { letter = 'C'; blurb = 'Passing. Review the missed questions and retake.'; }
+  else if (pct >= 60) { letter = 'D'; blurb = 'Just passing — worth a careful re-read.'; }
+  document.getElementById('scorePct').textContent = pct;
+  document.getElementById('gradeLetter').textContent = letter;
+  document.getElementById('rawCorrect').textContent = correct;
+  document.getElementById('gradeBlurb').textContent = blurb;
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('submitWrap').style.display = 'none';
+  window.scrollTo({ top: document.getElementById('results').offsetTop - 100, behavior: 'smooth' });
+}
+
+function retake() {
+  selected = new Array(QUESTIONS.length).fill(null);
+  graded = false;
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('submitWrap').style.display = '';
+  renderQuestions();
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuestions();
+</script>
+
+</body>
+</html>

@@ -20,24 +20,19 @@
     <ul class="tabs">
       <li><a href="/">Generator</a></li>
       <li><a href="/learn/" class="active">SystemVerilog</a></li>
+      <li><a href="/uvm/">UVM</a></li>
       <li><a href="/#about">About</a></li>
     </ul>
     <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
   </div>
 </nav>
 
-<section class="docs-hero">
-  <div class="wrap">
-    <div style="max-width: 780px;">
-      <div class="hero-eyebrow">Basic</div>
-      <h1>SystemVerilog Foundations</h1>
-      <p class="docs-hero-lede">Verification guidelines, data types, and procedural flow.</p>
-    </div>
-  </div>
-</section>
-
 <div class="docs-layout">
   <aside class="docs-sidebar">
+    <div class="group">SystemVerilog</div>
+    <ul>
+      <li><a href="/learn/">Overview</a></li>
+    </ul>
     <div class="group">Foundations</div>
     <ul>
       <li><a href="/learn/basic.html" class="active">Part I — Foundations</a></li>
@@ -59,51 +54,30 @@
     </ul>
   </aside>
   <main class="docs-main">
-    <h2>Verification <em>Guidelines.</em></h2>
-
-        <p class="lede-para">
-          Before you learn the <em>logic</em> type or the first <em>covergroup</em>, you must
-          decide how you mean to verify. A house is not begun with paint chips; a testbench
-          is not begun with syntax.
-        </p>
-
-        <p>
-          Verification is the art of proving that a design does what its specification
-          says it does. The specification is a human-language document — ambiguous,
-          incomplete, sometimes self-contradictory — and the RTL is one engineer's reading
-          of it. Your job is to offer the <em>second</em> reading. Where the two interpretations
-          disagree, there is a bug. The goal is to find it before the customer does.
-        </p>
-
+    <h1>SystemVerilog Foundations</h1>
+    <p class="docs-subtitle">Verification guidelines, data types, arrays, and procedural flow — the grammar of the language.</p>
+    
+    <section class="lesson">
+      <span class="lesson-tag">01 · Verification guidelines</span>
+      <h2>What verification actually means</h2>
+      
+        <p>Verification is the art of proving that a design does what its specification says it does. The specification is a human-language document — ambiguous, incomplete, sometimes self-contradictory — and the RTL is one engineer's reading of it. Your job is to offer the <em>second</em> reading. Where the two interpretations disagree, there is a bug.</p>
+        <p>The goal is to find the bug before the customer does.</p>
+        <div class="callout note">
+          <div class="callout-term">Precept</div>
+          <div class="callout-body">Bugs are good. Each one found before tape-out is one fewer that ships.</div>
+        </div>
         <h3>The verification plan</h3>
-        <p>
-          Verification begins with a plan derived from the hardware specification. The plan
-          catalogs what features must be exercised and by which techniques — directed tests,
-          constrained-random stimulus, assertions, formal proofs, or emulation. A good plan
-          names corners the designer likely missed.
-        </p>
-
+        <p>Verification begins with a plan derived from the hardware spec. The plan catalogs what features must be exercised and by which techniques — directed tests, constrained-random stimulus, assertions, formal, or emulation. A good plan names corners the designer likely missed.</p>
         <h3>Directed vs constrained-random</h3>
-        <p>
-          A <em>directed</em> test exercises a specific feature with hand-written stimulus.
-          It finds the bugs you thought of. <em>Constrained-random</em> testing (CRT) uses
-          the simulator's pseudo-random generator, shaped by declarative constraints, to
-          produce stimulus you never explicitly enumerated. It finds the bugs you didn't
-          think of. Modern methodologies — VMM, OVM, UVM — are all CRT methodologies.
-        </p>
-
-        <blockquote class="pullquote">
-          You can never prove there are no bugs left, so you need to constantly come up
-          with new verification tactics.
-          <cite>— Spear &amp; Tumbush, Chapter 1</cite>
-        </blockquote>
-
-        <h3>The layered testbench</h3>
-        <p>
-          A serious testbench is not a flat file of <code>initial</code> blocks.
-          It is organized in <em>layers</em>, each with a single responsibility:
-        </p>
-
+        <p>A <em>directed</em> test exercises a specific feature with hand-written stimulus. It finds the bugs you thought of. <em>Constrained-random testing (CRT)</em> uses a pseudo-random number generator with <code>rand</code>/<code>randc</code> and constraints to explore the stimulus space you didn't think of.</p>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">02 · Layered testbench</span>
+      <h2>The anatomy of a serious testbench</h2>
+      
+        <p>A serious testbench is not a flat file of <code>initial</code> blocks. It is organized in <strong>layers</strong>, each with a single responsibility:</p>
         <ul>
           <li><strong>Signal layer</strong> — the physical wires of the DUT.</li>
           <li><strong>Command layer</strong> — drivers that turn transactions into signal wiggles; monitors that turn signal wiggles back into transactions.</li>
@@ -111,122 +85,104 @@
           <li><strong>Scenario layer</strong> — sequences that orchestrate interesting traffic patterns.</li>
           <li><strong>Test layer</strong> — the top-level test and its coverage goals.</li>
         </ul>
-
-        <p>
-          Each layer communicates with the next through transactions, not signals. This is
-          the architecture the remainder of this manual is teaching you to build.
-        </p>
-
+        <p>Each layer communicates with the next through transactions, not signals. This is the architecture the remainder of this reference is teaching you to build.</p>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">03 · Data types</span>
+      <h2>The logic type and beyond</h2>
       
-<div class="callout"><div class="callout-term">Precept</div><div class="callout-body"><p>Bugs are good. Each one found before tape-out is one fewer that ships.</p></div></div>
-<h2>Data <em>Types.</em></h2>
-
-
-        <p class="lede-para">
-          Verilog's <em>reg</em>-or-<em>wire</em> dilemma is gone. SystemVerilog offers
-          a richer palette — some elegant, some signed, some treacherous. Choose carefully.
-        </p>
-
-        <h3>The <code>logic</code> type</h3>
-        <p>
-          SystemVerilog's <em>logic</em> type is an improved <code>reg</code> that can
-          be driven by continuous assignments, gates, modules, <em>and</em> procedural code.
-          It is 4-state (<code>0</code>, <code>1</code>, <code>X</code>, <code>Z</code>)
-          and it accepts exactly one structural driver. That last restriction turns the
-          compiler into a netlist checker: if you accidentally connect two drivers to
-          the same signal, the tool complains. For bidirectional buses, you still need
-          <code>wire</code> or another net type so that multi-driver resolution can happen.
-        </p>
-
-        <h3>2-state data types</h3>
-        <p>
-          For simulation speed and memory, SystemVerilog adds five 2-state types:
-          the unsigned <code>bit</code>, and the signed <code>byte</code>,
-          <code>shortint</code>, <code>int</code>, and <code>longint</code>.
-          Use 2-state types in testbench-internal arithmetic where you don't need X/Z
-          propagation. Be careful when wiring them to DUT outputs: X or Z becomes 0 or 1
-          silently, potentially masking bugs.
-        </p>
-
-        <div class="gotcha">
-          <div class="label">Common gotcha</div>
-          <p>
-            <strong><code>byte</code> is signed.</strong> Its range is −128 to +127,
-            not 0 to 255. For an unsigned octet, declare <code>byte unsigned</code> or
-            <code>bit [7:0]</code>.
-          </p>
+        <p>SystemVerilog introduced <code>logic</code> as an improvement on Verilog's <code>reg</code>. It's a 4-state type (0, 1, X, Z) usable anywhere a net is, but with one critical restriction: <strong>a single driver</strong>. This restriction catches netlist bugs at elaboration time, before you waste simulation cycles.</p>
+        <div class="callout tip">
+          <div class="callout-term">Use logic everywhere</div>
+          <div class="callout-body">For new code, <code>logic</code> is almost always the right choice. Reach for <code>wire</code> only when you genuinely have multiple drivers (e.g., a tri-state bus).</div>
         </div>
-
-        <h3>Fixed-size arrays</h3>
-        <p>
-          SystemVerilog relaxes Verilog's array declaration: you may give just the size,
-          C-style, instead of full low:high bounds. Out-of-bounds reads return the element
-          type's default — X for 4-state types, 0 for 2-state.
-        </p>
-
+        <h3>Integer types</h3>
+        <p>SystemVerilog gives you precise, bounded integer types in addition to Verilog's <code>integer</code>:</p>
+        <table>
+          <tr><th>Type</th><th>Width</th><th>States</th></tr>
+          <tr><td><code>bit</code></td><td>1 (configurable)</td><td>2-state (0/1)</td></tr>
+          <tr><td><code>byte</code></td><td>8</td><td>2-state</td></tr>
+          <tr><td><code>shortint</code></td><td>16</td><td>2-state</td></tr>
+          <tr><td><code>int</code></td><td>32</td><td>2-state</td></tr>
+          <tr><td><code>longint</code></td><td>64</td><td>2-state</td></tr>
+          <tr><td><code>logic</code></td><td>configurable</td><td>4-state</td></tr>
+        </table>
+        <p>2-state types simulate faster and are what you want for testbench counters, indices, and variables that should never see X or Z. 4-state types are what you want for DUT signals where X-propagation is a legitimate signal.</p>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">04 · Arrays</span>
+      <h2>Packed, unpacked, and the collection types</h2>
+      
+        <p>SystemVerilog distinguishes <strong>packed</strong> from <strong>unpacked</strong> dimensions by where you put them relative to the variable name.</p>
         <div class="plate">
-          <div class="plate-head">
-            <span class="lbl">Plate II.1</span>
-            <span>fixed_size.sv</span>
-          </div>
-          <div class="plate-body"><span class="ty">int</span> lo_hi [<span class="num">0</span>:<span class="num">15</span>];      <span class="cm">// Verilog-style bounds</span>
-<span class="ty">int</span> array  [<span class="num">16</span>];        <span class="cm">// SystemVerilog: C-style size</span>
-<span class="ty">int</span> grid   [<span class="num">8</span>][<span class="num">4</span>];      <span class="cm">// 2-D, 8 rows × 4 cols</span>
-
-<span class="cm">// foreach auto-iterates all dimensions</span>
-<span class="kw">foreach</span> (grid[i,j]) grid[i][j] = i*<span class="num">4</span> + j;</div>
-          <div class="plate-caption"><span class="fig">Figure II.1</span> — three equivalent declarations; note the foreach comma-form for multi-dim arrays.
-<div class="callout"><div class="callout-term">The Logic Type</div><div class="callout-body"><p>An improved <code style="font-family:var(--mono);color:var(--blue);background:var(--paper-2);padding:0 4px;border:1px solid var(--rule-soft);font-size:12px">reg</code> — usable where a net is, but with a single-driver restriction that exposes netlist bugs.</p></div></div>
-<h2>Procedural Statements <em>&amp; Routines.</em></h2>
-
-
-        <p class="lede-para">
-          Tasks, functions, arguments, and time. The unshowy machinery that every line
-          of your testbench will rest on.
-        </p>
-
-        <h3>Tasks, functions, and void functions</h3>
-        <p>
-          The distinction between a task and a function is the difference between a
-          subroutine that may wait and one that may not. A <em>function</em> executes in
-          zero simulation time; it may not contain <code>#</code> delays, <code>@</code>
-          event controls, <code>wait</code> statements, or calls to tasks. A <em>task</em>
-          may contain all of them.
-        </p>
-
-        <p>
-          A <em>void function</em> is a function declared to return nothing. Use one
-          when you want the zero-time discipline of a function but have no useful value
-          to return — <code>void function monitor_drive();</code>.
-        </p>
-
+          <div class="plate-head"><span>arrays.sv</span><span class="lbl">DECLARATIONS</span></div>
+          <pre class="plate-body"><span class="kw">int</span> lo_hi <span class="nm">[0:15]</span>;      <span class="cm">// Verilog-style bounds</span>
+<span class="kw">int</span> array <span class="nm">[16]</span>;         <span class="cm">// SystemVerilog C-style size</span>
+<span class="kw">int</span> grid <span class="nm">[8][4]</span>;        <span class="cm">// 2-D, 8 rows × 4 cols</span>
+<span class="kw">foreach</span> (grid[i,j]) grid[i][j] = i*<span class="nm">4</span> + j;</pre>
+        </div>
+        <p>Dimensions to the <em>left</em> of the name are <strong>packed</strong>: contiguous bits, sliceable across element boundaries, ideal for modeling hardware registers. Dimensions to the <em>right</em> are <strong>unpacked</strong>: separate storage per element, ideal for collections of records.</p>
+        <h3>Dynamic collections</h3>
+        <p>Three variable-length structures, each suited to a different shape of data:</p>
+        <table>
+          <tr><th>Type</th><th>When to reach for it</th><th>Declaration</th></tr>
+          <tr><td><strong>Dynamic array</strong></td><td>Runtime-sized, indexed by integer. Packet payloads.</td><td><code>int d[];</code></td></tr>
+          <tr><td><strong>Queue</strong></td><td>Deque with push/pop at both ends. Stimulus buffers, scoreboards.</td><td><code>int q[$];</code></td></tr>
+          <tr><td><strong>Associative</strong></td><td>Sparse, any key type — 64-bit addresses, strings, enums.</td><td><code>int mem[bit[63:0]];</code></td></tr>
+        </table>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">05 · Procedural statements</span>
+      <h2>Tasks, functions, and routine arguments</h2>
+      
+        <p>The distinction between a <em>task</em> and a <em>function</em> is the difference between a subroutine that may wait and one that may not. A <code>function</code> executes in zero simulation time; it may not contain <code>#</code> delays, <code>@</code> event controls, <code>wait</code> statements, or calls to tasks. A <code>task</code> may contain all of them.</p>
+        <p>A <em>void function</em> is a function declared to return nothing. Use one when you want the zero-time discipline of a function but have no useful value to return — <code>void function monitor_drive();</code>.</p>
         <h3>Argument directions</h3>
-        <p>
-          Routine arguments may be declared <code>input</code>, <code>output</code>,
-          <code>inout</code>, or <code>ref</code>. The first three copy values at call
-          and return. The fourth — <code>ref</code> — passes by reference: the routine
-          sees live updates to the caller's variable. Pass large arrays, mailboxes,
-          and class handles by <code>ref</code> to avoid copy cost.
-        </p>
-
+        <p>Routine arguments may be declared <code>input</code>, <code>output</code>, <code>inout</code>, or <code>ref</code>. The first three copy values at call and return. <code>ref</code> passes by reference: the routine sees live updates to the caller's variable.</p>
+        <div class="callout tip">
+          <div class="callout-term">Pass big things by ref</div>
+          <div class="callout-body">Pass large arrays, mailboxes, and class handles by <code>ref</code> to avoid copy cost.</div>
+        </div>
         <div class="plate">
-          <div class="plate-head">
-            <span class="lbl">Plate III.1</span>
-            <span>arguments.sv</span>
-          </div>
-          <div class="plate-body"><span class="kw">task</span> <span class="fn">transfer</span>(
-  <span class="kw">input</span>  <span class="ty">bit</span> [<span class="num">31</span>:<span class="num">0</span>] addr,        <span class="cm">// copied in</span>
-  <span class="kw">output</span> <span class="ty">bit</span> [<span class="num">31</span>:<span class="num">0</span>] data,        <span class="cm">// copied out</span>
-  <span class="kw">ref</span>    <span class="ty">mailbox</span>           mbx,         <span class="cm">// live reference</span>
-  <span class="kw">input</span>  <span class="ty">int</span>               retries = <span class="num">3</span>  <span class="cm">// default value</span>
+          <div class="plate-head"><span>arguments.sv</span><span class="lbl">TASK</span></div>
+          <pre class="plate-body"><span class="kw">task</span> transfer(
+  <span class="kw">input</span>  <span class="tp">bit</span> [<span class="nm">31</span>:<span class="nm">0</span>] addr,      <span class="cm">// copied in</span>
+  <span class="kw">output</span> <span class="tp">bit</span> [<span class="nm">31</span>:<span class="nm">0</span>] data,      <span class="cm">// copied out</span>
+  <span class="kw">ref</span>    <span class="tp">mailbox</span> mbx,             <span class="cm">// live reference</span>
+  <span class="kw">input</span>  <span class="tp">int</span> retries = <span class="nm">3</span>          <span class="cm">// default value</span>
 );
   <span class="cm">// …</span>
-<span class="kw">endtask</span></div>
-          <div class="plate-caption"><span class="fig">Figure III.1</span> — the four argument directions, with an argument default.
-<div class="callout"><div class="callout-term">Task vs Function</div><div class="callout-body"><p>A task may consume simulation time; a function may not. A void function is a function with no return — zero-time semantics, no throwaway value.</p></div></div>
+<span class="kw">endtask</span></pre>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">06 · Enums and structs</span>
+      <h2>Type-safe stimulus</h2>
+      
+        <p>An <code>enum</code> lets you name a set of values — states, commands, modes — and gives you type safety at compilation.</p>
+        <div class="plate">
+          <div class="plate-head"><span>enum.sv</span><span class="lbl">ENUM</span></div>
+          <pre class="plate-body"><span class="kw">typedef</span> <span class="kw">enum</span> <span class="tp">bit</span>[<span class="nm">1</span>:<span class="nm">0</span>] {
+  RESP_OKAY   = <span class="nm">2'b00</span>,
+  RESP_EXOKAY = <span class="nm">2'b01</span>,
+  RESP_SLVERR = <span class="nm">2'b10</span>,
+  RESP_DECERR = <span class="nm">2'b11</span>
+} axi_resp_e;
+
+axi_resp_e resp;
+resp = RESP_OKAY;               <span class="cm">// type-safe assignment</span>
+<span class="kw">if</span> (resp == RESP_SLVERR) <span class="cm">// …</span></pre>
+        </div>
+        <p>A <code>struct</code> groups related fields into a record. Use <code>typedef struct packed</code> for bit-level packing (registers, protocols) and plain <code>typedef struct</code> for testbench-side records.</p>
+        
+    </section>
 
     <div class="docs-nav-pager">
-      <a href="/learn/">← SystemVerilog</a>
+      <a href="/learn/">← Overview</a>
       <a href="/learn/test-basic.html">Exam I →</a>
     </div>
   </main>
@@ -236,13 +192,12 @@
   <div class="footer-inner">
     <div>© 2026 asicverif.ai</div>
     <div>
-      <a href="/">Generator</a>
       <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
       <a href="/#about">About</a>
       <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
     </div>
   </div>
 </footer>
-
 </body>
 </html>

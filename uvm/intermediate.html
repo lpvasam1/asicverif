@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Intermediate UVM — asicverif.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark">a</span>
+      asicverif<span style="color:var(--red);">.ai</span>
+    </a>
+    <ul class="tabs">
+      <li><a href="/">Generator</a></li>
+      <li><a href="/learn/">SystemVerilog</a></li>
+      <li><a href="/uvm/" class="active">UVM</a></li>
+      <li><a href="/#about">About</a></li>
+    </ul>
+    <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
+  </div>
+</nav>
+
+<div class="docs-layout">
+  <aside class="docs-sidebar">
+    <div class="group">UVM</div>
+    <ul>
+      <li><a href="/uvm/">Overview</a></li>
+    </ul>
+    <div class="group">Foundations</div>
+    <ul>
+      <li><a href="/uvm/basic.html">Part I — Foundations</a></li>
+      <li><a href="/uvm/test-basic.html">Exam I</a></li>
+    </ul>
+    <div class="group">Intermediate</div>
+    <ul>
+      <li><a href="/uvm/intermediate.html" class="active">Part II — Intermediate</a></li>
+      <li><a href="/uvm/test-intermediate.html">Exam II</a></li>
+    </ul>
+    <div class="group">Advanced</div>
+    <ul>
+      <li><a href="/uvm/advanced.html">Part III — Advanced</a></li>
+      <li><a href="/uvm/test-advanced.html">Exam III</a></li>
+    </ul>
+    <div class="group">Tools</div>
+    <ul>
+      <li><a href="/">UVM Generator</a></li>
+    </ul>
+  </aside>
+  <main class="docs-main">
+    <h1>Intermediate UVM</h1>
+    <p class="docs-subtitle">Agents, drivers and monitors, TLM ports, scoreboards, and functional coverage.</p>
+    
+    <section class="lesson">
+      <span class="lesson-tag">01 · The agent</span>
+      <h2>Driver + monitor + sequencer, bundled</h2>
+      
+        <p>An <strong>agent</strong> is a UVM component that wraps everything needed to interact with one interface of the DUT: a driver, a monitor, and (if active) a sequencer.</p>
+        <div class="plate">
+          <div class="plate-head"><span>axi_agent.sv</span><span class="lbl">AGENT</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">axi_agent</span> <span class="kw">extends</span> <span class="tp">uvm_agent</span>;
+  `<span class="kw">uvm_component_utils</span>(axi_agent)
+
+  <span class="tp">axi_driver</span>    drv;
+  <span class="tp">axi_monitor</span>   mon;
+  <span class="tp">axi_sequencer</span> seqr;
+
+  <span class="kw">function</span> <span class="tp">void</span> build_phase(<span class="tp">uvm_phase</span> phase);
+    <span class="kw">super</span>.build_phase(phase);
+    mon = <span class="tp">axi_monitor</span>::<span class="kw">type_id</span>::create(<span class="st">"mon"</span>, <span class="kw">this</span>);
+    <span class="kw">if</span> (get_is_active() == UVM_ACTIVE) <span class="kw">begin</span>
+      drv  = <span class="tp">axi_driver</span>::<span class="kw">type_id</span>::create(<span class="st">"drv"</span>, <span class="kw">this</span>);
+      seqr = <span class="tp">axi_sequencer</span>::<span class="kw">type_id</span>::create(<span class="st">"seqr"</span>, <span class="kw">this</span>);
+    <span class="kw">end</span>
+  <span class="kw">endfunction</span>
+
+  <span class="kw">function</span> <span class="tp">void</span> connect_phase(<span class="tp">uvm_phase</span> phase);
+    <span class="kw">if</span> (get_is_active() == UVM_ACTIVE)
+      drv.seq_item_port.connect(seqr.seq_item_export);
+  <span class="kw">endfunction</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        <h3>Active vs passive</h3>
+        <p>An <em>active</em> agent drives the interface. A <em>passive</em> agent only monitors. When you instantiate the same DUT's interface in two places (e.g., master and slave), one agent is active, the other passive — but both contribute to coverage.</p>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">02 · Driver and monitor</span>
+      <h2>Where pins meet transactions</h2>
+      
+        <p>The <strong>driver</strong> consumes sequence items from the sequencer and drives the interface. The <strong>monitor</strong> samples the interface and publishes observed transactions via an analysis port.</p>
+        <div class="plate">
+          <div class="plate-head"><span>driver.sv</span><span class="lbl">DRIVER</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">axi_driver</span> <span class="kw">extends</span> <span class="tp">uvm_driver</span>#(axi_txn);
+  `<span class="kw">uvm_component_utils</span>(axi_driver)
+  <span class="kw">virtual</span> <span class="tp">axi_lite_if</span> vif;
+
+  <span class="kw">task</span> run_phase(<span class="tp">uvm_phase</span> phase);
+    <span class="kw">forever begin</span>
+      seq_item_port.get_next_item(req);
+      drive_txn(req);
+      seq_item_port.item_done();
+    <span class="kw">end</span>
+  <span class="kw">endtask</span>
+
+  <span class="kw">task</span> drive_txn(<span class="tp">axi_txn</span> t);
+    @(vif.cb_m);
+    vif.cb_m.awaddr  &lt;= t.addr;
+    vif.cb_m.awvalid &lt;= <span class="nm">1</span>;
+    <span class="kw">wait</span> (vif.cb_m.awready);
+    @(vif.cb_m);
+    vif.cb_m.awvalid &lt;= <span class="nm">0</span>;
+    <span class="cm">// … W and B channels</span>
+  <span class="kw">endtask</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        <div class="callout note">
+          <div class="callout-term">Monitor ≠ driver inverse</div>
+          <div class="callout-body">The monitor must work even when the DUT is the source of the transaction. Sample the interface passively via clocking blocks — never reach into the driver's state.</div>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">03 · TLM ports</span>
+      <h2>Analysis ports and the broadcast pattern</h2>
+      
+        <p>The monitor talks to scoreboards, coverage collectors, and predictors through an <strong>analysis port</strong>. An analysis port supports <em>many</em> subscribers — just call <code>write()</code> once and every connected subscriber gets a copy.</p>
+        <div class="plate">
+          <div class="plate-head"><span>monitor.sv</span><span class="lbl">ANALYSIS PORT</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">axi_monitor</span> <span class="kw">extends</span> <span class="tp">uvm_monitor</span>;
+  `<span class="kw">uvm_component_utils</span>(axi_monitor)
+
+  <span class="tp">uvm_analysis_port</span>#(axi_txn) ap;
+  <span class="kw">virtual</span> <span class="tp">axi_lite_if</span> vif;
+
+  <span class="kw">function</span> <span class="tp">void</span> build_phase(<span class="tp">uvm_phase</span> phase);
+    ap = <span class="kw">new</span>(<span class="st">"ap"</span>, <span class="kw">this</span>);
+  <span class="kw">endfunction</span>
+
+  <span class="kw">task</span> run_phase(<span class="tp">uvm_phase</span> phase);
+    <span class="kw">forever begin</span>
+      <span class="tp">axi_txn</span> t;
+      collect_txn(t);
+      ap.write(t);      <span class="cm">// fan out to every subscriber</span>
+    <span class="kw">end</span>
+  <span class="kw">endtask</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        <h3>Receiving analysis writes</h3>
+        <p>Subscribers receive via <code>uvm_analysis_imp</code>. When a component needs to receive from <em>multiple</em> analysis ports, use <code>`uvm_analysis_imp_decl(_suffix)</code> to create distinct <code>write_suffix</code> methods.</p>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">04 · Scoreboard</span>
+      <h2>Self-checking at the transaction level</h2>
+      
+        <p>A scoreboard is the component that decides if the DUT is correct. It receives transactions from the monitor, runs them through a <em>reference model</em>, and compares against DUT responses.</p>
+        <div class="plate">
+          <div class="plate-head"><span>scoreboard.sv</span><span class="lbl">SCOREBOARD</span></div>
+          <pre class="plate-body">`<span class="kw">uvm_analysis_imp_decl</span>(_input)
+`<span class="kw">uvm_analysis_imp_decl</span>(_output)
+
+<span class="kw">class</span> <span class="tp">axi_scoreboard</span> <span class="kw">extends</span> <span class="tp">uvm_scoreboard</span>;
+  `<span class="kw">uvm_component_utils</span>(axi_scoreboard)
+
+  <span class="tp">uvm_analysis_imp_input</span>#(axi_txn, axi_scoreboard) in_imp;
+  <span class="tp">uvm_analysis_imp_output</span>#(axi_txn, axi_scoreboard) out_imp;
+
+  <span class="tp">axi_txn</span> expected[$];
+
+  <span class="kw">function</span> <span class="tp">void</span> write_input(<span class="tp">axi_txn</span> t);
+    expected.push_back(predict(t));
+  <span class="kw">endfunction</span>
+
+  <span class="kw">function</span> <span class="tp">void</span> write_output(<span class="tp">axi_txn</span> t);
+    <span class="tp">axi_txn</span> exp = expected.pop_front();
+    <span class="kw">if</span> (!exp.compare(t))
+      `uvm_error(<span class="st">"SB"</span>, $sformatf(<span class="st">"mismatch exp=%s got=%s"</span>,
+                                exp.sprint(), t.sprint()))
+  <span class="kw">endfunction</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        
+    </section>
+    <section class="lesson">
+      <span class="lesson-tag">05 · Functional coverage in UVM</span>
+      <h2>Subscriber pattern for coverage</h2>
+      
+        <p>A coverage collector is a <code>uvm_subscriber</code> that listens to an analysis port and samples covergroups. Keep it <em>separate</em> from the scoreboard — one is about what passed, the other is about what you exercised.</p>
+        <div class="plate">
+          <div class="plate-head"><span>coverage.sv</span><span class="lbl">SUBSCRIBER</span></div>
+          <pre class="plate-body"><span class="kw">class</span> <span class="tp">axi_coverage</span> <span class="kw">extends</span> <span class="tp">uvm_subscriber</span>#(axi_txn);
+  `<span class="kw">uvm_component_utils</span>(axi_coverage)
+
+  <span class="tp">axi_txn</span> t;
+
+  <span class="kw">covergroup</span> cg;
+    <span class="kw">option</span>.per_instance = <span class="nm">1</span>;
+    addr_cp : <span class="kw">coverpoint</span> t.addr {
+      <span class="kw">bins</span> low  = {[<span class="nm">0</span>:<span class="nm">'hFFF</span>]};
+      <span class="kw">bins</span> high = {[<span class="nm">'h1000</span>:<span class="nm">$</span>]};
+    }
+    resp_cp : <span class="kw">coverpoint</span> t.resp;
+    cross_ar : <span class="kw">cross</span> addr_cp, resp_cp;
+  <span class="kw">endgroup</span>
+
+  <span class="kw">function</span> <span class="tp">void</span> write(<span class="tp">axi_txn</span> tr);
+    t = tr;
+    cg.sample();
+  <span class="kw">endfunction</span>
+<span class="kw">endclass</span></pre>
+        </div>
+        
+    </section>
+
+    <div class="docs-nav-pager">
+      <a href="/uvm/basic.html">← UVM Foundations</a>
+      <a href="/uvm/test-intermediate.html">Exam II →</a>
+    </div>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>© 2026 asicverif.ai</div>
+    <div>
+      <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
+      <a href="/#about">About</a>
+      <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Exam III — Advanced — asicverif.ai</title>
+<title>Exam III — SystemVerilog Advanced — asicverif.ai</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,24 +20,19 @@
     <ul class="tabs">
       <li><a href="/">Generator</a></li>
       <li><a href="/learn/" class="active">SystemVerilog</a></li>
+      <li><a href="/uvm/">UVM</a></li>
       <li><a href="/#about">About</a></li>
     </ul>
     <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
   </div>
 </nav>
 
-<section class="docs-hero">
-  <div class="wrap">
-    <div style="max-width: 780px;">
-      <div class="hero-eyebrow">Exam III</div>
-      <h1>Exam III — Advanced</h1>
-      <p class="docs-hero-lede">Twenty questions on threads, mailboxes, assertions, and DPI.</p>
-    </div>
-  </div>
-</section>
-
 <div class="docs-layout">
   <aside class="docs-sidebar">
+    <div class="group">SystemVerilog</div>
+    <ul>
+      <li><a href="/learn/">Overview</a></li>
+    </ul>
     <div class="group">Foundations</div>
     <ul>
       <li><a href="/learn/basic.html">Part I — Foundations</a></li>
@@ -58,14 +53,16 @@
       <li><a href="/">UVM Generator</a></li>
     </ul>
   </aside>
-  <main class="docs-main" style="max-width: 820px;">
+  <main class="docs-main" style="max-width: 760px;">
+    <h1>Exam III — SystemVerilog Advanced</h1>
+    <p class="docs-subtitle">Twenty questions on the advanced material covered in Part III.</p>
 
-    <div style="padding: 16px 20px; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 8px; margin-bottom: 28px;">
-      <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--red); font-weight: 600; margin-bottom: 6px;">Instructions</div>
-      <p style="font-size: 14px; color: var(--ink-soft); line-height: 1.55; margin: 0;">
-        Select one answer per question. The <strong style="color: var(--ink);">Submit &amp; grade</strong> button enables once all twenty are answered.
-        Grading is A ≥ 90 %, B ≥ 80 %, C ≥ 70 %, D ≥ 60 %, F below. Every question reveals an explanation on submit. Retake as often as you like.
-      </p>
+    <div class="callout note">
+      <div class="callout-term">Instructions</div>
+      <div class="callout-body">
+        Select one answer per question. The <strong>Submit &amp; grade</strong> button enables once all 20 are answered.
+        Grading: A ≥ 90%, B ≥ 80%, C ≥ 70%, D ≥ 60%, F below. Explanations appear on submit. Retake as often as you like.
+      </div>
     </div>
 
     <div class="progress" id="progress">
@@ -76,7 +73,7 @@
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
     </div>
 
-    <div class="exam-body" style="padding: 0; max-width: none;">
+    <div class="exam-body">
       <form id="examForm"><div id="questionList"></div></form>
 
       <div class="results" id="results">
@@ -99,7 +96,7 @@
         <div class="btn-row">
           <button class="btn red" onclick="retake()">Retake exam</button>
           <a href="/learn/advanced.html" class="btn">Part III</a>
-          <a href="/learn/" class="btn ghost">Back to index →</a>
+          <a href="/learn/" class="btn ghost">Back to overview →</a>
         </div>
       </div>
 
@@ -111,7 +108,7 @@
 
     <div class="docs-nav-pager">
       <a href="/learn/advanced.html">← Part III</a>
-      <a href="/learn/">Back to index →</a>
+      <a href="/learn/">Back to overview →</a>
     </div>
   </main>
 </div>
@@ -120,8 +117,8 @@
   <div class="footer-inner">
     <div>© 2026 asicverif.ai</div>
     <div>
-      <a href="/">Generator</a>
       <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
       <a href="/#about">About</a>
       <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
     </div>
@@ -129,378 +126,360 @@
 </footer>
 
 <script>
-// ============================================================
-// EXAMINATION III — 20 questions, Chapters vii–xii
-// Balanced answer distribution: 5 A, 5 B, 5 C, 5 D
-// ============================================================
 const QUESTIONS = [
-  // Ch. vii — Threads & IPC (5 questions)
   {
-    chapter: "Ch. vii · Threads & IPC",
-    q: "What does <code>fork…join_any</code> do?",
-    choices: [
+    "chapter": "Ch. vii \u00b7 Threads & IPC",
+    "q": "What does <code>fork\u2026join_any</code> do?",
+    "choices": [
       "Executes all child threads sequentially, one after the other.",
       "Waits for <em>any one</em> of the spawned threads to finish, then continues (the others keep running in the background).",
       "Waits for <em>all</em> spawned threads to finish before continuing.",
       "Spawns the threads and continues immediately without waiting for any."
     ],
-    answer: 1,
-    explain: "<code>join_any</code> unblocks as soon as one child completes. <code>join</code> waits for all; <code>join_none</code> does not wait at all. Use <code>disable fork</code> (or <code>wait fork</code>) afterwards to manage stragglers."
+    "answer": 1,
+    "explain": "<code>join_any</code> unblocks as soon as one child completes. <code>join</code> waits for all; <code>join_none</code> does not wait at all. Use <code>disable fork</code> (or <code>wait fork</code>) afterwards to manage stragglers."
   },
   {
-    chapter: "Ch. vii · Threads & IPC",
-    q: "A <code>mailbox</code> is best described as…",
-    choices: [
+    "chapter": "Ch. vii \u00b7 Threads & IPC",
+    "q": "A <code>mailbox</code> is best described as\u2026",
+    "choices": [
       "A bounded or unbounded FIFO queue for passing objects between threads, with blocking <code>put()</code>/<code>get()</code> methods.",
       "A counting semaphore.",
       "A shared-memory bus interface.",
       "A mechanism to call C functions from SystemVerilog."
     ],
-    answer: 0,
-    explain: "Mailboxes are the idiomatic producer/consumer channel between SystemVerilog threads. Unbounded by default; pass a size to the <code>new()</code> call to bound it, at which point <code>put()</code> blocks when full."
+    "answer": 0,
+    "explain": "Mailboxes are the idiomatic producer/consumer channel between SystemVerilog threads. Unbounded by default; pass a size to the <code>new()</code> call to bound it, at which point <code>put()</code> blocks when full."
   },
   {
-    chapter: "Ch. vii · Threads & IPC",
-    q: "A <code>semaphore</code> differs from a <code>mailbox</code> in that it…",
-    choices: [
+    "chapter": "Ch. vii \u00b7 Threads & IPC",
+    "q": "A <code>semaphore</code> differs from a <code>mailbox</code> in that it\u2026",
+    "choices": [
       "passes entire objects between threads, whereas a mailbox only passes integers.",
       "is synthesizable while a mailbox is not.",
       "only carries an integer key count (no payload) and is used to lock or share a resource via <code>get()</code>/<code>put()</code> of keys.",
       "blocks on <code>peek()</code> rather than on <code>get()</code>."
     ],
-    answer: 2,
-    explain: "A semaphore is a bucket of keys — threads <code>get(n)</code> keys to acquire a resource, <code>put(n)</code> them back to release. It carries no data payload, only the count. Mailboxes carry objects; semaphores carry only permission."
+    "answer": 2,
+    "explain": "A semaphore is a bucket of keys \u2014 threads <code>get(n)</code> keys to acquire a resource, <code>put(n)</code> them back to release. It carries no data payload, only the count. Mailboxes carry objects; semaphores carry only permission."
   },
   {
-    chapter: "Ch. vii · Threads & IPC",
-    q: "Why does the book recommend <code>@e</code> (edge-triggered event) rather than <code>wait(e.triggered)</code> inside a tight <code>forever</code> loop?",
-    choices: [
+    "chapter": "Ch. vii \u00b7 Threads & IPC",
+    "q": "Why does the book recommend <code>@e</code> (edge-triggered event) rather than <code>wait(e.triggered)</code> inside a tight <code>forever</code> loop?",
+    "choices": [
       "<code>wait(e.triggered)</code> is illegal inside a <code>forever</code>.",
       "<code>@e</code> is faster to simulate.",
-      "<code>wait(e.triggered)</code> is level-sensitive — if the event fired this time-step it stays high, and the loop spins at zero-time forever.",
+      "<code>wait(e.triggered)</code> is level-sensitive \u2014 if the event fired this time-step it stays high, and the loop spins at zero-time forever.",
       "They are identical; the recommendation is purely stylistic."
     ],
-    answer: 2,
-    explain: "<code>e.triggered</code> stays true for the remainder of the current time-step. A <code>forever wait(e.triggered)</code> therefore never blocks once <code>e</code> fires and locks the simulator. <code>@e</code> is edge-sensitive and re-arms each time-step."
+    "answer": 2,
+    "explain": "<code>e.triggered</code> stays true for the remainder of the current time-step. A <code>forever wait(e.triggered)</code> therefore never blocks once <code>e</code> fires and locks the simulator. <code>@e</code> is edge-sensitive and re-arms each time-step."
   },
   {
-    chapter: "Ch. vii · Threads & IPC",
-    q: "What is the purpose of the <code>disable fork</code> statement?",
-    choices: [
+    "chapter": "Ch. vii \u00b7 Threads & IPC",
+    "q": "What is the purpose of the <code>disable fork</code> statement?",
+    "choices": [
       "Prevents new <code>fork</code> blocks from being spawned anywhere in the testbench.",
       "Terminates all currently-running child threads of the immediately-enclosing <code>fork</code>.",
       "Disables the simulator's threading engine for the rest of the run.",
       "Detaches a thread and turns it into a daemon that outlives the parent."
     ],
-    answer: 1,
-    explain: "After a <code>fork…join_any</code>, the slower siblings are usually no longer wanted; <code>disable fork</code> kills them cleanly. Pair it with <code>wait fork</code> when you instead need to block until they finish naturally."
+    "answer": 1,
+    "explain": "After a <code>fork\u2026join_any</code>, the slower siblings are usually no longer wanted; <code>disable fork</code> kills them cleanly. Pair it with <code>wait fork</code> when you instead need to block until they finish naturally."
   },
-
-  // Ch. viii — Advanced OOP (5 questions)
   {
-    chapter: "Ch. viii · Advanced OOP",
-    q: "Why must a method be declared <code>virtual</code> for polymorphism to work?",
-    choices: [
+    "chapter": "Ch. viii \u00b7 Advanced OOP",
+    "q": "Why must a method be declared <code>virtual</code> for polymorphism to work?",
+    "choices": [
       "Without <code>virtual</code>, the compiler emits a warning but the call still works correctly.",
-      "Non-virtual methods bind at compile time to the handle's declared type, not the object's actual type — so an overridden child version never runs when called through a parent handle.",
+      "Non-virtual methods bind at compile time to the handle's declared type, not the object's actual type \u2014 so an overridden child version never runs when called through a parent handle.",
       "Without <code>virtual</code>, the method cannot be overridden at all.",
       "<code>virtual</code> makes the method static and shared across the class."
     ],
-    answer: 1,
-    explain: "This is the single most important rule of OOP in SystemVerilog. Mark every base-class method you ever plan to override as <code>virtual</code>; otherwise the polymorphism silently fails and calls resolve to the wrong version."
+    "answer": 1,
+    "explain": "This is the single most important rule of OOP in SystemVerilog. Mark every base-class method you ever plan to override as <code>virtual</code>; otherwise the polymorphism silently fails and calls resolve to the wrong version."
   },
   {
-    chapter: "Ch. viii · Advanced OOP",
-    q: "The factory pattern in a testbench is used primarily to…",
-    choices: [
+    "chapter": "Ch. viii \u00b7 Advanced OOP",
+    "q": "The factory pattern in a testbench is used primarily to\u2026",
+    "choices": [
       "manufacture RTL gates.",
       "automatically generate coverage reports.",
       "free memory faster than the built-in garbage collector would.",
       "substitute an extended (child) object wherever the base class is expected, without editing the code that calls <code>new()</code>."
     ],
-    answer: 3,
-    explain: "A factory lets a test swap in a derived error-injecting transaction (say) in place of the base transaction with zero changes to the generator. It decouples construction from use — the cornerstone of reusable testbenches."
+    "answer": 3,
+    "explain": "A factory lets a test swap in a derived error-injecting transaction (say) in place of the base transaction with zero changes to the generator. It decouples construction from use \u2014 the cornerstone of reusable testbenches."
   },
   {
-    chapter: "Ch. viii · Advanced OOP",
-    q: "The difference between a <em>shallow</em> and a <em>deep</em> copy is that…",
-    choices: [
+    "chapter": "Ch. viii \u00b7 Advanced OOP",
+    "q": "The difference between a <em>shallow</em> and a <em>deep</em> copy is that\u2026",
+    "choices": [
       "a shallow copy duplicates the class handle only; a deep copy also recursively copies every object referenced by the original's handles, so the new object shares no state with the source.",
       "shallow copies are faster but produce <code>null</code> handles.",
       "a deep copy only works on non-virtual classes.",
-      "shallow copy uses <code>new()</code> and deep copy uses <code>copy()</code> — they are otherwise identical."
+      "shallow copy uses <code>new()</code> and deep copy uses <code>copy()</code> \u2014 they are otherwise identical."
     ],
-    answer: 0,
-    explain: "Because class variables are handles (references), the default assignment or a built-in copy produces a shallow duplicate — both handles point to the same sub-objects. Deep copy requires a user-written <code>copy()</code> that allocates and recursively fills each referenced object."
+    "answer": 0,
+    "explain": "Because class variables are handles (references), the default assignment or a built-in copy produces a shallow duplicate \u2014 both handles point to the same sub-objects. Deep copy requires a user-written <code>copy()</code> that allocates and recursively fills each referenced object."
   },
   {
-    chapter: "Ch. viii · Advanced OOP",
-    q: "A <em>pure virtual</em> method inside a class declared with <code>virtual class</code> means…",
-    choices: [
+    "chapter": "Ch. viii \u00b7 Advanced OOP",
+    "q": "A <em>pure virtual</em> method inside a class declared with <code>virtual class</code> means\u2026",
+    "choices": [
       "the class can still be instantiated but the method body is inlined for performance.",
       "the method is resolved statically, ignoring the handle type.",
       "the method runs in a separate thread automatically whenever called.",
-      "the class is abstract — it cannot be instantiated directly, and any concrete child must override this method or remain abstract itself."
+      "the class is abstract \u2014 it cannot be instantiated directly, and any concrete child must override this method or remain abstract itself."
     ],
-    answer: 3,
-    explain: "<code>virtual class</code> + <code>pure virtual function/task</code> creates an abstract class — a pure contract. Useful for transaction base classes and driver interfaces where every concrete child must supply its own <code>drive()</code> or <code>compare()</code>."
+    "answer": 3,
+    "explain": "<code>virtual class</code> + <code>pure virtual function/task</code> creates an abstract class \u2014 a pure contract. Useful for transaction base classes and driver interfaces where every concrete child must supply its own <code>drive()</code> or <code>compare()</code>."
   },
   {
-    chapter: "Ch. viii · Advanced OOP",
-    q: "Inside a child-class method, <code>super.method()</code> does what?",
-    choices: [
+    "chapter": "Ch. viii \u00b7 Advanced OOP",
+    "q": "Inside a child-class method, <code>super.method()</code> does what?",
+    "choices": [
       "Recursively calls the current method one level deeper in the class hierarchy.",
       "Returns the handle cast to the super-class type.",
       "Invokes the parent-class version of the same method, useful when you want to <em>extend</em> (not replace) the parent's behaviour.",
       "Marks the method as pure virtual for the parent class."
     ],
-    answer: 2,
-    explain: "A common idiom: in a child's <code>display()</code>, first call <code>super.display()</code> to print all parent fields, then print the child's own additions. <code>super.new()</code> is similarly essential in the child constructor."
+    "answer": 2,
+    "explain": "A common idiom: in a child's <code>display()</code>, first call <code>super.display()</code> to print all parent fields, then print the child's own additions. <code>super.new()</code> is similarly essential in the child constructor."
   },
-
-  // Ch. ix — Functional Coverage (4 questions)
   {
-    chapter: "Ch. ix · Functional Coverage",
-    q: "The <code>auto_bin_max</code> option in a <code>covergroup</code> controls…",
-    choices: [
+    "chapter": "Ch. ix \u00b7 Functional Coverage",
+    "q": "The <code>auto_bin_max</code> option in a <code>covergroup</code> controls\u2026",
+    "choices": [
       "the maximum simulation time a covergroup may run.",
       "the default number of automatically-created bins when you list a variable without explicit bins (the range is divided evenly into up to that many bins).",
       "the maximum number of threads that may sample the group concurrently.",
       "the maximum coverage percentage the tool will report."
     ],
-    answer: 1,
-    explain: "Default is 64. If you write <code>coverpoint addr;</code> with <code>addr</code> being 32 bits, the tool will NOT make 4 billion bins — it caps at <code>auto_bin_max</code>. Always write explicit bins for anything wider than a handful of values."
+    "answer": 1,
+    "explain": "Default is 64. If you write <code>coverpoint addr;</code> with <code>addr</code> being 32 bits, the tool will NOT make 4 billion bins \u2014 it caps at <code>auto_bin_max</code>. Always write explicit bins for anything wider than a handful of values."
   },
   {
-    chapter: "Ch. ix · Functional Coverage",
-    q: "<em>Cross coverage</em> is used to…",
-    choices: [
+    "chapter": "Ch. ix \u00b7 Functional Coverage",
+    "q": "<em>Cross coverage</em> is used to\u2026",
+    "choices": [
       "link two testbenches running on different hosts over a network.",
       "cross-check that two coverpoints never match on the same sample.",
-      "track combinations of two (or more) coverpoints — e.g., every pairing of <code>addr_range</code> × <code>opcode</code> — rather than each coverpoint in isolation.",
+      "track combinations of two (or more) coverpoints \u2014 e.g., every pairing of <code>addr_range</code> \u00d7 <code>opcode</code> \u2014 rather than each coverpoint in isolation.",
       "merge the coverage databases from two regression runs."
     ],
-    answer: 2,
-    explain: "One of the most powerful functional-coverage tools. <code>cross addr_cp, op_cp;</code> creates a bin for every (addr_range, opcode) pair so you can prove that each kind of operation was tried in each memory region."
+    "answer": 2,
+    "explain": "One of the most powerful functional-coverage tools. <code>cross addr_cp, op_cp;</code> creates a bin for every (addr_range, opcode) pair so you can prove that each kind of operation was tried in each memory region."
   },
   {
-    chapter: "Ch. ix · Functional Coverage",
-    q: "How do <code>illegal_bins</code> and <code>ignore_bins</code> differ?",
-    choices: [
-      "They are synonyms — one is the Verilog spelling, the other is the SystemVerilog spelling.",
+    "chapter": "Ch. ix \u00b7 Functional Coverage",
+    "q": "How do <code>illegal_bins</code> and <code>ignore_bins</code> differ?",
+    "choices": [
+      "They are synonyms \u2014 one is the Verilog spelling, the other is the SystemVerilog spelling.",
       "<code>ignore_bins</code> flags a runtime error while <code>illegal_bins</code> excludes silently.",
       "<code>illegal_bins</code> only works on integers, <code>ignore_bins</code> only on enumerated types.",
       "<code>illegal_bins</code> flags a runtime <em>error</em> when the bin is hit (the value should never occur); <code>ignore_bins</code> silently excludes the bin from both hit count and total, simply removing it from the analysis."
     ],
-    answer: 3,
-    explain: "<code>illegal_bins</code> is a live assertion inside the covergroup — useful to catch impossible states (e.g., a reserved opcode value). <code>ignore_bins</code> is a filter that prevents a bin from inflating or deflating your coverage percentage."
+    "answer": 3,
+    "explain": "<code>illegal_bins</code> is a live assertion inside the covergroup \u2014 useful to catch impossible states (e.g., a reserved opcode value). <code>ignore_bins</code> is a filter that prevents a bin from inflating or deflating your coverage percentage."
   },
   {
-    chapter: "Ch. ix · Functional Coverage",
-    q: "A <em>transition bin</em> written as <code>bins rd_after_wr = (WR => RD);</code> records…",
-    choices: [
-      "the transition from one sampled value (WR) to the next (RD) — one bin-hit every time WR is immediately followed by RD across two consecutive samples of the coverpoint.",
+    "chapter": "Ch. ix \u00b7 Functional Coverage",
+    "q": "A <em>transition bin</em> written as <code>bins rd_after_wr = (WR => RD);</code> records\u2026",
+    "choices": [
+      "the transition from one sampled value (WR) to the next (RD) \u2014 one bin-hit every time WR is immediately followed by RD across two consecutive samples of the coverpoint.",
       "both WR and RD as separate hits in the same bin.",
       "only the WR event.",
       "an illegal condition if the simulator ever sees WR and RD together."
     ],
-    answer: 0,
-    explain: "Transition bins are pairwise: (<code>A =&gt; B</code>) counts a hit when sample N was A and sample N+1 was B. Extend with <code>[*3]</code>, lists, and wildcards to express longer sequences of state changes."
+    "answer": 0,
+    "explain": "Transition bins are pairwise: (<code>A =&gt; B</code>) counts a hit when sample N was A and sample N+1 was B. Extend with <code>[*3]</code>, lists, and wildcards to express longer sequences of state changes."
   },
-
-  // Ch. x — Advanced Interfaces (1 question)
   {
-    chapter: "Ch. x · Advanced Interfaces",
-    q: "A <code>virtual interface</code> handle is used in a class-based testbench because…",
-    choices: [
+    "chapter": "Ch. x \u00b7 Advanced Interfaces",
+    "q": "A <code>virtual interface</code> handle is used in a class-based testbench because\u2026",
+    "choices": [
       "only classes support the <code>virtual</code> keyword.",
       "classes cannot use concurrent assertions without it.",
       "it has measurably higher simulation performance than a regular interface.",
       "it is a pointer to an actual interface instance in the static module hierarchy, letting a dynamic class reach the physical DUT wires it cannot instantiate itself."
     ],
-    answer: 3,
-    explain: "Classes live in the dynamic world; interfaces (and modules) live in the static-hierarchy world. The virtual interface is the bridge — assign it once in the top <code>initial</code> and every driver or monitor in the class tree can then wiggle real DUT pins."
+    "answer": 3,
+    "explain": "Classes live in the dynamic world; interfaces (and modules) live in the static-hierarchy world. The virtual interface is the bridge \u2014 assign it once in the top <code>initial</code> and every driver or monitor in the class tree can then wiggle real DUT pins."
   },
-
-  // Ch. xi — Complete Testbench (2 questions)
   {
-    chapter: "Ch. xi · Complete Testbench",
-    q: "In the canonical layered testbench (Generator → Driver → DUT → Monitor → Scoreboard / Coverage), the <em>Environment</em> class is responsible for…",
-    choices: [
+    "chapter": "Ch. xi \u00b7 Complete Testbench",
+    "q": "In the canonical layered testbench (Generator \u2192 Driver \u2192 DUT \u2192 Monitor \u2192 Scoreboard / Coverage), the <em>Environment</em> class is responsible for\u2026",
+    "choices": [
       "containing the DUT's synthesizable RTL.",
       "owning and wiring up all the verification components (gen/drv/mon/scb/cov) so the Test class only needs to instantiate one thing and tweak parameters.",
       "running the EDA tool's graphical user interface.",
       "generating the clock and reset signals for the whole run."
     ],
-    answer: 1,
-    explain: "The Environment is the composition root of the class-based testbench. Tests configure the env, not the individual components, which keeps tests short and the env reusable across every test in a regression."
+    "answer": 1,
+    "explain": "The Environment is the composition root of the class-based testbench. Tests configure the env, not the individual components, which keeps tests short and the env reusable across every test in a regression."
   },
   {
-    chapter: "Ch. xi · Complete Testbench",
-    q: "Why does the book advocate keeping the <em>Test</em> class separate from the <em>Environment</em> class?",
-    choices: [
+    "chapter": "Ch. xi \u00b7 Complete Testbench",
+    "q": "Why does the book advocate keeping the <em>Test</em> class separate from the <em>Environment</em> class?",
+    "choices": [
       "A test's purpose is to <em>configure</em> the reusable environment and launch one scenario; splitting the two lets dozens of tests share one env without duplicating plumbing.",
       "The SystemVerilog LRM requires a dedicated Test class.",
       "The Test class must live in a <code>program</code> block while the Environment cannot.",
       "Mixing them causes the simulator to deadlock at time 0."
     ],
-    answer: 0,
-    explain: "Separation of mechanism (env) from policy (test) is the whole point of the layered architecture. A regression runs many tests against one carefully-built env; writing a new test should mean writing only the new policy."
+    "answer": 0,
+    "explain": "Separation of mechanism (env) from policy (test) is the whole point of the layered architecture. A regression runs many tests against one carefully-built env; writing a new test should mean writing only the new policy."
   },
-
-  // Ch. xii — DPI & C/C++ (3 questions)
   {
-    chapter: "Ch. xii · DPI & C/C++",
-    q: "In the DPI, a <code>chandle</code> is…",
-    choices: [
+    "chapter": "Ch. xii \u00b7 DPI & C/C++",
+    "q": "In the DPI, a <code>chandle</code> is\u2026",
+    "choices": [
       "a dynamic array of chars used to pass strings back from C.",
       "a C++ class exported to SystemVerilog and usable like a native class.",
       "a SystemVerilog opaque handle that stores a C-side pointer, letting SV code carry a reference to a C object back and forth across the DPI without SV ever dereferencing it.",
       "a callback slot for a concurrent assertion."
     ],
-    answer: 2,
-    explain: "<code>chandle</code> is pointer-sized and opaque to SV — you can only assign, compare to <code>null</code>, and pass it around. The C side reads it back as the original pointer. Perfect for holding references to C-allocated models."
+    "answer": 2,
+    "explain": "<code>chandle</code> is pointer-sized and opaque to SV \u2014 you can only assign, compare to <code>null</code>, and pass it around. The C side reads it back as the original pointer. Perfect for holding references to C-allocated models."
   },
   {
-    chapter: "Ch. xii · DPI & C/C++",
-    q: "What is the difference between a <code>pure</code> and a <code>context</code> DPI import?",
-    choices: [
+    "chapter": "Ch. xii \u00b7 DPI & C/C++",
+    "q": "What is the difference between a <code>pure</code> and a <code>context</code> DPI import?",
+    "choices": [
       "<code>pure</code> is for C++, <code>context</code> is for C.",
       "<code>pure</code> runs in a separate thread; <code>context</code> runs in the main thread.",
       "<code>pure</code> requires a <code>chandle</code>; <code>context</code> does not.",
       "<code>pure</code> functions have no side effects and may be optimized or cached by the simulator; <code>context</code> functions may call back into SystemVerilog (e.g., <code>svGetScope</code>) and so must not be optimized away."
     ],
-    answer: 3,
-    explain: "A <code>pure</code> import is a promise — no I/O, no statefulness, same output for same input. The simulator may fold or skip redundant calls. A <code>context</code> import is allowed to call SV-side DPI exports and inspect scope; it must be preserved as-written."
+    "answer": 3,
+    "explain": "A <code>pure</code> import is a promise \u2014 no I/O, no statefulness, same output for same input. The simulator may fold or skip redundant calls. A <code>context</code> import is allowed to call SV-side DPI exports and inspect scope; it must be preserved as-written."
   },
   {
-    chapter: "Ch. xii · DPI & C/C++",
-    q: "An <code>export \"DPI-C\"</code> declaration allows…",
-    choices: [
+    "chapter": "Ch. xii \u00b7 DPI & C/C++",
+    "q": "An <code>export \"DPI-C\"</code> declaration allows\u2026",
+    "choices": [
       "a SystemVerilog task or function to be <em>called from</em> C code (the opposite direction of <code>import</code>).",
       "exporting a compiled simulation snapshot to another simulator vendor.",
       "dumping covergroup results to a text file at end of simulation.",
       "declaring that a SystemVerilog class is visible to the C compiler at link time."
     ],
-    answer: 0,
-    explain: "<code>import</code> lets SV call C; <code>export</code> lets C call SV. Together they enable rich bidirectional integration — a C reference model can, for example, ask SV to advance the clock or read a DUT register."
+    "answer": 0,
+    "explain": "<code>import</code> lets SV call C; <code>export</code> lets C call SV. Together they enable rich bidirectional integration \u2014 a C reference model can, for example, ask SV to advance the clock or read a DUT register."
   }
 ];
 
-// Roman numerals for question numbering
-const ROMAN = ['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii','xiii','xiv','xv','xvi','xvii','xviii','xix','xx'];
-const LETTERS = ['A','B','C','D'];
-
-const listEl = document.getElementById('questionList');
-const answers = new Array(QUESTIONS.length).fill(null);
+let selected = new Array(QUESTIONS.length).fill(null);
 let graded = false;
 
-function renderExam() {
-  listEl.innerHTML = '';
-  QUESTIONS.forEach((q, idx) => {
-    const card = document.createElement('article');
-    card.className = 'question';
-    card.id = `q-${idx}`;
-    const choicesHtml = q.choices.map((c, i) => `
-      <li class="choice" data-idx="${i}" onclick="selectChoice(${idx}, ${i})">
-        <span class="choice-letter">${LETTERS[i]}</span>
-        <span class="choice-text">${c}</span>
-      </li>`).join('');
-    card.innerHTML = `
+function renderQuestions() {
+  const list = document.getElementById('questionList');
+  list.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const el = document.createElement('div');
+    el.className = 'question';
+    el.id = 'q' + i;
+    el.innerHTML = `
       <div class="q-head">
-        <div class="q-num"><span class="roman">${ROMAN[idx]}.</span> Question ${idx+1}</div>
+        <div class="q-num">Question ${i+1}</div>
         <div class="q-meta">${q.chapter}</div>
       </div>
       <div class="q-body">
         <div class="q-prompt">${q.q}</div>
-        <ul class="choices">${choicesHtml}</ul>
+        <ul class="choices">
+          ${q.choices.map((c, j) => `
+            <li class="choice" data-q="${i}" data-c="${j}">
+              <span class="choice-letter">${'ABCD'[j]}</span>
+              <span class="choice-text">${c}</span>
+            </li>
+          `).join('')}
+        </ul>
       </div>
-      <div class="explain"><span class="lbl">Explanation</span>${q.explain}</div>`;
-    listEl.appendChild(card);
+      <div class="explain">
+        <span class="lbl">Explanation</span>
+        ${q.explain}
+      </div>
+    `;
+    list.appendChild(el);
+  });
+  document.querySelectorAll('.choice').forEach(el => {
+    el.addEventListener('click', onChoice);
   });
 }
 
-function selectChoice(qIdx, cIdx) {
+function onChoice(e) {
   if (graded) return;
-  answers[qIdx] = cIdx;
-  const card = document.getElementById(`q-${qIdx}`);
-  card.querySelectorAll('.choice').forEach(ch => ch.classList.remove('selected'));
-  card.querySelectorAll('.choice')[cIdx].classList.add('selected');
-  card.classList.add('answered');
+  const el = e.currentTarget;
+  const qi = parseInt(el.dataset.q);
+  const ci = parseInt(el.dataset.c);
+  selected[qi] = ci;
+  // Update siblings
+  const qEl = document.getElementById('q' + qi);
+  qEl.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  qEl.classList.add('answered');
   updateProgress();
 }
 
 function updateProgress() {
-  const answered = answers.filter(a => a !== null).length;
+  const answered = selected.filter(s => s !== null).length;
   const total = QUESTIONS.length;
   const bar = document.getElementById('progress');
   if (answered > 0) bar.classList.add('visible');
   document.getElementById('progressPct').textContent = `${answered} / ${total}`;
   document.getElementById('progressFill').style.width = (answered / total * 100) + '%';
-
   const btn = document.getElementById('submitBtn');
   const note = document.getElementById('submitNote');
   if (answered === total) {
     btn.disabled = false;
-    note.textContent = 'All twenty answered — ready to grade';
+    note.textContent = 'All 20 answered — ready to submit';
     note.classList.add('ready');
   } else {
     btn.disabled = true;
-    note.textContent = `Answer all ${total} questions to enable submission (${total - answered} remaining)`;
+    note.textContent = `${total - answered} remaining`;
     note.classList.remove('ready');
   }
 }
 
 function gradeExam() {
-  if (answers.some(a => a === null)) return;
   graded = true;
   let correct = 0;
-  QUESTIONS.forEach((q, idx) => {
-    const card = document.getElementById(`q-${idx}`);
-    card.classList.add('graded');
-    const choiceEls = card.querySelectorAll('.choice');
-    const user = answers[idx];
-    choiceEls.forEach((el, i) => {
-      el.classList.remove('selected');
-      if (i === q.answer) el.classList.add('correct');
-      if (i === user && user !== q.answer) el.classList.add('incorrect');
+  QUESTIONS.forEach((q, i) => {
+    const qEl = document.getElementById('q' + i);
+    qEl.classList.add('graded');
+    qEl.querySelectorAll('.choice').forEach(el => {
+      const ci = parseInt(el.dataset.c);
+      if (ci === q.answer) el.classList.add('correct');
+      else if (ci === selected[i]) el.classList.add('incorrect');
     });
-    if (user === q.answer) correct++;
+    if (selected[i] === q.answer) correct++;
   });
-
-  const total = QUESTIONS.length;
-  const pct = Math.round(correct / total * 100);
-  let letter, blurb;
-  if (pct >= 90) { letter = 'A'; blurb = 'Exemplary. You have mastered the language end-to-end. Go build a testbench.'; }
-  else if (pct >= 80) { letter = 'B'; blurb = 'Strong command of the advanced material. A short review of the missed items and you are done.'; }
-  else if (pct >= 70) { letter = 'C'; blurb = 'Competent, but concurrency and DPI still bite. Re-read Chapters vii and xii.'; }
-  else if (pct >= 60) { letter = 'D'; blurb = 'Patchy. The advanced chapters reward a second reading — especially coverage and advanced OOP.'; }
-  else { letter = 'F'; blurb = 'Do not be discouraged. The last third of the book is the hardest; re-read Part III and return.'; }
-
+  const pct = Math.round((correct / QUESTIONS.length) * 100);
+  let letter = 'F', blurb = 'Review the material and try again.';
+  if (pct >= 90) { letter = 'A'; blurb = 'Excellent. You have a firm grasp of this material.'; }
+  else if (pct >= 80) { letter = 'B'; blurb = 'Solid. A few rough edges worth reviewing.'; }
+  else if (pct >= 70) { letter = 'C'; blurb = 'Passing. Review the missed questions and retake.'; }
+  else if (pct >= 60) { letter = 'D'; blurb = 'Just passing — worth a careful re-read.'; }
   document.getElementById('scorePct').textContent = pct;
   document.getElementById('gradeLetter').textContent = letter;
   document.getElementById('rawCorrect').textContent = correct;
   document.getElementById('gradeBlurb').textContent = blurb;
-
   document.getElementById('results').classList.add('visible');
   document.getElementById('submitWrap').style.display = 'none';
-  document.getElementById('progress').style.display = 'none';
-
-  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+  window.scrollTo({ top: document.getElementById('results').offsetTop - 100, behavior: 'smooth' });
 }
 
 function retake() {
+  selected = new Array(QUESTIONS.length).fill(null);
   graded = false;
-  for (let i = 0; i < answers.length; i++) answers[i] = null;
   document.getElementById('results').classList.remove('visible');
-  document.getElementById('submitWrap').style.display = 'block';
-  renderExam();
+  document.getElementById('submitWrap').style.display = '';
+  renderQuestions();
   updateProgress();
-  window.scrollTo({top: 0, behavior:'smooth'});
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-renderExam();
-updateProgress();
+renderQuestions();
 </script>
 
 </body>

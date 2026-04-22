@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Exam II — UVM Intermediate — asicverif.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark">a</span>
+      asicverif<span style="color:var(--red);">.ai</span>
+    </a>
+    <ul class="tabs">
+      <li><a href="/">Generator</a></li>
+      <li><a href="/learn/">SystemVerilog</a></li>
+      <li><a href="/uvm/" class="active">UVM</a></li>
+      <li><a href="/#about">About</a></li>
+    </ul>
+    <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener" class="nav-cta">Support</a>
+  </div>
+</nav>
+
+<div class="docs-layout">
+  <aside class="docs-sidebar">
+    <div class="group">UVM</div>
+    <ul>
+      <li><a href="/uvm/">Overview</a></li>
+    </ul>
+    <div class="group">Foundations</div>
+    <ul>
+      <li><a href="/uvm/basic.html">Part I — Foundations</a></li>
+      <li><a href="/uvm/test-basic.html">Exam I</a></li>
+    </ul>
+    <div class="group">Intermediate</div>
+    <ul>
+      <li><a href="/uvm/intermediate.html">Part II — Intermediate</a></li>
+      <li><a href="/uvm/test-intermediate.html" class="active">Exam II</a></li>
+    </ul>
+    <div class="group">Advanced</div>
+    <ul>
+      <li><a href="/uvm/advanced.html">Part III — Advanced</a></li>
+      <li><a href="/uvm/test-advanced.html">Exam III</a></li>
+    </ul>
+    <div class="group">Tools</div>
+    <ul>
+      <li><a href="/">UVM Generator</a></li>
+    </ul>
+  </aside>
+  <main class="docs-main" style="max-width: 760px;">
+    <h1>Exam II — UVM Intermediate</h1>
+    <p class="docs-subtitle">Twenty questions on the intermediate topics covered in Part II.</p>
+
+    <div class="callout note">
+      <div class="callout-term">Instructions</div>
+      <div class="callout-body">
+        Select one answer per question. The <strong>Submit &amp; grade</strong> button enables once all 20 are answered.
+        Grading: A ≥ 90%, B ≥ 80%, C ≥ 70%, D ≥ 60%, F below. Explanations appear on submit. Retake as often as you like.
+      </div>
+    </div>
+
+    <div class="progress" id="progress">
+      <div class="progress-top">
+        <span>Progress</span>
+        <span class="pct" id="progressPct">0 / 20</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="exam-body">
+      <form id="examForm"><div id="questionList"></div></form>
+
+      <div class="results" id="results">
+        <div class="label">Graded</div>
+        <div class="results-grid">
+          <div class="results-cell score">
+            <div class="n"><span id="scorePct">0</span><sup>%</sup></div>
+            <div class="cap">Score</div>
+          </div>
+          <div class="results-cell grade">
+            <div class="n" id="gradeLetter">–</div>
+            <div class="cap">Letter</div>
+          </div>
+          <div class="results-cell raw">
+            <div class="n"><span id="rawCorrect">0</span><span class="denom"> / 20</span></div>
+            <div class="cap">Correct</div>
+          </div>
+        </div>
+        <p class="blurb" id="gradeBlurb">–</p>
+        <div class="btn-row">
+          <button class="btn red" onclick="retake()">Retake exam</button>
+          <a href="/uvm/intermediate.html" class="btn">Part II</a>
+          <a href="/uvm/advanced.html" class="btn ghost">Part III →</a>
+        </div>
+      </div>
+
+      <div class="submit-wrap" id="submitWrap">
+        <button class="btn red" id="submitBtn" disabled onclick="gradeExam()">Submit &amp; grade</button>
+        <div class="note" id="submitNote">Answer all 20 questions to enable submission</div>
+      </div>
+    </div>
+
+    <div class="docs-nav-pager">
+      <a href="/uvm/intermediate.html">← Part II</a>
+      <a href="/uvm/advanced.html">Part III →</a>
+    </div>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>© 2026 asicverif.ai</div>
+    <div>
+      <a href="/learn/">SystemVerilog</a>
+      <a href="/uvm/">UVM</a>
+      <a href="/#about">About</a>
+      <a href="https://buymeacoffee.com/asicverif" target="_blank" rel="noopener">Support</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const QUESTIONS = [
+  {
+    "chapter": "Ch. vii \u00b7 Agent",
+    "q": "What three components does a UVM agent typically contain?",
+    "choices": [
+      "Test, env, and scoreboard.",
+      "Driver, monitor, and sequencer.",
+      "Config, factory, and reporter.",
+      "Producer, consumer, and arbitrator."
+    ],
+    "answer": 1,
+    "explain": "The agent encapsulates everything needed to drive and observe one interface: a driver (pushes stimulus), a monitor (passively samples traffic), and a sequencer (broker between sequences and driver). In passive mode, only the monitor is built."
+  },
+  {
+    "chapter": "Ch. vii \u00b7 Agent",
+    "q": "An agent is configured <code>UVM_PASSIVE</code>. What does its <code>build_phase</code> create?",
+    "choices": [
+      "Only the monitor.",
+      "Only the driver.",
+      "Monitor, driver, but no sequencer.",
+      "Nothing \u2014 passive agents are empty."
+    ],
+    "answer": 0,
+    "explain": "A passive agent only monitors. No driver, no sequencer \u2014 they're only created when the agent is active. Passive agents are used on interfaces where another bus master is driving traffic."
+  },
+  {
+    "chapter": "Ch. viii \u00b7 Driver & Monitor",
+    "q": "The driver's main loop is typically:",
+    "choices": [
+      "<code>forever begin get_next_item(req); drive(req); item_done(); end</code>",
+      "<code>forever begin ap.write(req); drive(req); end</code>",
+      "<code>forever begin try_next_item(req); skip_if_null(req); end</code>",
+      "<code>initial begin drive_all(); end</code>"
+    ],
+    "answer": 0,
+    "explain": "This three-step dance \u2014 <code>get_next_item</code> to pull an item (blocks until one arrives), then drive it on the interface, then <code>item_done</code> to signal completion \u2014 is the canonical UVM driver pattern."
+  },
+  {
+    "chapter": "Ch. viii \u00b7 Driver & Monitor",
+    "q": "Why should the monitor <em>never</em> reach into the driver's state to figure out what's happening on the bus?",
+    "choices": [
+      "Because SystemVerilog doesn't allow it.",
+      "Because the monitor must work even when the DUT is the source of traffic \u2014 in passive agents or when another master drives the bus.",
+      "Because the driver is always ahead in time.",
+      "Because analysis ports only work when both sides agree."
+    ],
+    "answer": 1,
+    "explain": "The monitor is the source of truth for \"what happened on the bus.\" If it consults the driver, it can't handle passive operation or DUT-generated transactions. Monitor via the interface, always."
+  },
+  {
+    "chapter": "Ch. ix \u00b7 TLM",
+    "q": "Which TLM primitive lets one component broadcast to many subscribers?",
+    "choices": [
+      "<code>uvm_put_port</code>",
+      "<code>uvm_get_port</code>",
+      "<code>uvm_analysis_port</code>",
+      "<code>uvm_blocking_transport_port</code>"
+    ],
+    "answer": 2,
+    "explain": "Analysis ports are one-to-many, non-blocking, and pass by value (well, by handle to a cloned item). They're the standard way for monitors to broadcast observed transactions to scoreboards, coverage collectors, and predictors."
+  },
+  {
+    "chapter": "Ch. ix \u00b7 TLM",
+    "q": "A scoreboard needs to receive from <em>two</em> analysis ports (input side and output side) and distinguish which is which. Which macro helps?",
+    "choices": [
+      "<code>`uvm_analysis_imp_decl(_suffix)</code>",
+      "<code>`uvm_multiport</code>",
+      "<code>`uvm_tlm_b_transport</code>",
+      "<code>`uvm_object_utils_begin</code>"
+    ],
+    "answer": 0,
+    "explain": "<code>`uvm_analysis_imp_decl(_input)</code> creates a parameterized type <code>uvm_analysis_imp_input</code> whose <code>write</code> method is called <code>write_input</code>. Declare one per port so each has a distinct handler method."
+  },
+  {
+    "chapter": "Ch. x \u00b7 Scoreboard",
+    "q": "What is a <em>reference model</em> in a scoreboard?",
+    "choices": [
+      "A copy of the DUT RTL.",
+      "A functional model that predicts expected output from input \u2014 usually untimed, behavioral code.",
+      "A spreadsheet mapping inputs to outputs.",
+      "The bus interface."
+    ],
+    "answer": 1,
+    "explain": "The ref model takes the same input as the DUT and produces the expected output. The scoreboard compares actual DUT output against ref model output. A ref model is typically much simpler than the DUT \u2014 often just a few lines of behavioral code."
+  },
+  {
+    "chapter": "Ch. x \u00b7 Scoreboard",
+    "q": "A scoreboard receives transactions at input and output, compares each output to a predicted output, and issues <code>`uvm_error</code> on mismatch. What UVM component is it?",
+    "choices": [
+      "<code>uvm_agent</code>",
+      "<code>uvm_scoreboard</code>",
+      "<code>uvm_subscriber</code>",
+      "<code>uvm_test</code>"
+    ],
+    "answer": 1,
+    "explain": "<code>uvm_scoreboard</code> is the semantic choice \u2014 even though you could extend any component, the tool/library ecosystem looks for this class to mark a self-checker. It's a thin wrapper on <code>uvm_component</code> for intent."
+  },
+  {
+    "chapter": "Ch. xi \u00b7 Coverage",
+    "q": "Why is functional coverage usually kept in a <em>separate</em> component from the scoreboard?",
+    "choices": [
+      "Because UVM forbids putting them together.",
+      "Because coverage (what did we exercise?) and checking (did we pass?) are independent concerns \u2014 mixing them makes both harder to maintain.",
+      "Because covergroups can't be used inside a scoreboard.",
+      "Because scoreboards run in a different phase."
+    ],
+    "answer": 1,
+    "explain": "Coverage measures exploration; checking measures correctness. A broken scoreboard shouldn't break your coverage; a coverage-hole shouldn't rely on the scoreboard's path. Subscribe both to the same monitor's analysis port separately."
+  },
+  {
+    "chapter": "Ch. xi \u00b7 Coverage",
+    "q": "Which UVM base class is a natural fit for a coverage collector that subscribes to one analysis port?",
+    "choices": [
+      "<code>uvm_driver</code>",
+      "<code>uvm_agent</code>",
+      "<code>uvm_subscriber#(T)</code>",
+      "<code>uvm_monitor</code>"
+    ],
+    "answer": 2,
+    "explain": "<code>uvm_subscriber</code> has one built-in <code>analysis_export</code>, so you only need to implement <code>write(T t)</code>. For coverage collectors, this is the perfect base class: subscribe to monitor, sample covergroup in <code>write</code>."
+  },
+  {
+    "chapter": "Ch. viii \u00b7 Driver & Monitor",
+    "q": "Which clocking-block feature prevents race conditions between testbench drives and DUT samples on the same edge?",
+    "choices": [
+      "The clocking block's input/output skews.",
+      "The <code>`timescale</code> directive.",
+      "The <code>automatic</code> keyword.",
+      "The <code>always_comb</code> block."
+    ],
+    "answer": 0,
+    "explain": "Clocking-block skews (<code>default input #1step output #1</code>) separate sampling from driving in the NBA scheduler, eliminating the zero-time race. Always use clocking blocks in drivers and monitors \u2014 never direct signal access."
+  },
+  {
+    "chapter": "Ch. ix \u00b7 TLM",
+    "q": "A monitor broadcasts 100 transactions on <code>ap</code>. The scoreboard and coverage collector are both connected. What does each of them receive?",
+    "choices": [
+      "Scoreboard gets 50, coverage gets 50 \u2014 round-robin.",
+      "Both get all 100.",
+      "Only the first one connected gets them.",
+      "Nothing, until the sim ends."
+    ],
+    "answer": 1,
+    "explain": "Analysis ports are broadcasters. Each <code>write()</code> call invokes <code>write()</code> on every connected subscriber, in order of connection. All 100 items reach every subscriber."
+  },
+  {
+    "chapter": "Ch. vii \u00b7 Agent",
+    "q": "Why set <code>is_active</code> via config DB rather than hard-coding it in the agent?",
+    "choices": [
+      "So tests can reuse the same agent as active in one env and passive in another.",
+      "Because the factory requires it.",
+      "To improve simulation speed.",
+      "To make the agent thread-safe."
+    ],
+    "answer": 0,
+    "explain": "Configurability via config DB is the reuse story. The same agent class can be active in a standalone IP-level env and passive in an SoC-level env where something else drives the interface. Hard-coding defeats reuse."
+  },
+  {
+    "chapter": "Ch. x \u00b7 Scoreboard",
+    "q": "A scoreboard logs a mismatch but continues simulation. Which macro is idiomatic?",
+    "choices": [
+      "<code>`uvm_fatal</code> \u2014 any mismatch is fatal.",
+      "<code>`uvm_error</code> \u2014 increments error count, sim continues.",
+      "<code>$display</code> \u2014 simplest and equivalent.",
+      "<code>`uvm_info</code> with HIGH verbosity."
+    ],
+    "answer": 1,
+    "explain": "<code>`uvm_error</code> increments UVM's error count, which the final report uses to compute pass/fail, but simulation continues so you can collect more mismatches. Use <code>`uvm_fatal</code> only when further execution is meaningless."
+  },
+  {
+    "chapter": "Ch. xi \u00b7 Coverage",
+    "q": "What does <code>option.per_instance = 1;</code> in a covergroup mean?",
+    "choices": [
+      "Disables coverage for this group.",
+      "Tracks coverage separately for each covergroup instance, so two agents don't merge into one number.",
+      "Samples the covergroup only once per test.",
+      "Resets coverage at the end of each test."
+    ],
+    "answer": 1,
+    "explain": "Without <code>per_instance</code>, all instances of the same covergroup class share one set of bins. With it, each instance has its own bins \u2014 useful when the same class is used for multiple interfaces you want measured independently."
+  },
+  {
+    "chapter": "Ch. ix \u00b7 TLM",
+    "q": "In a <code>uvm_subscriber</code>-based coverage collector, the method you implement is called:",
+    "choices": [
+      "<code>run_phase</code>",
+      "<code>write</code>",
+      "<code>sample</code>",
+      "<code>collect</code>"
+    ],
+    "answer": 1,
+    "explain": "<code>uvm_subscriber</code> ships with an <code>analysis_export</code> pre-wired to its <code>write(T t)</code>. Override <code>write</code> to do whatever you need \u2014 typically sample a covergroup. No boilerplate port declaration needed."
+  },
+  {
+    "chapter": "Ch. vii \u00b7 Agent",
+    "q": "The agent's <code>connect_phase</code> connects <code>drv.seq_item_port</code> to <code>seqr.seq_item_export</code>. Why is this only done when active?",
+    "choices": [
+      "Because passive agents have no driver or sequencer to connect.",
+      "Because the connection fails at compile if done when passive.",
+      "Because passive agents use a different TLM port.",
+      "Because the connection is deprecated."
+    ],
+    "answer": 0,
+    "explain": "In passive mode the driver and sequencer weren't created, so their handles are null. Calling connect on null handles is a runtime null-ref crash. Guard with <code>if (get_is_active() == UVM_ACTIVE)</code>."
+  },
+  {
+    "chapter": "Ch. x \u00b7 Scoreboard",
+    "q": "The scoreboard's expected-transactions queue never drains. Tests fail at end-of-test. What's the most likely cause?",
+    "choices": [
+      "The scoreboard is creating expected items but the DUT output analysis port isn't connected, so <code>write_output</code> never fires.",
+      "The UVM version is too old.",
+      "The sequencer is stuck.",
+      "The coverage collector is consuming the items."
+    ],
+    "answer": 0,
+    "explain": "A growing queue means inputs are arriving but outputs aren't. Classic bug: forgot to wire <code>monitor.ap.connect(scoreboard.out_imp)</code> in the env's connect_phase, so the scoreboard never sees DUT outputs."
+  },
+  {
+    "chapter": "Ch. xi \u00b7 Coverage",
+    "q": "A bin in a covergroup is defined as <code>bins mid = {[32'h1000:32'hFFFF]};</code>. What does it count?",
+    "choices": [
+      "Every distinct value in that range, separately.",
+      "One count per sample whose value is in that range.",
+      "The number of unique values in that range seen.",
+      "The average of samples in that range."
+    ],
+    "answer": 1,
+    "explain": "An explicit-range bin like <code>mid = {[...]};</code> is a single bin that gets incremented whenever a sample falls in the range. To get per-value bins, use <code>bins mid[] = {...}</code> (note the <code>[]</code>)."
+  },
+  {
+    "chapter": "Ch. viii \u00b7 Driver & Monitor",
+    "q": "Your driver samples <code>vif.awready</code> directly (no clocking block). Simulation occasionally shows stale values. Why?",
+    "choices": [
+      "Because the interface is shared.",
+      "Because direct signal access is in the active NBA region \u2014 the DUT may not have settled yet, creating a race.",
+      "Because <code>awready</code> is a 4-state signal.",
+      "Because the simulator caches signal values."
+    ],
+    "answer": 1,
+    "explain": "Without a clocking block's input skew, testbench sampling happens in the active/re-NBA region where DUT assignments may not have propagated. The sampled value is undefined. Clocking blocks fix this by scheduling the sample in the observed region."
+  }
+];
+
+let selected = new Array(QUESTIONS.length).fill(null);
+let graded = false;
+
+function renderQuestions() {
+  const list = document.getElementById('questionList');
+  list.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const el = document.createElement('div');
+    el.className = 'question';
+    el.id = 'q' + i;
+    el.innerHTML = `
+      <div class="q-head">
+        <div class="q-num">Question ${i+1}</div>
+        <div class="q-meta">${q.chapter}</div>
+      </div>
+      <div class="q-body">
+        <div class="q-prompt">${q.q}</div>
+        <ul class="choices">
+          ${q.choices.map((c, j) => `
+            <li class="choice" data-q="${i}" data-c="${j}">
+              <span class="choice-letter">${'ABCD'[j]}</span>
+              <span class="choice-text">${c}</span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+      <div class="explain">
+        <span class="lbl">Explanation</span>
+        ${q.explain}
+      </div>
+    `;
+    list.appendChild(el);
+  });
+  document.querySelectorAll('.choice').forEach(el => {
+    el.addEventListener('click', onChoice);
+  });
+}
+
+function onChoice(e) {
+  if (graded) return;
+  const el = e.currentTarget;
+  const qi = parseInt(el.dataset.q);
+  const ci = parseInt(el.dataset.c);
+  selected[qi] = ci;
+  // Update siblings
+  const qEl = document.getElementById('q' + qi);
+  qEl.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  qEl.classList.add('answered');
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = selected.filter(s => s !== null).length;
+  const total = QUESTIONS.length;
+  const bar = document.getElementById('progress');
+  if (answered > 0) bar.classList.add('visible');
+  document.getElementById('progressPct').textContent = `${answered} / ${total}`;
+  document.getElementById('progressFill').style.width = (answered / total * 100) + '%';
+  const btn = document.getElementById('submitBtn');
+  const note = document.getElementById('submitNote');
+  if (answered === total) {
+    btn.disabled = false;
+    note.textContent = 'All 20 answered — ready to submit';
+    note.classList.add('ready');
+  } else {
+    btn.disabled = true;
+    note.textContent = `${total - answered} remaining`;
+    note.classList.remove('ready');
+  }
+}
+
+function gradeExam() {
+  graded = true;
+  let correct = 0;
+  QUESTIONS.forEach((q, i) => {
+    const qEl = document.getElementById('q' + i);
+    qEl.classList.add('graded');
+    qEl.querySelectorAll('.choice').forEach(el => {
+      const ci = parseInt(el.dataset.c);
+      if (ci === q.answer) el.classList.add('correct');
+      else if (ci === selected[i]) el.classList.add('incorrect');
+    });
+    if (selected[i] === q.answer) correct++;
+  });
+  const pct = Math.round((correct / QUESTIONS.length) * 100);
+  let letter = 'F', blurb = 'Review the material and try again.';
+  if (pct >= 90) { letter = 'A'; blurb = 'Excellent. You have a firm grasp of this material.'; }
+  else if (pct >= 80) { letter = 'B'; blurb = 'Solid. A few rough edges worth reviewing.'; }
+  else if (pct >= 70) { letter = 'C'; blurb = 'Passing. Review the missed questions and retake.'; }
+  else if (pct >= 60) { letter = 'D'; blurb = 'Just passing — worth a careful re-read.'; }
+  document.getElementById('scorePct').textContent = pct;
+  document.getElementById('gradeLetter').textContent = letter;
+  document.getElementById('rawCorrect').textContent = correct;
+  document.getElementById('gradeBlurb').textContent = blurb;
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('submitWrap').style.display = 'none';
+  window.scrollTo({ top: document.getElementById('results').offsetTop - 100, behavior: 'smooth' });
+}
+
+function retake() {
+  selected = new Array(QUESTIONS.length).fill(null);
+  graded = false;
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('submitWrap').style.display = '';
+  renderQuestions();
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuestions();
+</script>
+
+</body>
+</html>
