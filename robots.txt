@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Block the API endpoint from indexing
+Disallow: /api/
+
+Sitemap: https://asicverif.ai/sitemap.xml
